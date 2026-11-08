@@ -830,7 +830,55 @@ function arcBoxes(r,w,h,y,mat,n,a0=ARC0-6,a1=ARC1+6){for(let k=0;k<n;k++){const 
 function palm(x,z,s=1){const g=new THREE.Group();g.position.set(x,-0.42,z);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.07*s,.12*s,2.6*s,7),M(0x8b6a44));trunk.position.y=1.3*s;trunk.rotation.z=(Math.random()-.5)*.12;trunk.castShadow=true;g.add(trunk);
   for(let q=0;q<7;q++){const l=new THREE.Mesh(new THREE.ConeGeometry(.16*s,1.5*s,4),M([0x2e8b3d,0x3a9a48,0x277a33][q%3]));l.position.set(0,2.55*s,0);l.rotation.set(1.25,q*(Math.PI*2/7)+Math.random()*.3,0);l.castShadow=true;g.add(l);}
   const coco=new THREE.Mesh(new THREE.SphereGeometry(.09*s,6,6),M(0x6a4a2a));coco.position.set(.1*s,2.4*s,.1*s);g.add(coco);env.root.add(g);return g;}
+const VEGAS_NAMES=['GOLDEN DICE','LUCKY 7','ROYAL FLUSH','MIRAGE','PALACE','DICE CLUB','STARDUST','FLAMINGO','JACKPOT INN','NEON OASIS','SILVER SLIPPER','DESERT ROSE','RIVIERA','SAHARA','TROPICANA','EL CORTEZ'];
+const NEON_COLS=['#ff2bd6','#ffd166','#4fc3f7','#7cf29a','#ff5a5a','#b07cff'];
+function neonSign(text,w,h,col,T){const g=new THREE.Group();const sign=textPlane(text,w,h,'#fff',col,'bold 100px "Black Han Sans","Gothic A1",sans-serif');sign.position.z=.07;g.add(sign);
+  const back=new THREE.Mesh(new THREE.BoxGeometry(w+.2,h+.2,.12),new THREE.MeshStandardMaterial({color:new THREE.Color(col),emissive:new THREE.Color(col),emissiveIntensity:T.neon*.7}));g.add(back);env.neon.push(back.material);
+  for(let k=0;k<Math.floor(w/.5);k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.07,6,6),M(0xffd166,{emissive:0xffd166,emissiveIntensity:T.night?2.2:.8}));b.position.set(-w/2+.25+k*.5,h/2+.18,.05);g.add(b);hubFx.beacons.push(b);}return g;}
+/* one themed block: casino / motel / palm park / tower, chosen by position so the city is stable between games */
+function vegasBlock(cx,cz,T,size,ring,bx,bz){
+  const g=new THREE.Group();g.position.set(cx,-0.4,cz);env.root.add(g);
+  const face=Math.atan2(-cx,-cz),h=((bx*73+bz*31)%97+97)%97;
+  const kind=ring===2?['casino','motel','park'][h%3]:ring===3?['casino','tower','casino'][h%3]:['tower','casino','park'][h%3];
+  const col=NEON_COLS[h%NEON_COLS.length],name=VEGAS_NAMES[(h+ring)%VEGAS_NAMES.length];
+  const lot=new THREE.Mesh(new THREE.PlaneGeometry(size,size),M(kind==='park'?0x6fa65a:0x4a4f57,{roughness:.95}));lot.rotation.x=-Math.PI/2;lot.position.y=.06;lot.receiveShadow=true;g.add(lot);
+  const inner=new THREE.Group();inner.rotation.y=face;g.add(inner);
+  const colHex=new THREE.Color(col).getHex();
+  if(kind==='casino'){const w=3.2+(h%3)*.6,d=2.6,hh=1.6+(h%2)*.6;const tex=facadeTex(['cream','glass','concrete'][h%3],Math.round(w*1.6),Math.round(hh*1.4));
+    const side=new THREE.MeshStandardMaterial({color:[0xfff1d6,0xffd9e8,0xd6f3ff,0xe8ffd9][h%4],map:tex,emissiveMap:tex,emissive:0xffffff,emissiveIntensity:T.windows*.6,roughness:.7});
+    const body=new THREE.Mesh(new THREE.BoxGeometry(w,hh,d),[side,side,M(0x59606a),M(0x59606a),side,side]);body.position.set(0,hh/2,-.6);body.castShadow=true;inner.add(body);
+    const aw=new THREE.Mesh(new THREE.BoxGeometry(w*.6,.1,1.2),M(colHex,{emissive:colHex,emissiveIntensity:T.neon*.3}));aw.position.set(0,1.0,d/2);inner.add(aw);
+    [-1,1].forEach(q=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1,6),M(0xd9a441,{metalness:.6}));p.position.set(q*w*.25,.5,d/2+.5);inner.add(p);});
+    const sg=neonSign(name,Math.min(w,4.2),.7,col,T);sg.position.set(0,hh+.6,-.6);inner.add(sg);
+    palm(cx+(h%2?1:-1)*size*.38,cz+(h%4<2?1:-1)*size*.3,.8);
+  }else if(kind==='motel'){const w=4.2,d=1.5,hh=1.1;const tex=facadeTex('brick',8,2);const side=new THREE.MeshStandardMaterial({color:0xffffff,map:tex,emissiveMap:tex,emissive:0xffffff,emissiveIntensity:T.windows*.5,roughness:.85});
+    const body=new THREE.Mesh(new THREE.BoxGeometry(w,hh,d),[side,side,M(0x8a4a3a),M(0x8a4a3a),side,side]);body.position.set(0,hh/2,-1.2);body.castShadow=true;inner.add(body);
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.08,3.4,8),M(0x3a3f46));pole.position.set(-w/2+.4,1.7,1.2);inner.add(pole);
+    const sg=neonSign('MOTEL',1.6,.6,col,T);sg.position.set(-w/2+.4,3.3,1.2);inner.add(sg);const vac=neonSign('VACANCY',1.4,.4,'#ff5a5a',T);vac.position.set(-w/2+.4,2.6,1.2);inner.add(vac);
+    for(let k=0;k<3;k++){const c=car(T);c.position.set(-1.2+k*1.2,0,1.0);c.rotation.y=Math.PI/2;inner.add(c);}
+    const pool=new THREE.Mesh(new THREE.CircleGeometry(.8,20),new THREE.MeshStandardMaterial({color:0x4fc3f7,roughness:.1,metalness:.3}));pool.rotation.x=-Math.PI/2;pool.position.set(w/2-.9,.07,1.6);inner.add(pool);
+  }else if(kind==='park'){for(let k=0;k<4;k++)palm(cx+(k%2?1:-1)*size*.3,cz+(k<2?1:-1)*size*.3,.9+Math.random()*.3);
+    const pool=new THREE.Mesh(new THREE.CircleGeometry(1.6,28),new THREE.MeshStandardMaterial({color:T.night?0x24436b:0x4aa3d8,roughness:.15,metalness:.4}));pool.rotation.x=-Math.PI/2;pool.position.y=.08;g.add(pool);
+    const rim=new THREE.Mesh(new THREE.RingGeometry(1.6,1.9,28),M(0xd9d2c0));rim.rotation.x=-Math.PI/2;rim.position.y=.085;g.add(rim);
+    const jet=new THREE.Mesh(new THREE.ConeGeometry(.15,1.4,8),new THREE.MeshBasicMaterial({color:0xbfe8ff,transparent:true,opacity:.7}));jet.position.y=.8;g.add(jet);
+  }else{const w=2.2+(h%2)*.6,hh=6+(h%5)*1.6;const tex=facadeTex(['glass','tower','cream'][h%3],Math.round(w*2),Math.round(hh*1.2));
+    const side=new THREE.MeshStandardMaterial({color:[0xffffff,0xd6f3ff,0xffe3f0,0xfff1c9][h%4],map:tex,emissiveMap:tex,emissive:0xffffff,emissiveIntensity:T.windows*.8,roughness:.4,metalness:.2});
+    const body=new THREE.Mesh(new THREE.BoxGeometry(w,hh,w),[side,side,M(0x59606a),M(0x59606a),side,side]);body.position.y=hh/2;body.castShadow=true;inner.add(body);
+    const crown=new THREE.Mesh(new THREE.BoxGeometry(w+.3,.3,w+.3),new THREE.MeshStandardMaterial({color:colHex,emissive:colHex,emissiveIntensity:T.neon*.8}));crown.position.y=hh+.15;inner.add(crown);env.neon.push(crown.material);
+    const sg=neonSign(name,Math.min(w+1.4,3.6),.6,col,T);sg.position.set(0,hh+.9,0);inner.add(sg);
+    const base=new THREE.Mesh(new THREE.BoxGeometry(w+1.6,1.2,w+1.6),M(0xe8e2d2));base.position.y=.6;inner.add(base);}
+}
+/* signature silhouettes far behind the strip */
+function vegasLandmarks(T){
+  {const pyr=new THREE.Mesh(new THREE.ConeGeometry(6,8,4),new THREE.MeshStandardMaterial({color:0x1a1f2a,roughness:.15,metalness:.6}));pyr.position.set(-31,-0.4+4,-30);pyr.rotation.y=Math.PI/4;pyr.castShadow=true;env.root.add(pyr);
+    const beam=new THREE.Mesh(new THREE.CylinderGeometry(.25,.9,26,12,1,true),new THREE.MeshBasicMaterial({color:0xfff6d0,transparent:true,opacity:T.night?.25:.08,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));beam.position.set(-31,-0.4+8+13,-30);env.root.add(beam);}
+  {const g=new THREE.Group();g.position.set(32,-0.4,-29);const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.5,1.4,16,12),M(0xe8e2d2));shaft.position.y=8;g.add(shaft);
+    const pod=new THREE.Mesh(new THREE.CylinderGeometry(2.6,1.8,2.2,16),new THREE.MeshStandardMaterial({color:0xd6f3ff,roughness:.3,metalness:.3,emissive:0x4fc3f7,emissiveIntensity:T.neon*.3}));pod.position.y=17;g.add(pod);
+    const needle=new THREE.Mesh(new THREE.CylinderGeometry(.05,.2,5,8),M(0x9aa3ad));needle.position.y=20.5;g.add(needle);const bc=new THREE.Mesh(new THREE.SphereGeometry(.2,8,8),M(0xff4040,{emissive:0xff2020,emissiveIntensity:3}));bc.position.y=23;g.add(bc);hubFx.beacons.push(bc);env.root.add(g);}
+  {const sph=new THREE.Mesh(new THREE.SphereGeometry(5.5,32,24),new THREE.MeshStandardMaterial({color:0x6a3aff,emissive:0xb07cff,emissiveIntensity:T.night?1.2:.35,roughness:.4}));sph.position.set(2,-0.4+6,-36);env.root.add(sph);hubFx.spinners.push({obj:sph,speed:.15,y:-0.4+6,phase:0});}
+}
 function buildStrip(T){
+  vegasLandmarks(T);
   const asph=M(0x2b2f36,{roughness:.95}),walk=M(0xc9c4b6,{roughness:.95}),stone=M(0xd9d2c0,{roughness:.9}),gold=M(0xd9a441,{metalness:.7,roughness:.3});
   // the boulevard between the two rows, with lane dashes, kerbs and a raised podium for the back row
   arcBoxes(19.5,2.0,.02,-0.405,asph,40);arcBoxes(18.45,.3,.08,-0.39,walk,40);arcBoxes(20.55,.3,.08,-0.39,walk,40);
@@ -852,7 +900,7 @@ function buildStrip(T){
 }
 /* rooftop neon marquee with the city name, sized to the building */
 function marquee(name,col,T,topY){const g=new THREE.Group();const w=Math.max(2.2,name.length*.55+1.2);
-  const sign=textPlane(name,w,.7,'#fff',col,'bold 100px "Black Han Sans","Gothic A1",sans-serif');sign.position.set(0,topY+.75,.09);g.add(sign);
+  const sign=textPlane(name,w,.7,'#fff',col,'700 100px "Gothic A1","Malgun Gothic",sans-serif');sign.position.set(0,topY+.75,.09);g.add(sign);
   const back=new THREE.Mesh(new THREE.BoxGeometry(w+.2,.85,.14),new THREE.MeshStandardMaterial({color:new THREE.Color(col),emissive:new THREE.Color(col),emissiveIntensity:T.neon*.7}));back.position.set(0,topY+.75,0);g.add(back);env.neon.push(back.material);
   [-1,1].forEach(sd=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.7,6),M(0x3a3f46));p.position.set(sd*(w/2-.2),topY+.3,0);g.add(p);});
   for(let k=0;k<Math.floor(w/.45);k++){const b=new THREE.Mesh(new THREE.SphereGeometry(.06,6,6),M(0xffd166,{emissive:0xffd166,emissiveIntensity:T.night?2.2:.8}));b.position.set(-w/2+.3+k*.45,topY+1.27,.05);g.add(b);hubFx.beacons.push(b);}
@@ -923,7 +971,7 @@ function buildEnv(id){
   for(let bx=-4;bx<=4;bx++)for(let bz=-4;bz<=4;bz++){if(Math.abs(bx)<=1&&Math.abs(bz)<=1)continue;const cx=bx*P,cz=bz*P;const far=Math.max(Math.abs(bx),Math.abs(bz))>=4;
     const sw=new THREE.Mesh(new THREE.BoxGeometry(P-RW+.6,.1,P-RW+.6),walkM);sw.position.set(cx,-0.4,cz);sw.receiveShadow=true;env.root.add(sw);
     // near blocks are vacant land now; only the far ring keeps its skyline. The strip right behind the board holds the lots.
-    {const rr=Math.hypot(cx,cz);vacantBlock(cx,cz,T,P-RW-.4,cz<-2&&rr>13&&rr<27);}
+    {const rr=Math.hypot(cx,cz);if(cz<-2&&rr>13&&rr<27)vacantBlock(cx,cz,T,P-RW-.4,true);else vegasBlock(cx,cz,T,P-RW-.4,Math.max(Math.abs(bx),Math.abs(bz)),bx,bz);}
   }
   // ring road around the plaza: dashes, crosswalks, lamps
   const R=P*1.5;for(let k=0;k<4;k++){const horiz=k<2,s=k%2?1:-1;for(let u=-R+1;u<R;u+=1.6){const dsh=new THREE.Mesh(new THREE.PlaneGeometry(horiz?.8:.12,horiz?.12:.8),dashM);dsh.rotation.x=-Math.PI/2;dsh.position.set(horiz?u:s*R,-0.418,horiz?s*R:u);env.root.add(dsh);}
@@ -1188,7 +1236,7 @@ function hubFestival(i){
   const disc=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.1,.22,32),new THREE.MeshStandardMaterial({color:0xff3b6b,emissive:0xff2a5a,emissiveIntensity:.5,roughness:.5}));disc.position.y=.1;g.add(disc);
   for(let k=0;k<12;k++){const a=k*Math.PI/6;const b=new THREE.Mesh(new THREE.SphereGeometry(.06,8,8),M([0xff5a5a,0xffd166,0x7cf29a,0x4fc3f7][k%4],{emissive:[0xff5a5a,0xffd166,0x7cf29a,0x4fc3f7][k%4],emissiveIntensity:2}));b.position.set(Math.cos(a)*1.05,.22,Math.sin(a)*1.05);g.add(b);}
   const sign=festSign();sign.scale.set(.95,.36,1);sign.position.y=.3+size.y*sc+.55;g.add(sign);
-  const nm=textPlane(t.name+' 축제',2.2,.6,'#fff','#d8333c','bold 100px "Black Han Sans","Gothic A1",sans-serif');nm.position.set(0,-.05,1.15);nm.rotation.x=-.35;g.add(nm);
+  const nm=textPlane(t.name+' 축제',2.8,.8,'#fff','#c9302c','600 100px "Gothic A1","Malgun Gothic",sans-serif');nm.position.set(0,-.02,1.18);nm.rotation.x=-.35;g.add(nm);
   hb.add(g);hubFx.fest=g;hubFx.festLm=lm;
 }
 function hubTick(now,dt){
