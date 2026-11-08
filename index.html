@@ -31,9 +31,9 @@
   --shadow:0 1px 0 rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.4); color-scheme:dark }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{min-height:100%}
+html,body{height:100%;overflow:hidden;margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;background-image:radial-gradient(circle at 10% 0%,color-mix(in srgb,var(--hub1) 18%,transparent),transparent 50%),radial-gradient(circle at 95% 100%,color-mix(in srgb,var(--gold) 14%,transparent),transparent 45%)}
-.app{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 24px;max-width:1280px;margin:0 auto}
+.app{padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));padding-block:0;max-width:none;margin:0;height:100dvh;display:flex;flex-direction:column}
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .top h1{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0;letter-spacing:.02em;background:linear-gradient(90deg,var(--hub1),var(--accent) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .top .sub{color:var(--muted);font-size:12.5px}
@@ -196,11 +196,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .pcard .av{position:relative}
 #round.late{background:#c8343c;box-shadow:0 0 12px #ff5a5a;animation:lowCash 1.2s infinite}
 /* ---- stage-first layout ---- */
-.app{padding-block:6px 8px}
-header.top{margin-bottom:6px;gap:8px}
+header.top{display:none}
 header.top h1{font-size:22px}
 @media (max-width:900px){header.top .sub{display:none}}
-.stage{aspect-ratio:16/9;height:auto;max-height:calc(100dvh - 56px);width:min(100%,calc((100dvh - 56px)*16/9));margin:0 auto;min-height:0}
+.stage{flex:1;width:100%;height:auto;min-height:0;aspect-ratio:auto;max-height:none;border-radius:0;box-shadow:none}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 3px var(--pc);z-index:3;transition:box-shadow .5s}
 .hud{padding:6px}
 .hud .row.top{align-items:flex-start;justify-content:space-between;flex-wrap:nowrap}
 .hud .row.bottom{align-items:flex-end;justify-content:space-between;flex-wrap:nowrap}
@@ -237,7 +237,7 @@ header.top h1{font-size:22px}
 @media (max-width:700px){.corner{width:122px}.corner .pcard{padding:4px 6px}.corner .pcard .av{width:24px;height:24px;font-size:14px}.corner .pcard .cash{font-size:14px}.corner .pcard .meta{display:none}.corner .pcard .pn{font-size:10.5px}.corner .pcard .sk{display:none}.chip{font-size:11px;padding:3px 8px}.tools{right:4px;gap:4px}.tool{width:30px;height:30px;font-size:15px}.panel{width:min(100%,330px)}.c-msg{display:none}}
 /* ---- forced landscape on portrait phones ---- */
 #rot.rotated{position:fixed;top:0;left:0;width:100dvh;height:100dvw;transform:rotate(90deg) translateY(-100%);transform-origin:top left;overflow:hidden;background:var(--bg)}
-#rot.rotated .app{padding:4px;height:100%;max-width:none}
+#rot.rotated .app{padding:0;height:100%;max-width:none}
 #rot.rotated header.top{display:none}
 #rot.rotated .stage{height:100%;width:100%;max-height:none;aspect-ratio:auto;min-height:0;border-radius:8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -264,6 +264,7 @@ header.top h1{font-size:22px}
       <button class="tool" id="btn-cam" type="button" title="카메라: 따라가기 (전체 보기로 전환)">🎥</button>
       <button class="tool" id="btn-log" type="button" title="진행 기록" aria-pressed="false">📜</button>
       <button class="tool" id="btn-rules" type="button" title="규칙">❓</button>
+      <button class="tool" id="btn-fs" type="button" title="전체화면">⛶</button>
     </div>
     <div class="logpanel" id="logpanel" hidden><h2>진행 기록 <button class="tool small" id="btn-log-close" type="button" title="닫기">✕</button></h2><ol id="log"></ol></div>
     <div class="hud">
@@ -1303,9 +1304,9 @@ function timerTick(now){
   if(left<=0){const cb=timer.cb;timerStop();if(cb){toast('⏱ 시간 초과! 자동으로 진행합니다.','danger',3000);cb();}}
 }
 /* ---- orientation: keep phones in landscape ---- */
-const isTouch=matchMedia('(pointer:coarse)').matches;
+const isTouchNow=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;const isTouch=isTouchNow();
 function applyOrientation(){
-  const rot=$('#rot');const portrait=isTouch&&innerHeight>innerWidth&&Math.min(innerWidth,innerHeight)<900;
+  const rot=$('#rot');const portrait=isTouchNow()&&innerHeight>innerWidth&&Math.min(innerWidth,innerHeight)<900;
   const was=rot.classList.contains('rotated');rot.classList.toggle('rotated',portrait);
   if(was!==portrait)setTimeout(fitCamera,50);
 }
@@ -1321,6 +1322,8 @@ document.addEventListener('pointerup',()=>{tryLandscapeLock();},{passive:true});
 /* ---- log panel / rules ---- */
 $('#btn-log').addEventListener('click',()=>{const lp=$('#logpanel');lp.hidden=!lp.hidden;$('#btn-log').setAttribute('aria-pressed',String(!lp.hidden));});
 $('#btn-log-close').addEventListener('click',()=>{$('#logpanel').hidden=true;$('#btn-log').setAttribute('aria-pressed','false');});
+$('#btn-fs').addEventListener('click',()=>{const el=document.documentElement;if(document.fullscreenElement){document.exitFullscreen?.();}else{el.requestFullscreen?.({navigationUI:'hide'}).catch(()=>{});}});
+document.addEventListener('fullscreenchange',()=>{$('#btn-fs').textContent=document.fullscreenElement?'🗗':'⛶';setTimeout(fitCamera,60);});
 $('#btn-rules').addEventListener('click',()=>{if(!$('#modal').hidden)return;modal({title:'📖 규칙',html:$('#rules-tpl').innerHTML,options:[{label:'닫기',value:0,primary:true}],noTimer:true});});
 
 /* =================== HUD / UI =================== */
