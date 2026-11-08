@@ -959,20 +959,25 @@ function makeLabel(i){
   const EF='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',KF='"Gothic A1","Malgun Gothic","Apple SD Gothic Neo",sans-serif';
   // for side tiles rotate text 0 (reads from front). Layout stacked.
   const mid=Hc/2;
-  if(t.type==='city'){
-    // the city's landmark, rendered from its 3D model, as the tile's background picture
-    const th=landmarkThumb(t.name);const sz=Math.min(Wc*0.72,Hc*0.58);g.globalAlpha=.96;g.drawImage(th,Wc/2-sz/2,mid-Hc*0.5,sz,sz);g.globalAlpha=1;
-    g.fillStyle='rgba(255,253,247,.9)';g.beginPath();g.roundRect(6,mid+Hc*0.04,Wc-12,Hc*0.44,12);g.fill();
-    if(s.owner!=null){g.fillStyle=G.players[s.owner].color;g.beginPath();g.roundRect(6,mid+Hc*0.04,Wc-12,10,[12,12,0,0]);g.fill();}
-  }else{g.font=`${emo} ${EF}`;g.fillText(t.ico||'',Wc/2,mid-Hc*0.24);}
-  g.fillStyle='#15202b';g.font=`${nm} ${KF}`;
-  if(t.type==='tour'){g.fillStyle='#1d7f90';g.font=`bold 20px ${KF}`;g.fillText('관 광 지',Wc/2,mid+Hc*0.1);g.fillStyle='#15202b';g.font=`${nm} ${KF}`;}
-  g.fillText(t.name,Wc/2,mid+Hc*(t.type==='tour'?0.26:(t.type==='city'?0.18:0.2)));
-  g.font=`${pr} ${KF}`;
-  let sub='';
-  if(t.price){ if(s.owner!=null){sub='통행 '+fmt(toll(i));g.fillStyle=G.players[s.owner].color;g.lineWidth=6;g.strokeStyle='rgba(255,255,255,.9)';g.strokeText(sub,Wc/2,mid+Hc*(t.type==='city'?0.38:0.39));} else {sub=fmt(t.price);g.fillStyle='#2f3d4a';} }
-  else{sub=SUBS[t.type]||'';g.fillStyle='#5b6a77';}
-  g.fillText(sub,Wc/2,mid+Hc*(t.type==='city'?0.38:0.39));
+  if(t.type==='city'||t.type==='tour'){
+    // bottom-row tiles have their building and colour stripe on the near (canvas-bottom) edge, so their info band sits higher up
+    const flip=false;const bandH=Hc*0.42,bandY=SIDE_OF(i)==='b'?mid+Hc*0.03:mid+Hc*0.05;
+    const artSz=flip?Math.min(Wc*0.6,Hc*0.36):Math.min(Wc*0.72,Hc*0.5),artY=flip?bandY+bandH+Hc*0.01:mid-Hc*0.48;
+    if(t.type==='city'){g.globalAlpha=.96;g.drawImage(landmarkThumb(t.name),Wc/2-artSz/2,artY,artSz,artSz);g.globalAlpha=1;}
+    else{g.font=`${Math.round(artSz*.7)}px ${EF}`;g.fillText(t.ico||'',Wc/2,artY+artSz/2);}
+    g.fillStyle='rgba(14,24,36,.88)';g.beginPath();g.roundRect(6,bandY,Wc-12,bandH,14);g.fill();
+    if(s.owner!=null){g.fillStyle=G.players[s.owner].color;g.beginPath();g.roundRect(6,bandY,Wc-12,12,[14,14,0,0]);g.fill();}
+    g.fillStyle='#ffffff';
+    if(t.type==='tour'){g.font=`bold 22px ${KF}`;g.fillStyle='#7fd8e0';g.fillText('관 광 지',Wc/2,bandY+bandH*0.2);g.fillStyle='#ffffff';}
+    g.font=`${nm} ${KF}`;g.fillText(t.name,Wc/2,bandY+bandH*(t.type==='tour'?0.45:0.36));
+    g.font=`${pr} ${KF}`;
+    let sub,col;if(s.owner!=null){sub='통행 '+fmt(toll(i));col=G.players[s.owner].color;}else{sub=fmt(t.price);col='#ffd166';}
+    const py=bandY+bandH*0.76;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.6)';g.strokeText(sub,Wc/2,py);g.fillStyle=col;g.fillText(sub,Wc/2,py);
+  }else{
+    g.font=`${emo} ${EF}`;g.fillText(t.ico||'',Wc/2,mid-Hc*0.24);
+    g.fillStyle='#15202b';g.font=`${nm} ${KF}`;g.fillText(t.name,Wc/2,mid+Hc*0.2);
+    g.font=`${pr} ${KF}`;g.fillStyle='#3a4652';g.fillText(SUBS[t.type]||'',Wc/2,mid+Hc*0.39);
+  }
   const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;return tex;
 }
 const hexc=h=>new THREE.Color(h);
@@ -992,7 +997,7 @@ function buildTiles(){
       const horiz=side==='b'||side==='t';
       band=new THREE.Mesh(new THREE.BoxGeometry(horiz?r.w-0.08:0.2,0.04,horiz?0.2:r.d-0.08),new THREE.MeshStandardMaterial({color:col,roughness:.5,emissive:hexc(col).multiplyScalar(.15)}));
       band.position.y=0.24;
-      if(side==='b')band.position.z=r.d/2-0.14;if(side==='t')band.position.z=-(r.d/2-0.14);if(side==='l')band.position.x=-(r.w/2-0.14);if(side==='r')band.position.x=r.w/2-0.14;
+      if(side==='b')band.position.z=-(r.d/2-0.14);if(side==='t')band.position.z=-(r.d/2-0.14);if(side==='l')band.position.x=-(r.w/2-0.14);if(side==='r')band.position.x=r.w/2-0.14;
       grp.add(band);
     }
     const bgrp=new THREE.Group();grp.add(bgrp);
@@ -1014,7 +1019,7 @@ function makeSprite(text,scale,bg,ring){
 /* small 3D props that give each special tile a silhouette; city tiles get a flag in their group colour */
 function tileProp(t,i){
   const r=rect(i),g=new THREE.Group();const add=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;g.add(m);return m;};
-  const [ox,oz]=outerOffset(i,Math.min(r.w,r.d)/2-0.3),[tx,tz]=tangent(i);
+  const [ox,oz]=nearFirst(i)?outerOffset(i,-(Math.min(r.w,r.d)/2-0.3)):outerOffset(i,Math.min(r.w,r.d)/2-0.3),[tx,tz]=tangent(i);
   if(t.type==='city'){const col=GCOLORS[t.g];const fx=ox+tx*(r.w/2-0.16),fz=oz+tz*(r.d/2-0.16);
     add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.02,.55,6),M(0xdddddd)),fx,.22+.275,fz);
     const flag=add(new THREE.Mesh(new THREE.PlaneGeometry(.2,.12),new THREE.MeshStandardMaterial({color:col,side:THREE.DoubleSide,roughness:.8})),fx+.1,.22+.49,fz);flag.rotation.y=.4;hubFx.spinners.push({obj:flag,speed:0,y:flag.position.y,phase:i});return g;}
@@ -1182,11 +1187,12 @@ function tokenTick(now){
   });
 }
 function slotPos(i,pid){
-  const r=rect(i),[ox,oz]=outerOffset(i,-(Math.min(r.w,r.d)/2-0.3)),[tx,tz]=tangent(i);
+  const r=rect(i),[ox,oz]=nearFirst(i)?[0,-0.02]:outerOffset(i,-(Math.min(r.w,r.d)/2-0.3)),[tx,tz]=tangent(i);
   const k=(pid-1.5)*0.24;
   return new THREE.Vector3(r.x+ox+tx*k,0.225,r.z+oz+tz*k);
 }
-function buildingPos(i){const r=rect(i),[ox,oz]=outerOffset(i,(Math.min(r.w,r.d)/2-0.36));return[r.x+ox,r.z+oz];}
+const nearFirst=i=>SIDE_OF(i)==='b'&&i%8!==0;
+function buildingPos(i){const r=rect(i),d=Math.min(r.w,r.d)/2-0.36,[ox,oz]=outerOffset(i,nearFirst(i)?-(r.d/2-0.36):d);return[r.x+ox,r.z+oz];}
 
 /* sync visual state with G */
 function sync(){
