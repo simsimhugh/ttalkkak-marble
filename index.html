@@ -302,7 +302,7 @@ header.top h1{font-size:22px}
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
     <li>도시에 도착하면 땅을 사고 별장·빌딩·호텔을 한 번에 지을 수 있어요. 호텔이 있는 도시에 다시 오면 랜드마크를 세웁니다.</li>
     <li><b>끌어오기:</b> 내 도시(건물 있음)에 도착하면 건물 크기(별장 1 · 빌딩 2 · 호텔/랜드마크 3칸)만큼 양옆에 있는 플레이어를 끌어와 통행료를 받습니다.</li>
-    <li><b>핵폭탄:</b> 출발 칸에 정확히 도착하면 건물이 있는 내 도시 하나를 골라 건물 크기만큼 양옆 칸을 폭격합니다. 남의 건물은 무너지고, 건물 없는 땅은 주인을 잃어요.</li>
+    <li><b>핵폭탄:</b> 출발 칸에 정확히 도착하면 건물이 있는 내 도시 하나를 골라 건물 크기만큼 양옆 칸을 폭격합니다. 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요. 폭심지와 범위 안의 <b>내 건물도 함께 무너집니다</b>(땅은 남음). 폐허에는 잔해가 남아요. 핵폭탄은 <b>1인당 3발</b>.</li>
     <li>남의 도시에서는 통행료를 내고, 랜드마크가 아니면 투자금의 1.5배로 인수할 수 있어요.</li>
     <li>같은 색 도시를 모두 가지면 통행료 2배. 축제가 열린 곳도 2배.</li>
     <li>더블이면 한 번 더. 더블 세 번이면 무인도행. 무인도는 3턴, 더블이나 50만으로 탈출.</li>
@@ -363,16 +363,16 @@ const GCOLORS=['#8bc34a','#1fa896','#29a9e0','#5c6bc0','#a355c9','#e2457a','#ef7
 const LV=['땅','별장','빌딩','호텔','랜드마크'];
 const BICON=['','🏠','🏢','🏨','🏰'];
 const MULT=[0.2,0.7,1.4,2.2,3.2], BUILD=[1,0.5,0.7,0.9,1.2];
-const SALARY=40, START_CASH=500, ISLAND_FEE=50, AIM_RATE=0.65;
+const SALARY=40, START_CASH=500, ISLAND_FEE=50, AIM_RATE=0.65, NUKES=3;
 
 /* ---------- characters ---------- */
 const CHARS=[
   {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +20만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 절반만 내고 원하는 칸으로 도망갑니다.'},
   {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 15% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
-  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +60%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 3배로 받습니다.'},
+  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +70%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 3배로 받습니다.'},
   {id:'lucky',name:'행운아',emoji:'🍀',passive:'주사위 포인터 명중률 90% (기본 65%). 나쁜 카드는 다시 뽑고 카드 수입 2배.',skill:'운명의 주사위',sdesc:'주사위가 나쁜 칸(통행료·무인도·세금)에 떨어지면 숫자를 골라 다시 던집니다.'},
-  {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 15% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
-  {id:'captain',name:'선장',emoji:'⚓',passive:'무인도 1턴만. 관광지를 반값에 사고 관광지 통행료는 내지 않습니다.',skill:'폭풍 소환',sdesc:'무인도에 갇히는 순간 상대를 대신 보내거나, 통행료(80만 이상)를 낼 때 땅 주인을 무인도로 날리고 통행료를 내지 않습니다.'},
+  {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 20% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
+  {id:'captain',name:'선장',emoji:'⚓',passive:'무인도 1턴만. 관광지를 40% 싸게 사고 관광지 통행료는 내지 않습니다.',skill:'폭풍 소환',sdesc:'무인도에 갇히는 순간 상대를 대신 보내거나, 통행료(120만 이상)를 낼 때 땅 주인을 무인도로 날리고 통행료를 내지 않습니다.'},
 ];
 const CH=id=>CHARS.find(c=>c.id===id);
 const has=(p,id)=>p.ch===id;
@@ -414,7 +414,7 @@ function toll(i){
   if(t.type==='tour'){const c=tourIdx.filter(j=>S(j).owner===s.owner).length;v=30*2**(c-1);}
   else{v=Math.round(t.price*MULT[s.level]);if(ownsGroup(s.owner,t.g))v*=2;}
   if(G.festival===i)v*=2;
-  if(has(o,'merchant'))v=Math.round(v*1.6);
+  if(has(o,'merchant'))v=Math.round(v*1.7);
   if(o.boost)v*=2;
   return v;
 }
@@ -534,9 +534,10 @@ const env={clouds:[],boat:null,seaTex:null,seaTex2:null,gulls:[]};
   const sea2=new THREE.Mesh(new THREE.PlaneGeometry(160,160),new THREE.MeshStandardMaterial({map:env.seaTex2,transparent:true,opacity:.35,roughness:.3,metalness:.2,depthWrite:false}));
   sea2.rotation.x=-Math.PI/2;sea2.position.y=-0.40;scene.add(sea2);
   // clouds
-  const cm=new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x334455,emissiveIntensity:.25});
+  const cm=new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x334455,emissiveIntensity:.25,transparent:true,opacity:.8,depthWrite:false});
   for(let k=0;k<9;k++){const c=new THREE.Group();const n=3+Math.random()*3|0;for(let j=0;j<n;j++){const s=new THREE.Mesh(new THREE.SphereGeometry(.6+Math.random()*.7,10,8),cm);s.position.set(j*.8-n*.4+Math.random()*.3,Math.random()*.3,(Math.random()-.5)*.6);s.scale.y=.6;c.add(s);}
-    const a=Math.random()*Math.PI*2,r=13+Math.random()*12;c.position.set(Math.cos(a)*r,6+Math.random()*4,Math.sin(a)*r);c.userData.v=.15+Math.random()*.25;scene.add(c);env.clouds.push(c);}
+    // clouds stay on the far side of the board (negative z), so they never drift between the camera and the play area
+    c.position.set(-26+Math.random()*52,7.5+Math.random()*4,-(10+Math.random()*16));c.userData.v=.15+Math.random()*.25;scene.add(c);env.clouds.push(c);}
   // islands with palms and a lighthouse
   const sand=new THREE.MeshStandardMaterial({color:0xe9d9a6,roughness:1}),grass=new THREE.MeshStandardMaterial({color:0x4f9a3a,roughness:1}),trunk=new THREE.MeshStandardMaterial({color:0x8b5a2b,roughness:1}),leaf=new THREE.MeshStandardMaterial({color:0x2e8b3d,roughness:.9});
   const island=(x,z,r,trees,lh)=>{const gp=new THREE.Group();gp.position.set(x,-0.42,z);
@@ -582,6 +583,8 @@ function camTick(dt){
   else{tg=TARGET;cp=homePos;}
   controls.target.lerp(tg,k);camera.position.lerp(cp,k);
 }
+let lastEmoteCam=0;
+function focusAt(pos,ms=1500,scale=0.9){focusOverride={pt:new THREE.Vector3(pos.x,0.35,pos.z),until:performance.now()+ms,scale};freeUntil=0;}
 function focusOn(i,ms=1800,scale=1.3){const r=rect(i);focusOverride={pt:new THREE.Vector3(r.x,0.2,r.z),until:performance.now()+ms,scale};freeUntil=0;}
 /* ---- turn emphasis: arrow marker + spotlight + banner ---- */
 const marker=new THREE.Group();
@@ -808,6 +811,8 @@ function emote(p,name,text,opt={}){
   const txt=text??EMO_LINES[name][Math.random()*EMO_LINES[name].length|0];
   if(tk.bubble.material.map)tk.bubble.material.map.dispose();tk.bubble.material.map=bubbleTex(EMO_ICON[name],txt);tk.bubble.material.needsUpdate=true;tk.bubble.visible=true;
   if(!opt.silent)SFX.play(EMO_SFX[name]);
+  const big=(opt.priority||0)>=4||name==='cry'||name==='laugh'||name==='angry'||name==='shock';
+  if(big&&opt.cam!==false&&!cinema&&performance.now()-lastEmoteCam>4000){lastEmoteCam=performance.now();focusAt(tk.grp.position,1500,0.75);}
 }
 function tokenTick(now){
   tokens.forEach(tk=>{
@@ -815,20 +820,22 @@ function tokenTick(now){
     if(tk.p.bankrupt){if(!tk.fallen){tk.fallen=true;fig.rotation.set(0,0,0);tk.bubble.visible=false;tk.grp.traverse(o=>{if(o.material&&o.material.color&&!o.isSprite){o.material=o.material.clone();o.material.color.lerp(new THREE.Color(0x777777),.75);if(o.material.emissive)o.material.emissive.set(0);}});}
       fig.rotation.z=Math.PI/2.3;fig.position.set(.12,-.02,.12);head.rotation.set(0,0,0);return;}
     fig.position.set(0,0,0);fig.rotation.set(0,0,0);fig.scale.setScalar(1);head.rotation.set(0,0,0);armL.rotation.set(0,0,.45);armR.rotation.set(0,0,-.45);
-    // head faces the camera
-    const hy=Math.atan2(camera.position.x-tk.grp.position.x,camera.position.z-tk.grp.position.z);head.rotation.y=hy;
+    // head yaws toward the camera; it tilts its face up only while emoting (eased), otherwise looks straight ahead
+    const hp=tk.grp.position,dx=camera.position.x-hp.x,dz=camera.position.z-hp.z,dy=camera.position.y-(hp.y+.67);
+    const want=tk.emo?-Math.min(1.05,Math.atan2(dy,Math.hypot(dx,dz))):0;tk.tilt=(tk.tilt||0)+(want-(tk.tilt||0))*0.12;
+    head.rotation.order='YXZ';head.rotation.y=Math.atan2(dx,dz);head.rotation.x=tk.tilt;
     if(!tk.emo)return;
     const u=(now-tk.emo.t0)/tk.emo.ms;
     if(u>=1){tk.emo=null;head.material.map=faceTex('neutral');head.material.needsUpdate=true;tk.bubble.visible=false;return;}
     const t=(now-tk.emo.t0)/1000;
     switch(tk.emo.name){
       case 'happy':fig.position.y=Math.abs(Math.sin(t*9))*.22;armL.rotation.z=2.5+Math.sin(t*14)*.3;armR.rotation.z=-2.5-Math.sin(t*14)*.3;break;
-      case 'laugh':fig.rotation.z=Math.sin(t*22)*.1;fig.position.y=Math.abs(Math.sin(t*11))*.08;armL.rotation.z=2.4;armR.rotation.z=-2.4;head.rotation.x=-.25;break;
-      case 'sad':head.rotation.x=.5;armL.rotation.z=.15;armR.rotation.z=-.15;fig.scale.y=.94;break;
-      case 'cry':head.rotation.x=.5;fig.rotation.z=Math.sin(t*40)*.03;armL.rotation.z=.1;armR.rotation.z=-.1;fig.scale.y=.92;break;
-      case 'angry':fig.rotation.y=Math.sin(t*38)*.22;armL.rotation.z=1.9+Math.sin(t*30)*.3;armR.rotation.z=-1.9-Math.sin(t*30)*.3;fig.scale.setScalar(1.08);head.rotation.x=.15;break;
-      case 'shock':fig.position.y=u<.25?(.25-u)*1.6:0;fig.scale.set(1.1,.95+.1*Math.sin(t*20),1.1);armL.rotation.z=2.8;armR.rotation.z=-2.8;head.rotation.x=-.2;break;
-      case 'cool':fig.rotation.y=.4;armL.rotation.z=2.2;armR.rotation.z=-.3;head.rotation.x=-.12;break;
+      case 'laugh':fig.rotation.z=Math.sin(t*22)*.1;fig.position.y=Math.abs(Math.sin(t*11))*.08;armL.rotation.z=2.4;armR.rotation.z=-2.4;head.rotation.x+=-.25;break;
+      case 'sad':head.rotation.x+=.5;armL.rotation.z=.15;armR.rotation.z=-.15;fig.scale.y=.94;break;
+      case 'cry':head.rotation.x+=.5;fig.rotation.z=Math.sin(t*40)*.03;armL.rotation.z=.1;armR.rotation.z=-.1;fig.scale.y=.92;break;
+      case 'angry':fig.rotation.y=Math.sin(t*38)*.22;armL.rotation.z=1.9+Math.sin(t*30)*.3;armR.rotation.z=-1.9-Math.sin(t*30)*.3;fig.scale.setScalar(1.08);head.rotation.x+=.15;break;
+      case 'shock':fig.position.y=u<.25?(.25-u)*1.6:0;fig.scale.set(1.1,.95+.1*Math.sin(t*20),1.1);armL.rotation.z=2.8;armR.rotation.z=-2.8;head.rotation.x+=-.2;break;
+      case 'cool':fig.rotation.y=.4;armL.rotation.z=2.2;armR.rotation.z=-.3;head.rotation.x+=-.12;break;
     }
   });
 }
@@ -844,16 +851,17 @@ function sync(){
   if(!G)return;
   TILES.forEach((t,i)=>{
     const s=S(i),tl=tiles[i];
-    const key=`${s.owner}|${s.level}|${t.price?toll(i):0}|${G.festival===i}|${s.owner!=null?G.players[s.owner].boost:0}`;
+    const key=`${s.owner}|${s.level}|${t.price?toll(i):0}|${G.festival===i}|${s.owner!=null?G.players[s.owner].boost:0}|${s.rubble?1:0}`;
     if(tl.key!==key){
       tl.key=key;
       if(tl.lab.material.map)tl.lab.material.map.dispose();tl.lab.material.map=makeLabel(i);tl.lab.material.needsUpdate=true;
       tl.bgrp.clear();
       if(s.owner!=null){
         const o=G.players[s.owner];tl.rim.visible=true;tl.rim.material.color.set(o.color);tl.rim.material.emissive.set(o.color).multiplyScalar(.35);
-        if(t.type==='city'&&s.level>0){const b=buildingMesh(s.level,o.color);const[bx,bz]=buildingPos(i);b.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(b);}
+        if(t.type==='city'&&s.level>0){s.rubble=false;const b=buildingMesh(s.level,o.color);const[bx,bz]=buildingPos(i);b.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(b);}
         if(t.type==='tour'){const f=makeSprite('🎫',.42);const[bx,bz]=buildingPos(i);f.position.set(bx-tl.grp.position.x,.5,bz-tl.grp.position.z);tl.bgrp.add(f);}
       }else tl.rim.visible=false;
+      if(s.rubble&&s.level===0&&t.type==='city'){const r=rubbleMesh();const[bx,bz]=buildingPos(i);r.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(r);}
       tl.fest.visible=G.festival===i;
     }
   });
@@ -917,15 +925,36 @@ function nukeCinematic(i,rng,hits){
       // impact
       SFX.play('nuke');flash();shake(0.7,1400);
       mushroom(target,rng);
-      // collapsing buildings
-      hits.forEach((j,k)=>{const tl=tiles[j];if(!tl.bgrp.children.length)return;const b=tl.bgrp.children[0];const rz=(Math.random()-.5)*1.2,rx=(Math.random()-.5)*1.2;
-        effects.push({t0:performance.now()+150+k*90,ms:700,type:'fn',fn:u=>{b.scale.y=Math.max(.03,1-u);b.rotation.z=rz*u;b.rotation.x=rx*u;b.position.y=0.22-u*.1;}});});
+      // collapsing buildings: tilt + sink, flying debris, dust puffs
+      hits.forEach((j,k)=>{const tl=tiles[j];if(!tl.bgrp.children.length)return;collapseFx(j,150+k*110);});
       cinema={pos:target,off:new THREE.Vector3(3.2,2.4,4.2)};
       effects.push({t0:performance.now(),ms:3200,type:'fn',fn:u=>{cinema.off.set(3.2+u*2.5,2.4+u*2.6,4.2+u*3.2);},done:()=>{cinema=null;res();}});
     }});
   });
 }
 function flash(){const f=$('#flash');f.classList.remove('on');void f.offsetWidth;f.classList.add('on');}
+/* a building crumbles: it tilts and sinks while chunks in its colors fly out and dust billows */
+function collapseFx(j,delay=0){
+  const tl=tiles[j],b=tl.bgrp.children[0];if(!b)return;
+  const wp=new THREE.Vector3();b.getWorldPosition(wp);
+  const cols=[];b.traverse(o=>{if(o.isMesh&&o.material&&o.material.color)cols.push(o.material.color.getHex());});
+  const grp=new THREE.Group();grp.position.copy(wp);scene.add(grp);
+  const chunks=[];for(let k=0;k<16;k++){const sz=.05+Math.random()*.08;const m=new THREE.Mesh(new THREE.BoxGeometry(sz,sz*(.6+Math.random()),sz),new THREE.MeshStandardMaterial({color:cols[k%cols.length]||0x888888,roughness:.9}));m.position.set((Math.random()-.5)*.3,.2+Math.random()*.6,(Math.random()-.5)*.3);m.userData.v=new THREE.Vector3((Math.random()-.5)*3,1.5+Math.random()*3,(Math.random()-.5)*3);m.userData.r=new THREE.Vector3(Math.random()*8,Math.random()*8,Math.random()*8);m.castShadow=true;grp.add(m);chunks.push(m);}
+  const dust=[];for(let k=0;k<7;k++){const d=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),new THREE.MeshBasicMaterial({color:0x9a8f84,transparent:true,opacity:.75}));d.position.set((Math.random()-.5)*.35,.08,(Math.random()-.5)*.35);d.userData.v=new THREE.Vector3((Math.random()-.5)*1.2,.4+Math.random()*.5,(Math.random()-.5)*1.2);grp.add(d);dust.push(d);}
+  const rz=(Math.random()-.5)*1.4,rx=(Math.random()-.5)*1.4;
+  effects.push({t0:performance.now()+delay,ms:1900,type:'fn',fn:u=>{
+    const c=Math.min(1,u*2.4);b.scale.y=Math.max(.03,1-c);b.rotation.z=rz*c;b.rotation.x=rx*c;b.position.y=0.22-c*.12;
+    chunks.forEach(m=>{m.position.addScaledVector(m.userData.v,.016);m.userData.v.y-=.2;m.rotation.x+=m.userData.r.x*.016;m.rotation.y+=m.userData.r.y*.016;if(m.position.y<.03){m.position.y=.03;m.userData.v.multiplyScalar(.3);m.userData.v.y=0;}});
+    dust.forEach(d=>{d.position.addScaledVector(d.userData.v,.014);d.scale.setScalar(1+u*4);d.material.opacity=.75*(1-u);});
+  },done:()=>{scene.remove(grp);grp.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}});
+}
+/* rubble pile left on a bombed tile until something is built again */
+function rubbleMesh(){
+  const g=new THREE.Group();const m=new THREE.MeshStandardMaterial({color:0x555049,roughness:1}),m2=new THREE.MeshStandardMaterial({color:0x3a3632,roughness:1});
+  for(let k=0;k<9;k++){const sz=.06+Math.random()*.09;const c=new THREE.Mesh(new THREE.BoxGeometry(sz,sz*.6,sz),k%3?m:m2);c.position.set((Math.random()-.5)*.34,sz*.3,(Math.random()-.5)*.34);c.rotation.set(Math.random()*.6,Math.random()*3,Math.random()*.6);c.castShadow=true;g.add(c);}
+  const scorch=new THREE.Mesh(new THREE.CircleGeometry(.26,20),new THREE.MeshBasicMaterial({color:0x1a1715,transparent:true,opacity:.55}));scorch.rotation.x=-Math.PI/2;scorch.position.y=.004;g.add(scorch);
+  return g;
+}
 function mushroom(c,rng){
   const grp=new THREE.Group();grp.position.copy(c);scene.add(grp);
   const fireM=new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:1});
@@ -1049,7 +1078,7 @@ function landingInfo(p,i){
     let amt=toll(i);if(has(p,'negotiator'))amt=Math.round(amt*.85);if(has(p,'captain')&&t.type==='tour')return{cls:'own',txt:'면제'};if(p.shield>0)return{cls:'own',txt:'면제권'};
     return{cls:amt>=p.cash*.4||amt>=150?'deadly':'pay',txt:'-'+fmt(amt)};
   }
-  if(t.type==='start')return owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
+  if(t.type==='start')return (p.nukes==null||p.nukes>0)&&owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
   return{island:{cls:'bad',txt:'무인도'},festival:{cls:'good',txt:'축제'},travel:{cls:'good',txt:'세계여행'},tax:{cls:'pay',txt:'세금'},chance:{cls:'card',txt:'카드'}}[t.type];
 }
 const HINT_COL={pay:0xff5a5a,deadly:0xff1a1a,free:0x4ad66d,own:0x3b9dff,card:0xffd166,bad:0xb070ff,good:0xffe08a};
@@ -1123,10 +1152,11 @@ function renderPlayers(){
     if(p.shield>0)st.push(`면제권 ${p.shield}`);
     if(p.boost)st.push('바가지 중');
     if(p.fixDice)st.push(`다음 주사위 ${p.fixDice[0]+p.fixDice[1]}`);
+    const nk=p.nukes==null?NUKES:p.nukes;
     const rk=p.bankrupt?0:rankOf(p),fl=p.flash&&Date.now()<p.flash.until?p.flash.cls:'';
     return `<div class="pcard ${k===G.cur&&!G.over?'cur':''} ${p.bankrupt?'out':''} ${!p.bankrupt&&p.cash<100?'low':''} ${fl}" style="--pc:${p.color}">
       <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${p.skillUsed?'used':''}" title="${c.sdesc}">${p.skillUsed?'스킬 사용함':'✨ '+c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
-      <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span>${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
+      <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span><span title="남은 핵폭탄">☢️${nk}</span>${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
   });
   cards.forEach((h,k)=>{$('#pc'+k).innerHTML=h;});
 }
@@ -1314,7 +1344,7 @@ async function landProperty(p,i){
 }
 async function chargeToll(p,o,i){
   const t=T(i);let amt=toll(i);
-  if(has(p,'negotiator'))amt=Math.round(amt*0.85);
+  if(has(p,'negotiator'))amt=Math.round(amt*0.8);
   if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다. ⚓`,p);emote(p,'cool');return true;}
   if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`🛡️ ${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
@@ -1323,7 +1353,7 @@ async function chargeToll(p,o,i){
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
   // ⚓ payer's reactive skill: blow the owner to the island, skip the toll
-  if(has(p,'captain')&&!p.skillUsed&&amt>=80&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환!',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.3))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로! ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});renderAll();return true;}
+  if(has(p,'captain')&&!p.skillUsed&&amt>=120&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환!',no:'그냥 낸다'},()=>amt>=Math.max(160,p.cash*0.35))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로! ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});renderAll();return true;}
   // 🧭 payer's reactive skill: teleport away instead of paying
   if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 절반(${fmt(Math.round(amt/2))})만 내고 원하는 칸으로 도망갈까요?</p>`,yes:'절반 내고 도망',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 절반(${fmt(Math.round(amt/2))})만 내고 도망`);emote(p,'cool','슝~',{priority:5});if(!pay(p,o,Math.round(amt/2),{why:'통행료 절반'}))return false;const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
   const danger=amt>=150||amt>=p.cash*0.45;
@@ -1347,31 +1377,40 @@ async function pullNeighbors(p,i){
   }
 }
 /* feature 3: nuke */
+/* every owned tile in range, the epicenter included — the bomb does not spare its owner */
 function blastTargets(p,i){
-  const rng=range(S(i).level),out=[];
-  for(let o=1;o<=rng;o++)for(const j of[(i+o)%N,(i-o+N)%N]){const s=S(j);if(s.owner!=null&&s.owner!==p.id)out.push(j);}
+  const rng=range(S(i).level),out=[i];
+  for(let o=1;o<=rng;o++)for(const j of[(i+o)%N,(i-o+N)%N]){const s=S(j);if(s.owner!=null&&!out.includes(j))out.push(j);}
   return out;
 }
-function blastValue(p,i){return blastTargets(p,i).reduce((a,j)=>a+(T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):invested(j)),0);}
+const enemyTargets=(p,i)=>blastTargets(p,i).filter(j=>S(j).owner!==p.id);
+const ownTargets=(p,i)=>blastTargets(p,i).filter(j=>S(j).owner===p.id);
+const tileLoss=j=>T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):invested(j);
+function blastValue(p,i){return enemyTargets(p,i).reduce((a,j)=>a+tileLoss(j),0)-ownTargets(p,i).reduce((a,j)=>a+(T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):0),0)*0.8;}
 async function offerNuke(p){
+  if(p.nukes==null)p.nukes=NUKES;
+  if(p.nukes<=0){log(`${nm(p)} 핵폭탄을 모두 썼습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 소진 — 1인당 ${NUKES}발까지만 쏠 수 있어요`,'danger',5000);SFX.play('alarm');return;}
   const cands=owned(p).filter(i=>T(i).type==='city'&&S(i).level>=1);
   if(!cands.length){log(`${nm(p)} 핵폭탄을 쏠 건물이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 건물(별장 이상)이 있는 내 도시가 없어요`,'danger',5000);SFX.play('alarm');return;}
-  if(cands.every(i=>blastTargets(p,i).length===0)){log(`${nm(p)} 핵폭탄 사정거리 안에 남의 땅이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 사정거리 안에 남의 땅이 없어요 (건물을 키우면 사정거리 증가)`,'danger',5000);SFX.play('alarm');return;}
-  const i=await decide(p,{title:'☢️ 핵폭탄 발사',html:'<p>내 도시 하나를 고르면 건물 크기만큼 양옆 칸이 폭격됩니다 (별장 1 · 빌딩 2 · 호텔/랜드마크 3). 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요.</p>',
-    options:cands.map(i=>({label:`${T(i).ico} ${T(i).name} (${LV[S(i).level]} · 사정거리 ${range(S(i).level)}칸 · 피해 ${blastTargets(p,i).length}곳)`,value:i,danger:blastTargets(p,i).length>0})).concat([{label:'쏘지 않기',value:-1,primary:true}])},
-    ()=>{const best=cands.reduce((a,b)=>blastValue(p,b)>blastValue(p,a)?b:a);return blastValue(p,best)>0?best:-1;});
+  if(cands.every(i=>enemyTargets(p,i).length===0)){log(`${nm(p)} 핵폭탄 사정거리 안에 남의 땅이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 사정거리 안에 남의 땅이 없어요 (건물을 키우면 사정거리 증가)`,'danger',5000);SFX.play('alarm');return;}
+  const i=await decide(p,{title:'☢️ 핵폭탄 발사',html:`<p>내 도시 하나를 고르면 건물 크기만큼 양옆 칸이 폭격됩니다 (별장 1 · 빌딩 2 · 호텔/랜드마크 3). 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요.</p><p class="muted">남은 핵폭탄 <b>${p.nukes}발</b> (1인당 ${NUKES}발).</p><p class="muted">⚠️ 폭심지와 범위 안의 <b>내 건물도 함께 무너집니다</b> (땅은 남아요).</p>`,
+    options:cands.map(i=>({label:`${T(i).ico} ${T(i).name} (${LV[S(i).level]} · 반경 ${range(S(i).level)}칸 · 상대 ${enemyTargets(p,i).length}곳 · 내 건물 ${ownTargets(p,i).filter(j=>S(j).level>0).length}곳)`,value:i,danger:enemyTargets(p,i).length>0})).concat([{label:'쏘지 않기',value:-1,primary:true}])},
+    ()=>{const best=cands.reduce((a,b)=>blastValue(p,b)>blastValue(p,a)?b:a);return blastValue(p,best)>40?best:-1;});
   if(i<0){log(`${nm(p)} 핵폭탄을 쏘지 않았습니다.`,p);return;}
-  const rng=range(S(i).level),hits=blastTargets(p,i);
-  say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사! ☢️💥`,p);bigEvent(`☢️ 핵폭탄 발사!<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);emote(p,'cool','받아라!',{priority:5});
+  const rng=range(S(i).level),hits=blastTargets(p,i);p.nukes--;
+  say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사! ☢️💥 (남은 핵폭탄 ${p.nukes}발)`,p);bigEvent(`☢️ 핵폭탄 발사!<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);emote(p,'cool','받아라!',{priority:5});
   await nukeCinematic(i,rng,hits);
-  const victims=[...new Set(hits.map(j=>S(j).owner))].map(id=>G.players[id]);victims.forEach(v=>emote(v,'angry','내 건물!!',{priority:6,silent:true}));if(victims.length)SFX.play('angry');
-  toast(hits.length?`💥 ${victims.map(v=>nm(v)).join(', ')} 건물 ${hits.length}곳 피해`:'💥 피해 없음','danger',5000);
+  const enemies=hits.filter(j=>S(j).owner!==p.id);
+  const victims=[...new Set(enemies.map(j=>S(j).owner))].map(id=>G.players[id]);victims.forEach(v=>emote(v,'angry','내 건물!!',{priority:6,silent:true}));if(victims.length)SFX.play('angry');
+  const ownLost=hits.filter(j=>S(j).owner===p.id&&S(j).level>0).length;
+  toast(`💥 ${victims.length?victims.map(v=>nm(v)).join(', ')+' 건물 '+enemies.length+'곳 피해':'상대 피해 없음'}${ownLost?` · ${nm(p)} 내 건물 ${ownLost}곳 희생`:''}`,'danger',5000);
   for(const j of hits){
     const o=G.players[S(j).owner];
-    if(T(j).type==='city'&&S(j).level>0){log(`💥 ${nm(o)}의 ${T(j).name} ${LV[S(j).level]}이(가) 무너졌습니다.`,p);S(j).level=0;}
-    else{log(`💥 ${nm(o)}의 ${T(j).name}이(가) 폐허가 되어 주인을 잃었습니다.`,p);S(j).owner=null;S(j).level=0;if(G.festival===j)G.festival=null;}
+    if(o===p){if(S(j).level>0){log(`💥 ${nm(p)}의 ${T(j).name} ${LV[S(j).level]}이(가) 폭발에 휩쓸려 무너졌습니다 (땅은 유지).`,p);S(j).level=0;S(j).rubble=true;}continue;}
+    if(T(j).type==='city'&&S(j).level>0){log(`💥 ${nm(o)}의 ${T(j).name} ${LV[S(j).level]}이(가) 무너졌습니다.`,p);S(j).level=0;S(j).rubble=true;}
+    else{log(`💥 ${nm(o)}의 ${T(j).name}이(가) 폐허가 되어 주인을 잃었습니다.`,p);S(j).owner=null;S(j).level=0;S(j).rubble=true;if(G.festival===j)G.festival=null;}
   }
-  if(!hits.length)log('💥 폭발했지만 피해를 입은 땅은 없습니다.',p);
+  if(!enemies.length)log('💥 폭발했지만 상대가 입은 피해는 없습니다.',p);
   renderAll();await sleep(D(500));
 }
 function wouldComplete(p,i){
@@ -1381,8 +1420,8 @@ function wouldComplete(p,i){
 async function offerBuy(p,i){
   const t=T(i);
   if(t.type==='tour'){
-    const tp=has(p,'captain')?Math.round(t.price/2):t.price;
-    const c=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>관광지는 건물 없이 보유만 해요.${has(p,'captain')?' 선장 반값 적용.':''} 현재 자금 ${fmt(p.cash)}</p>`,
+    const tp=has(p,'captain')?Math.round(t.price*0.6):t.price;
+    const c=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>관광지는 건물 없이 보유만 해요.${has(p,'captain')?' 선장 40% 할인 적용.':''} 현재 자금 ${fmt(p.cash)}</p>`,
       options:[{label:'구매하기',value:1,cost:tp,primary:true,disabled:p.cash<tp},{label:'넘어가기',value:0}]},
       ()=>p.cash-tp>=(wouldComplete(p,i)?20:70)?1:0);
     if(c){pay(p,null,tp,{quiet:true,why:t.name+' 구매'});emote(p,'happy');S(i).owner=p.id;S(i).level=0;SFX.play('buy');say(`${nm(p)} 관광지 ${t.name}을(를) ${fmt(t.price)}에 샀습니다.`,p);renderAll();checkWin(p);}
@@ -1628,7 +1667,7 @@ $('#srows').addEventListener('click',e=>{
 $('#srows').addEventListener('change',e=>{const s=e.target.closest('select[data-ch]');if(!s)return;readNames();setupCfg[+s.dataset.ch].ch=s.value;renderSetup();});
 function showSetup(){RUN++;timerStop();rollResolver=modalResolver=pickResolver=null;setPickable(null);meter.active=false;$('#modal').hidden=true;$('#skill').hidden=true;renderSetup();$('#setup').hidden=false;}
 $('#btn-new').addEventListener('click',showSetup);
-const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color:PCOLORS[k],ai:c.ai,ch:c.ch,cash:START_CASH,pos:0,island:0,travel:false,shield:0,bankrupt:false,skillUsed:false,boost:false,fixDice:null,anim:false});
+const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color:PCOLORS[k],ai:c.ai,ch:c.ch,cash:START_CASH,pos:0,island:0,travel:false,shield:0,bankrupt:false,skillUsed:false,boost:false,fixDice:null,anim:false,nukes:NUKES});
 function startGame(g){
   G=g;$('#log').innerHTML='';[...G.logs].reverse().forEach(([t,pid])=>{const li=document.createElement('li');li.innerHTML=t;if(pid!=null)li.style.setProperty('--pc',G.players[pid].color);$('#log').prepend(li);});
   tiles.forEach(t=>t.key=null);buildTokens();face($('#d1'),1);face($('#d2'),1);meterSet(7);meterEl.classList.add('idle');updateEmoteBar();$('#toasts').innerHTML='';threatTiles.clear();
