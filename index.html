@@ -333,7 +333,7 @@ header.top h1{font-size:22px}
 </div>
 <template id="rules-tpl">
   <ul class="rules-list">
-    <li>시작 자금 500만, 출발지를 지날 때마다 월급 40만.</li>
+    <li>시작 자금 500만, 출발지를 지날 때마다 월급 60만.</li>
     <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰!’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 포인터 아래 글씨는 그 숫자로 가면 생기는 일입니다.</li>
     <li><b>턴 제한 시간:</b> 시간이 다 되면 주사위는 자동으로 멈추고, 선택은 ‘넘어가기’로 처리됩니다.</li>
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
@@ -359,6 +359,9 @@ header.top h1{font-size:22px}
     <div class="sopts">
       <label for="opt-limit">제한 라운드
         <select id="opt-limit"><option value="20">20라운드</option><option value="30" selected>30라운드</option><option value="0">무제한</option></select>
+      </label>
+      <label for="opt-nuke">핵폭탄
+        <select id="opt-nuke"><option value="1" selected>켜기</option><option value="0">끄기</option></select>
       </label>
       <label for="opt-timer">턴 제한 시간
         <select id="opt-timer"><option value="15">15초</option><option value="30" selected>30초</option><option value="60">60초</option><option value="0">없음</option></select>
@@ -404,7 +407,7 @@ const GCOLORS=['#8bc34a','#1fa896','#29a9e0','#5c6bc0','#a355c9','#e2457a','#ef7
 const LV=['땅','별장','빌딩','호텔','랜드마크'];
 const BICON=['','🏠','🏢','🏨','🏰'];
 const MULT=[0.2,0.7,1.4,2.2,3.2], BUILD=[1,0.5,0.7,0.9,1.2];
-const SALARY=40, START_CASH=500, ISLAND_FEE=50, AIM_RATE=0.65, NUKES=3;
+const SALARY=60, START_CASH=500, ISLAND_FEE=50, AIM_RATE=0.65, NUKES=3;
 
 /* ---------- characters ---------- */
 const CHARS=[
@@ -872,8 +875,20 @@ function buildHub(){
   const road=new THREE.Mesh(new THREE.RingGeometry(1.95,2.15,64),new THREE.MeshStandardMaterial({color:0x2f3a45,roughness:1}));road.rotation.x=-Math.PI/2;road.position.y=.02;hb.add(road);
   const dash=new THREE.Mesh(new THREE.RingGeometry(2.04,2.06,64,1),new THREE.MeshBasicMaterial({color:0xffe08a}));dash.rotation.x=-Math.PI/2;dash.position.y=.025;hb.add(dash);
 }
+function monoFx(i,color){
+  const r=rect(i),g=new THREE.Group();g.userData.color=color;const col=new THREE.Color(color);
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(r.w-.04,r.d-.04),new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:.35,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=.233;g.add(glow);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(.0,.1,4),new THREE.MeshBasicMaterial({visible:false}));g.add(ring);
+  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(.32,.42,2.4,20,1,true),new THREE.MeshBasicMaterial({color:col.clone().lerp(new THREE.Color(0xffd166),.4),transparent:true,opacity:.18,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));pillar.position.y=1.42;g.add(pillar);
+  const crown=makeSprite('👑',.42);crown.position.y=1.9;g.add(crown);
+  const sparks=[];for(let k=0;k<8;k++){const sp=new THREE.Mesh(new THREE.SphereGeometry(.03,6,6),new THREE.MeshBasicMaterial({color:k%2?0xffd166:0xffffff,transparent:true}));sp.userData.a=Math.random()*Math.PI*2;sp.userData.r=.25+Math.random()*.2;sp.userData.ph=Math.random();g.add(sp);sparks.push(sp);}
+  g.userData={color,glow,pillar,crown,sparks};monoTiles.add(g);return g;
+}
+const monoTiles=new Set();
 function hubTick(now,dt){
   const t=now/1000;
+  monoTiles.forEach(g=>{if(!g.parent){monoTiles.delete(g);return;}const u=g.userData;u.glow.material.opacity=.25+.15*Math.sin(t*3);u.pillar.material.opacity=.12+.08*Math.sin(t*2.2);u.pillar.rotation.y=t*.6;u.crown.position.y=1.9+Math.sin(t*2)*.08;
+    u.sparks.forEach(sp=>{const q=(t*.35+sp.userData.ph)%1;sp.position.set(Math.cos(sp.userData.a+t)*sp.userData.r,.3+q*2.2,Math.sin(sp.userData.a+t)*sp.userData.r);sp.material.opacity=Math.sin(q*Math.PI);});});
   if(hubFx.globe){hubFx.globe.rotation.y+=dt*.25;hubFx.atmo.scale.setScalar(1+.015*Math.sin(t*1.5));}
   if(hubFx.orbit){hubFx.orbit.rotation.y=t*.9;hubFx.orbit.rotation.z=.5;hubFx.orbiter.rotation.y=-Math.PI/2;}
   hubFx.beacons.forEach((b,k)=>b.material.emissiveIntensity=Math.sin(t*4+k)>0?3:.2);
@@ -1192,6 +1207,11 @@ function sync(){
       if(s.rubble&&s.level===0&&t.type==='city'){const r=rubbleMesh();const[bx,bz]=buildingPos(i);r.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(r);}
       tl.fest.visible=G.festival===i;tl.level=s.level;
     }
+    // monopoly aura (checked every sync: depends on the whole group, not just this tile)
+    const mono=t.type==='city'&&s.owner!=null&&ownsGroup(s.owner,t.g);
+    if(mono&&!tl.mono){tl.mono=monoFx(i,G.players[s.owner].color);tl.grp.add(tl.mono);}
+    else if(!mono&&tl.mono){tl.grp.remove(tl.mono);tl.mono.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});tl.mono=null;}
+    else if(mono&&tl.mono&&tl.mono.userData.color!==G.players[s.owner].color){tl.grp.remove(tl.mono);tl.mono=monoFx(i,G.players[s.owner].color);tl.grp.add(tl.mono);}
   });
   tokens.forEach(tk=>{
     const p=tk.p;tk.grp.visible=true;
@@ -1529,7 +1549,7 @@ function landingInfo(p,i){
     let amt=toll(i);if(has(p,'negotiator'))amt=Math.round(amt*.85);if(has(p,'captain')&&t.type==='tour')return{cls:'own',txt:'면제'};if(p.shield>0)return{cls:'own',txt:'면제권'};
     return{cls:amt>=p.cash*.4||amt>=150?'deadly':'pay',txt:'-'+fmt(amt)};
   }
-  if(t.type==='start')return (p.nukes==null||p.nukes>0)&&owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
+  if(t.type==='start')return G.nukesOn!==false&&(p.nukes==null||p.nukes>0)&&owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
   return{island:{cls:'bad',txt:'무인도'},festival:{cls:'good',txt:'축제'},travel:{cls:'good',txt:'세계여행'},tax:{cls:'pay',txt:'세금'},chance:{cls:'card',txt:'카드'}}[t.type];
 }
 const HINT_COL={pay:0xff5a5a,deadly:0xff1a1a,free:0x4ad66d,own:0x3b9dff,card:0xffd166,bad:0xb070ff,good:0xffe08a};
@@ -1559,7 +1579,7 @@ function updateThreats(){
 }
 function monopolyFx(p,i){
   const t=T(i);if(t.type!=='city')return;
-  if(ownsGroup(p.id,t.g)&&groupIdx(t.g).length>1){toast(`🏆 ${nm(p)} ${GNAMES[t.g]} 그룹 독점! 통행료 2배`,'good',4500);SFX.play('monopoly');emote(p,'cool','독점이다!',{priority:5});}
+  if(ownsGroup(p.id,t.g)&&groupIdx(t.g).length>1){groupIdx(t.g).forEach(j=>{const rr=rect(j);landDust(new THREE.Vector3(rr.x,.25,rr.z),8,1.2);});toast(`🏆 ${nm(p)} ${GNAMES[t.g]} 그룹 독점! 통행료 2배`,'good',4500);SFX.play('monopoly');emote(p,'cool','독점이다!',{priority:5});}
 }
 function rankOf(p){const al=alive().sort((a,b)=>assets(b)-assets(a));const k=al.indexOf(p);return k<0?4:k+1;}
 
@@ -1736,7 +1756,7 @@ function pay(p,to,amt,opt={}){
   const before=p.cash;
   if(p.cash<amt)liquidate(p,amt);
   if(p.cash>=amt){p.cash-=amt;if(to)to.cash+=amt;moneyFx(p,to,amt,before,opt);return true;}
-  const rest=p.cash;p.cash=0;if(to)to.cash+=rest;moneyFx(p,to,rest,before,{...opt,quiet:true});
+  const rest=p.cash;p.cash=0;if(to){to.cash+=amt;if(amt>rest)log(`${nm(to)} 파산한 ${nm(p)} 대신 은행이 부족분 ${fmt(amt-rest)}을 채워 ${fmt(amt)} 전액을 받습니다.`,to);}moneyFx(p,to,amt,before,{...opt,quiet:true});
   p.bankrupt=true;SFX.play('bankrupt');owned(p).forEach(i=>{S(i).owner=null;S(i).level=0;if(G.festival===i)G.festival=null;});
   say(`${nm(p)} 파산했습니다. 💸`,p);bankruptFx(p);renderAll();
   const al=alive();if(al.length===1)endGame(al[0],'다른 모든 플레이어가 파산했습니다.');
@@ -1842,6 +1862,7 @@ const ownTargets=(p,i)=>blastTargets(p,i).filter(j=>S(j).owner===p.id);
 const tileLoss=j=>T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):invested(j);
 function blastValue(p,i){return enemyTargets(p,i).reduce((a,j)=>a+tileLoss(j),0)-ownTargets(p,i).reduce((a,j)=>a+(T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):0),0)*0.8;}
 async function offerNuke(p){
+  if(G.nukesOn===false)return;
   if(p.nukes==null)p.nukes=NUKES;
   if(p.nukes<=0){log(`${nm(p)} 핵폭탄을 모두 썼습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 소진 — 1인당 ${NUKES}발까지만 쏠 수 있어요`,'danger',5000);SFX.play('alarm');return;}
   const cands=owned(p).filter(i=>T(i).type==='city'&&S(i).level>=1);
@@ -2142,7 +2163,7 @@ $('#btn-start').addEventListener('click',()=>{
   readNames();RUN++;
   const g={players:setupCfg.map((c,k)=>newPlayer(k,c)),
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 500만으로 출발! 🌍',null]],
-    limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,stable:null};
+    limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:$('#opt-nuke').value==='1',stable:null};
   $('#setup').hidden=true;startGame(g);
 });
 $('#roll').addEventListener('click',()=>{if(rollResolver)rollResolver('roll');});
