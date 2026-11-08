@@ -37,6 +37,8 @@ globalThis.matchMedia = () => ({ matches: false });
 globalThis.addEventListener = () => {};
 globalThis.getComputedStyle = () => ({ transform: 'none' });
 globalThis.screen = {};
+globalThis.location = { hostname: 'sim' };
+try { Object.defineProperty(globalThis, 'navigator', { value: { maxTouchPoints: 0 }, configurable: true }); } catch (e) {}
 globalThis.DOMMatrix = class { inverse() { return this; } transformPoint(p) { return p; } };
 globalThis.DOMPoint = class { constructor(x, y) { this.x = x; this.y = y; } };
 
