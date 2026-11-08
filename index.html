@@ -96,7 +96,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .pcard .av{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--pc) 60%);display:grid;place-items:center;font-size:20px;grid-row:1/3;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 .pcard .pn{font-weight:800;display:flex;gap:5px;align-items:center;min-width:0;flex-wrap:wrap;font-size:13px}
 .pcard .pn small{font-weight:600;font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
-.pcard .cash{font-family:var(--f-display);font-size:19px;text-align:right;font-variant-numeric:tabular-nums}
+.pcard .cash{font-family:var(--f-body);font-weight:700;font-size:19px;text-align:right;font-variant-numeric:tabular-nums}
 .pcard .meta{color:var(--muted);font-size:11.5px;grid-column:2/4;display:flex;flex-wrap:wrap;gap:2px 8px}
 .pcard .st{color:var(--danger);font-weight:600}
 .pcard .ch{font-size:11px;color:var(--accent);font-weight:700}
@@ -241,7 +241,7 @@ header.top h1{font-size:22px}
 .corner .pcard .pn small,.corner .pcard .ch{display:none}
 .corner .pcard .sk{font-size:clamp(9px,.85vw,12px);padding:0 6px}
 .corner .pcard .rank{font-size:clamp(10px,.95vw,13px)}
-.corner .pcard .cash{font-size:clamp(17px,2vw,30px);grid-column:2;text-align:left;line-height:1.05;color:#ffe9a8;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.corner .pcard .cash{font-family:var(--f-body);font-weight:700;letter-spacing:.01em;font-size:clamp(17px,1.9vw,28px);grid-column:2;text-align:left;line-height:1.1;color:#ffe9a8;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .corner .pcard .meta{grid-column:1/3;color:rgba(255,255,255,.85);font-size:clamp(10.5px,1vw,14px);gap:2px 8px;margin-top:2px}
 .corner .pcard .st{color:#ffb3b3;font-weight:800}
 .tip{position:absolute;z-index:9;pointer-events:none;background:rgba(4,14,26,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 11px;font-size:13px;line-height:1.45;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -823,8 +823,9 @@ const hubFx={globe:null,atmo:null,orbit:null,orbiter:null,spinners:[],beacons:[]
   const grd=g.createRadialGradient(200,180,20,256,256,256);grd.addColorStop(0,'#2d8fc9');grd.addColorStop(.55,'#1c6f9f');grd.addColorStop(1,'#0b3d63');
   g.fillStyle=grd;g.beginPath();g.arc(256,256,250,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(255,255,255,.14)';g.lineWidth=1.5;for(let k=1;k<6;k++){g.beginPath();g.arc(256,256,k*42,0,Math.PI*2);g.stroke();}for(let k=0;k<12;k++){g.beginPath();g.moveTo(256,256);g.lineTo(256+Math.cos(k*Math.PI/6)*250,256+Math.sin(k*Math.PI/6)*250);g.stroke();}
-  g.fillStyle='#fff';g.font='bold 66px "Black Han Sans","Gothic A1",sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=10;g.fillText('딸깍 마블',256,405);
-  g.font='bold 24px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.85)';g.fillText('TTALKKAK MARBLE · WORLD TOUR',256,452);
+  g.fillStyle='rgba(6,18,32,.85)';g.beginPath();g.roundRect(136,288,240,86,22);g.fill();g.strokeStyle='rgba(255,209,102,.9)';g.lineWidth=3;g.stroke();
+  g.textAlign='center';g.textBaseline='middle';g.font='52px "Jua","Gothic A1",sans-serif';g.lineWidth=7;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText('딸깍 마블',256,322);g.fillStyle='#fff7d6';g.fillText('딸깍 마블',256,322);
+  g.font='600 15px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.9)';g.fillText('TTALKKAK MARBLE',256,358);
   const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
   const hub=new THREE.Mesh(new THREE.CircleGeometry(3.3,64),new THREE.MeshStandardMaterial({map:tex,roughness:.7}));
   hub.rotation.x=-Math.PI/2;hub.position.y=0.012;hub.receiveShadow=true;scene.add(hub);
@@ -955,11 +956,25 @@ function makeLabel(i){
   const cv=document.createElement('canvas');cv.width=Wc;cv.height=Hc;const g=cv.getContext('2d');
   g.textAlign='center';g.textBaseline='middle';
   const corner=i%8===0;
-  const emo=corner?'116px':'74px',nm=corner?'bold 42px':'bold 36px',pr=corner?'bold 26px':'bold 30px';
+  const emo=corner?'116px':'74px',nm=corner?'600 42px':'600 36px',pr=corner?'600 26px':'600 30px';
+  const KF0='"Gothic A1","Malgun Gothic","Apple SD Gothic Neo",sans-serif';
+  const fit=(txt,maxW,size,weight=600)=>{let sz=size;g.font=weight+' '+sz+'px '+KF0;while(sz>14&&g.measureText(txt).width>maxW){sz-=1;g.font=weight+' '+sz+'px '+KF0;}};
   const EF='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',KF='"Gothic A1","Malgun Gothic","Apple SD Gothic Neo",sans-serif';
   // for side tiles rotate text 0 (reads from front). Layout stacked.
   const mid=Hc/2;
-  if(t.type==='city'||t.type==='tour'){
+  const sd=SIDE_OF(i);
+  if((t.type==='city'||t.type==='tour')&&(sd==='l'||sd==='r')){
+    // left/right columns: wide, shallow tiles — picture and info side by side, info away from the building edge
+    const bandW=Wc*0.6,bandX=sd==='l'?Wc-bandW-6:6,artSz=Math.min(Hc*0.92,Wc-bandW-16),artX=sd==='l'?8:Wc-artSz-8;
+    if(t.type==='city')g.drawImage(landmarkThumb(t.name),artX,mid-artSz/2,artSz,artSz);else{g.font=Math.round(artSz*.7)+'px '+EF;g.fillText(t.ico||'',artX+artSz/2,mid);}
+    g.fillStyle='rgba(14,24,36,.88)';g.beginPath();g.roundRect(bandX,8,bandW,Hc-16,14);g.fill();
+    if(s.owner!=null){g.fillStyle=G.players[s.owner].color;g.beginPath();g.roundRect(bandX,8,10,Hc-16,[14,0,0,14]);g.fill();}
+    const cx=bandX+bandW/2+(s.owner!=null?4:0);
+    if(t.type==='tour'){g.font='600 18px '+KF0;g.fillStyle='#7fd8e0';g.fillText('관광지',cx,Hc*0.2);}
+    g.fillStyle='#ffffff';fit(t.name,bandW-22,40);g.fillText(t.name,cx,Hc*(t.type==='tour'?0.45:0.37));
+    let sub,col;if(s.owner!=null){sub='통행 '+fmt(toll(i));col=G.players[s.owner].color;}else{sub=fmt(t.price);col='#ffd166';}
+    fit(sub,bandW-22,34);const py=Hc*0.73;g.lineWidth=5;g.strokeStyle='rgba(0,0,0,.6)';g.strokeText(sub,cx,py);g.fillStyle=col;g.fillText(sub,cx,py);
+  }else if(t.type==='city'||t.type==='tour'){
     // bottom-row tiles have their building and colour stripe on the near (canvas-bottom) edge, so their info band sits higher up
     const flip=false;const bandH=Hc*0.42,bandY=SIDE_OF(i)==='b'?mid+Hc*0.03:mid+Hc*0.05;
     const artSz=flip?Math.min(Wc*0.6,Hc*0.36):Math.min(Wc*0.72,Hc*0.5),artY=flip?bandY+bandH+Hc*0.01:mid-Hc*0.48;
@@ -968,11 +983,10 @@ function makeLabel(i){
     g.fillStyle='rgba(14,24,36,.88)';g.beginPath();g.roundRect(6,bandY,Wc-12,bandH,14);g.fill();
     if(s.owner!=null){g.fillStyle=G.players[s.owner].color;g.beginPath();g.roundRect(6,bandY,Wc-12,12,[14,14,0,0]);g.fill();}
     g.fillStyle='#ffffff';
-    if(t.type==='tour'){g.font=`bold 22px ${KF}`;g.fillStyle='#7fd8e0';g.fillText('관 광 지',Wc/2,bandY+bandH*0.2);g.fillStyle='#ffffff';}
-    g.font=`${nm} ${KF}`;g.fillText(t.name,Wc/2,bandY+bandH*(t.type==='tour'?0.45:0.36));
-    g.font=`${pr} ${KF}`;
+    if(t.type==='tour'){g.font=`600 22px ${KF}`;g.fillStyle='#7fd8e0';g.fillText('관 광 지',Wc/2,bandY+bandH*0.2);g.fillStyle='#ffffff';}
+    fit(t.name,Wc-28,36);g.fillText(t.name,Wc/2,bandY+bandH*(t.type==='tour'?0.45:0.36));
     let sub,col;if(s.owner!=null){sub='통행 '+fmt(toll(i));col=G.players[s.owner].color;}else{sub=fmt(t.price);col='#ffd166';}
-    const py=bandY+bandH*0.76;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.6)';g.strokeText(sub,Wc/2,py);g.fillStyle=col;g.fillText(sub,Wc/2,py);
+    fit(sub,Wc-28,30);const py=bandY+bandH*0.76;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.6)';g.strokeText(sub,Wc/2,py);g.fillStyle=col;g.fillText(sub,Wc/2,py);
   }else{
     g.font=`${emo} ${EF}`;g.fillText(t.ico||'',Wc/2,mid-Hc*0.24);
     g.fillStyle='#15202b';g.font=`${nm} ${KF}`;g.fillText(t.name,Wc/2,mid+Hc*0.2);
