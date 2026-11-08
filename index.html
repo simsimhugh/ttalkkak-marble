@@ -367,9 +367,9 @@ const SALARY=40, START_CASH=500, ISLAND_FEE=50, AIM_RATE=0.65;
 
 /* ---------- characters ---------- */
 const CHARS=[
-  {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +30만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 내는 대신 원하는 칸으로 도망갑니다.'},
-  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 10% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 한 단계를 올립니다 (땅을 살 때 무료 별장도 가능).'},
-  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +50%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 2배로 받습니다.'},
+  {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +20만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 절반만 내고 원하는 칸으로 도망갑니다.'},
+  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 15% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
+  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +60%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 3배로 받습니다.'},
   {id:'lucky',name:'행운아',emoji:'🍀',passive:'주사위 포인터 명중률 90% (기본 65%). 나쁜 카드는 다시 뽑고 카드 수입 2배.',skill:'운명의 주사위',sdesc:'주사위가 나쁜 칸(통행료·무인도·세금)에 떨어지면 숫자를 골라 다시 던집니다.'},
   {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 15% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
   {id:'captain',name:'선장',emoji:'⚓',passive:'무인도 1턴만. 관광지를 반값에 사고 관광지 통행료는 내지 않습니다.',skill:'폭풍 소환',sdesc:'무인도에 갇히는 순간 상대를 대신 보내거나, 통행료(80만 이상)를 낼 때 땅 주인을 무인도로 날리고 통행료를 내지 않습니다.'},
@@ -402,7 +402,7 @@ const T=i=>TILES[i], S=i=>G.ts[i];
 const alive=()=>G.players.filter(p=>!p.bankrupt);
 const cost=(i,l)=>Math.round(T(i).price*BUILD[l]);
 const cum=(i,from,to)=>{let s=0;for(let l=from;l<=to;l++)s+=cost(i,l);return s;};
-const disc=(p,c)=>has(p,'architect')?Math.round(c*0.9):c;
+const disc=(p,c)=>has(p,'architect')?Math.round(c*0.85):c;
 function invested(i){const s=S(i);if(s.owner==null)return 0;return T(i).type==='tour'?T(i).price:cum(i,0,s.level);}
 const groupIdx=g=>TILES.map((t,i)=>t.type==='city'&&t.g===g?i:-1).filter(i=>i>=0);
 const ownsGroup=(pid,g)=>groupIdx(g).every(i=>S(i).owner===pid);
@@ -414,7 +414,7 @@ function toll(i){
   if(t.type==='tour'){const c=tourIdx.filter(j=>S(j).owner===s.owner).length;v=30*2**(c-1);}
   else{v=Math.round(t.price*MULT[s.level]);if(ownsGroup(s.owner,t.g))v*=2;}
   if(G.festival===i)v*=2;
-  if(has(o,'merchant'))v=Math.round(v*1.5);
+  if(has(o,'merchant'))v=Math.round(v*1.6);
   if(o.boost)v*=2;
   return v;
 }
@@ -1272,7 +1272,7 @@ async function walk(p,n){
   const dir=n>0?1:-1;
   for(let k=0;k<Math.abs(n);k++){
     p.pos=(p.pos+dir+N)%N;
-    if(dir>0&&p.pos===0){const s=SALARY+(has(p,'explorer')?30:0);gain(p,s,'월급');SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
+    if(dir>0&&p.pos===0){const s=SALARY+(has(p,'explorer')?20:0);gain(p,s,'월급');SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
     await hop(p,p.pos,Math.max(110,D(230)),0.4);
   }
 }
@@ -1318,14 +1318,14 @@ async function chargeToll(p,o,i){
   if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다. ⚓`,p);emote(p,'cool');return true;}
   if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`🛡️ ${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
-  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착! 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
+  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착! 이번 통행료를 3배(${fmt(amt*3)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=3;skillBurn(o,'바가지',`${t.name} 통행료 3배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
   say(`${nm(p)} ${nm(o)}의 ${t.name}에서 통행료 ${fmt(amt)}을 냅니다.`,p);
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
   // ⚓ payer's reactive skill: blow the owner to the island, skip the toll
   if(has(p,'captain')&&!p.skillUsed&&amt>=80&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환!',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.3))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로! ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});renderAll();return true;}
   // 🧭 payer's reactive skill: teleport away instead of paying
-  if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 내는 대신 원하는 칸으로 도망갈까요?</p>`,yes:'도망간다',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 ${fmt(amt)} 회피`);emote(p,'cool','슝~',{priority:5});const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
+  if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 절반(${fmt(Math.round(amt/2))})만 내고 원하는 칸으로 도망갈까요?</p>`,yes:'절반 내고 도망',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 절반(${fmt(Math.round(amt/2))})만 내고 도망`);emote(p,'cool','슝~',{priority:5});if(!pay(p,o,Math.round(amt/2),{why:'통행료 절반'}))return false;const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
   const danger=amt>=150||amt>=p.cash*0.45;
   if(danger){vignette('#ff2a2a');SFX.play('heart');toast(`😱 ${nm(p)} 위기! ${t.name} 통행료 <b>${fmt(amt)}</b>${amt>=p.cash?' — 파산 위험':''}`,'danger',4500);focusOn(i,1600,1.0);emote(p,'shock',undefined,{silent:true});await sleep(D(1300));}
   SFX.play('pay');
@@ -1392,16 +1392,16 @@ async function offerBuy(p,i){
   const opts=[0,1,2,3].map(l=>({label:l===0?'📍 땅만 구매':`${BICON[l]} 땅 + ${LV.slice(1,l+1).join(' + ')}`,value:l,cost:disc(p,cum(i,0,l)),disabled:p.cash<disc(p,cum(i,0,l))}));
   const best=opts.filter(o=>!o.disabled).pop();if(best)best.primary=true;
   const freeOK=has(p,'architect')&&!p.skillUsed,landC=disc(p,cum(i,0,0));
-  if(freeOK)opts.push({label:'✨ 땅 구매 + 긴급 공사 (별장 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
+  if(freeOK)opts.push({label:'✨ 땅 구매 + 긴급 공사 (별장+빌딩 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
   opts.push({label:'넘어가기',value:-1});
   const res=wouldComplete(p,i)?40:100;
-  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 10% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
+  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 15% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
     ()=>{for(let k=3;k>=0;k--)if(p.cash-disc(p,cum(i,0,k))>=res){if(k===0&&freeOK&&p.cash-landC>=30)return 'free1';return k;}return p.cash-landC>=30?(freeOK?'free1':0):-1;});
   let freeUp=false;if(l==='free1'){l=0;freeUp=true;}
   if(l<0){say(`${nm(p)} ${t.name}을(를) 사지 않았습니다.`,p);return;}
   const c=disc(p,cum(i,0,l));pay(p,null,c,{quiet:true,why:T(i).name+' 구매'});S(i).owner=p.id;S(i).level=l;SFX.play(l>0?'build':'buy');emote(p,'happy',l>=3?'호텔이다!':'내 거야~');monopolyFx(p,i);
   say(`${nm(p)} ${t.name}에 ${LV[l]}까지 ${fmt(c)} 투자했습니다.`,p);
-  if(freeUp){S(i).level=1;skillBurn(p,'긴급 공사',`${t.name}에 무료 별장을 지었습니다`);SFX.play('build');}
+  if(freeUp){S(i).level=2;skillBurn(p,'긴급 공사',`${t.name}에 무료로 빌딩까지 지었습니다`);SFX.play('build');}
   renderAll();checkWin(p);
 }
 async function offerBuild(p,i){
@@ -1412,12 +1412,12 @@ async function offerBuild(p,i){
   else{opts=[];for(let l=s.level+1;l<=3;l++){const c=disc(p,cum(i,s.level+1,l));opts.push({label:`${BICON[l]} ${LV.slice(s.level+1,l+1).join(' + ')} 건설`,value:l,cost:c,disabled:p.cash<c});}
     const best=opts.filter(o=>!o.disabled).pop();if(best)best.primary=true;}
   const freeOK=has(p,'architect')&&!p.skillUsed&&s.level<3;
-  if(freeOK)opts.push({label:`✨ 긴급 공사 — ${LV[s.level+1]} 무료`,value:'free',cost:0});
+  if(freeOK)opts.push({label:`✨ 긴급 공사 — ${LV[Math.min(3,s.level+2)]}까지 무료`,value:'free',cost:0});
   if(opts.every(o=>o.disabled)){say(`${nm(p)} ${t.name}에 지을 돈이 부족합니다.`,p);return;}
   opts.push({label:'짓지 않기',value:-1});
   const l=await decide(p,{title:`${t.ico} ${t.name} 건설`,html:`<p>지금: ${LV[s.level]} · 통행료 ${fmt(toll(i))}. 현재 자금 ${fmt(p.cash)}</p>${s.level===3?'<p class="muted">랜드마크는 다른 사람이 인수할 수 없어요.</p>':''}${freeOK?'<p class="muted">✨ 긴급 공사는 게임에 한 번만 쓸 수 있어요.</p>':''}`,options:opts},
     ()=>{for(let k=opts.length-2;k>=0;k--){const o=opts[k];if(o.value==='free')continue;if(!o.disabled&&p.cash-o.cost>=(o.value===4?80:110))return o.value;}return freeOK&&(G.round>=4||p.cash<150)?'free':-1;});
-  if(l==='free'){s.level++;skillBurn(p,'긴급 공사',`${t.name}이(가) 무료로 ${LV[s.level]}이 되었습니다`);SFX.play('build');emote(p,'happy','공짜!');renderAll();return;}
+  if(l==='free'){s.level=Math.min(3,s.level+2);skillBurn(p,'긴급 공사',`${t.name}이(가) 무료로 ${LV[s.level]}이 되었습니다`);SFX.play('build');emote(p,'happy','공짜!');renderAll();return;}
   if(l<0){say(`${nm(p)} ${t.name}에 건물을 짓지 않았습니다.`,p);return;}
   const c=disc(p,l===4?cost(i,4):cum(i,s.level+1,l));pay(p,null,c,{quiet:true,why:LV[l]+' 건설'});s.level=l;SFX.play(l===4?'landmark':'build');emote(p,l===4?'cool':'happy',l===4?'랜드마크!':undefined);if(l===4)bigEvent(`🏰 랜드마크!<small>${esc(p.name)} · ${t.name}</small>`,'gold',2200);
   say(`${nm(p)} ${t.name}에 ${LV[l]}${l===4?'를 세웠습니다! 🏰':'까지 지었습니다.'} (${fmt(c)})`,p);renderAll();
