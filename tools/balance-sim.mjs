@@ -18,7 +18,7 @@ src = src.replace(/function nukeCinematic\(i,rng,hits\)\{/, "function nukeCinema
 src = src.replace(/async function sail\(p,from,to,kind,ms,dest\)\{/, "async function sail(p){p.anim=false;}\nasync function _sailUnused(p,from,to,kind,ms,dest){");
 src = src.replace(/function showCard\(c,p\)\{/, "function showCard(){return Promise.resolve();}\nfunction _showCardUnused(c,p){");
 // --- expose internals ---
-src += "\nglobalThis.__sim={startGame,getG:()=>G,CHARS,newPlayer,TILES,assets,bump:()=>RUN++};\n";
+src += "\nglobalThis.__sim={startGame,getG:()=>G,CHARS,newPlayer,TILES,assets,bump:()=>RUN++,rollSpecials};\n";
 
 // --- universal stub ---
 const handler = {
@@ -52,6 +52,7 @@ const GAMES = +process.argv[3] || 300, LIMIT = +process.argv[4] || 30;
 const ids = sim.CHARS.map(c => c.id);
 const stat = Object.fromEntries(ids.map(id => [id, { games: 0, wins: 0, assets: 0, bankrupt: 0, first: 0 }]));
 const reasons = {};
+const relicCount = {};
 let lmTotal = 0, roundsTotal = 0, done = 0, lmPlayers = 0;
 const origLog = console.log;
 for (let g = 0; g < GAMES; g++) {
@@ -59,7 +60,7 @@ for (let g = 0; g < GAMES; g++) {
   const G = {
     players: pool.map((ch, k) => sim.newPlayer(k, { name: ch, ai: true, ch })),
     ts: sim.TILES.map(() => ({ owner: null, level: 0 })), festival: null, round: 1, cur: 0, over: false, logs: [],
-    limit: LIMIT, speed: 0.01, stable: null,
+    limit: LIMIT, speed: 0.01, stable: null, specials: sim.rollSpecials ? sim.rollSpecials() : null, jackpot: 0,
   };
   sim.bump();
   sim.startGame(G);
@@ -73,7 +74,7 @@ for (let g = 0; g < GAMES; g++) {
   const winner = winLine && winLine[1] != null ? G.players[winLine[1]] : w;
   const reason = winLine ? winLine[0].replace(/<[^>]+>/g, '').split('🏆')[1]?.trim().slice(0, 30) : '?';
   reasons[reason] = (reasons[reason] || 0) + 1;
-  done++; roundsTotal += G.round; const lmOwners = new Set(); G.ts.forEach(t => { if (t.level === 4) { lmTotal++; lmOwners.add(t.owner); } }); lmPlayers += lmOwners.size;
+  done++; roundsTotal += G.round; const lmOwners = new Set(); G.ts.forEach(t => { if (t.level === 4) { lmTotal++; lmOwners.add(t.owner); } }); lmPlayers += lmOwners.size; G.players.forEach(p => { (p.relics||[]).forEach(r => { relicCount[r] = relicCount[r] || {n:0,w:0}; relicCount[r].n++; if (p === winner) relicCount[r].w++; }); });
   G.players.forEach((p, k) => { const s = stat[p.ch]; s.games++; s.assets += sim.assets(p); if (p.bankrupt) s.bankrupt++; if (p === winner) s.wins++; if (k === 0) s.first++; });
   if (g % 50 === 49) origLog('...', g + 1);
 }
@@ -83,4 +84,5 @@ for (const id of ids) {
   origLog(`${c.emoji} ${c.name.padEnd(4)} games ${String(s.games).padStart(4)}  win ${(100 * s.wins / s.games).toFixed(1).padStart(5)}%  bankrupt ${(100 * s.bankrupt / s.games).toFixed(1).padStart(5)}%  avg assets ${(s.assets / s.games).toFixed(0).padStart(5)}`);
 }
 origLog('win reasons:', reasons);
+origLog('relics (held → win%):', Object.entries(relicCount).sort((a,b)=>b[1].w/b[1].n-a[1].w/a[1].n).map(([k,v])=>`${k} ${v.n}→${(100*v.w/v.n).toFixed(0)}%`).join('  '));
 origLog(`avg rounds ${(roundsTotal/done).toFixed(1)}  landmarks at end ${(lmTotal/done).toFixed(1)}  players with a landmark ${(lmPlayers/done).toFixed(1)}/4`);
