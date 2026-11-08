@@ -177,6 +177,8 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .cfront .ctag{position:absolute;top:8px;right:10px;font-size:11px;font-weight:800;background:#15202b;color:#fff;padding:1px 8px;border-radius:999px}
 .cfront.bad .ctag{background:#c8343c}
 .cardfx .chint{position:absolute;bottom:10%;color:#fff;font-size:13px;opacity:.8;text-shadow:0 1px 3px #000}
+#modal.clear{background:rgba(5,14,24,.12);backdrop-filter:none;align-items:flex-end;padding-bottom:max(18px,env(safe-area-inset-bottom,0px))}
+#modal.clear .card{width:min(420px,100%);background:rgba(255,255,255,.95)}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
 .confetti i{position:absolute;top:-12px;width:10px;height:14px;background:var(--c);animation:fall linear forwards;border-radius:2px}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
@@ -339,7 +341,7 @@ header.top h1{font-size:22px}
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
     <li>도시에 도착하면 땅을 사고 별장·빌딩·호텔을 한 번에 지을 수 있어요. 호텔이 있는 도시에 다시 오면 랜드마크를 세웁니다.</li>
     <li><b>끌어오기:</b> 내 도시(건물 있음)에 도착하면 건물 크기(별장 1 · 빌딩 2 · 호텔/랜드마크 3칸)만큼 양옆에 있는 플레이어를 끌어와 통행료를 받습니다.</li>
-    <li><b>핵폭탄:</b> 출발 칸에 정확히 도착하면 건물이 있는 내 도시 하나를 골라 건물 크기만큼 양옆 칸을 폭격합니다. 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요. 폭심지와 범위 안의 <b>내 건물도 함께 무너집니다</b>(땅은 남음). 폐허에는 잔해가 남아요. 핵폭탄은 <b>1인당 3발</b>.</li>
+    <li><b>핵폭탄:</b> 출발 칸에 정확히 도착하면 건물이 있는 내 도시 하나를 골라 건물 크기만큼 양옆 칸을 폭격합니다. 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요. 폭심지와 범위 안의 <b>내 건물도 함께 무너집니다</b>(땅은 남음). 폐허에는 잔해가 남아요. 핵폭탄은 <b>1인당 1발</b>.</li>
     <li>남의 도시에서는 통행료를 내고, 랜드마크가 아니면 투자금의 1.5배로 인수할 수 있어요.</li>
     <li>같은 색 도시를 모두 가지면 통행료 2배. 축제가 열린 곳도 2배.</li>
     <li>더블이면 한 번 더. 더블 세 번이면 무인도행. 무인도는 3턴, 더블이나 100만으로 탈출.</li>
@@ -407,14 +409,14 @@ const GCOLORS=['#8bc34a','#1fa896','#29a9e0','#5c6bc0','#a355c9','#e2457a','#ef7
 const LV=['땅','별장','빌딩','호텔','랜드마크'];
 const BICON=['','🏠','🏢','🏨','🏰'];
 const MULT=[0.2,0.7,1.4,2.2,3.2], BUILD=[1,0.5,0.7,0.9,1.2];
-const SALARY=150, START_CASH=1500, ISLAND_FEE=100, AIM_RATE=0.65, NUKES=3;
+const SALARY=150, START_CASH=1500, ISLAND_FEE=100, AIM_RATE=0.65, NUKES=1;
 
 /* ---------- characters ---------- */
 const CHARS=[
-  {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +20만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 절반만 내고 원하는 칸으로 도망갑니다.'},
-  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 15% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
-  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +70%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 3배로 받습니다.'},
-  {id:'lucky',name:'행운아',emoji:'🍀',passive:'주사위 포인터 명중률 90% (기본 65%). 나쁜 카드는 다시 뽑고 카드 수입 2배.',skill:'운명의 주사위',sdesc:'주사위가 나쁜 칸(통행료·무인도·세금)에 떨어지면 숫자를 골라 다시 던집니다.'},
+  {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +80만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 절반만 내고 원하는 칸으로 도망갑니다.'},
+  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 30% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
+  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +40%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 2배로 받습니다.'},
+  {id:'lucky',name:'행운아',emoji:'🍀',passive:'주사위 포인터 명중률 80% (기본 65%). 나쁜 카드는 다시 뽑고 카드 수입 2배.',skill:'운명의 주사위',sdesc:'주사위가 나쁜 칸(통행료·무인도·세금)에 떨어지면 숫자를 골라 다시 던집니다.'},
   {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 20% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
   {id:'captain',name:'선장',emoji:'⚓',passive:'무인도 1턴만. 관광지를 40% 싸게 사고 관광지 통행료는 내지 않습니다.',skill:'폭풍 소환',sdesc:'무인도에 갇히는 순간 상대를 대신 보내거나, 통행료(120만 이상)를 낼 때 땅 주인을 무인도로 날리고 통행료를 내지 않습니다.'},
 ];
@@ -446,7 +448,7 @@ const T=i=>TILES[i], S=i=>G.ts[i];
 const alive=()=>G.players.filter(p=>!p.bankrupt);
 const cost=(i,l)=>Math.round(T(i).price*BUILD[l]);
 const cum=(i,from,to)=>{let s=0;for(let l=from;l<=to;l++)s+=cost(i,l);return s;};
-const disc=(p,c)=>has(p,'architect')?Math.round(c*0.85):c;
+const disc=(p,c)=>has(p,'architect')?Math.round(c*0.7):c;
 function invested(i){const s=S(i);if(s.owner==null)return 0;return T(i).type==='tour'?T(i).price:cum(i,0,s.level);}
 const groupIdx=g=>TILES.map((t,i)=>t.type==='city'&&t.g===g?i:-1).filter(i=>i>=0);
 const ownsGroup=(pid,g)=>groupIdx(g).every(i=>S(i).owner===pid);
@@ -458,7 +460,7 @@ function toll(i){
   if(t.type==='tour'){const c=tourIdx.filter(j=>S(j).owner===s.owner).length;v=110*2**(c-1);}
   else{v=Math.round(t.price*MULT[s.level]);if(ownsGroup(s.owner,t.g))v*=2;}
   if(G.festival===i)v*=2;
-  if(has(o,'merchant'))v=Math.round(v*1.7);
+  if(has(o,'merchant'))v=Math.round(v*1.4);
   if(o.boost)v*=2;
   return v;
 }
@@ -1473,7 +1475,7 @@ function tileAt(ev){
   ray.setFromCamera(ptr,camera);const hit=ray.intersectObjects(tiles.flatMap(t=>[t.base,t.lab]),false)[0];
   return hit?hit.object.userData.tile:-1;
 }
-renderer.domElement.addEventListener('pointermove',ev=>{hover=tileAt(ev);renderer.domElement.style.cursor=hover>=0?'pointer':'';tipShow(hover,ev);});
+renderer.domElement.addEventListener('pointermove',ev=>{const h=tileAt(ev);if(nukePick&&h!==hover){if(pickable&&pickable.has(h))nukePreview(nukePick.p,h);else nukePreviewClear();}hover=h;renderer.domElement.style.cursor=hover>=0?'pointer':'';tipShow(hover,ev);});
 renderer.domElement.addEventListener('pointerleave',()=>tipShow(-1));
 function tipShow(i,ev){
   const tip=$('#tip');if(i<0||!G||ev.pointerType==='touch'){tip.hidden=true;return;}
@@ -1520,6 +1522,7 @@ function frame(now){
   });
   tokens.forEach(tk=>{if(tk.glow.visible)tk.glow.scale.setScalar(1+.15*Math.sin(tms*5));});
   tokenTick(now);timerTick(now);hubTick(now,dt);
+  if(nukeMarks.length){const k=.5+.35*Math.sin(now/120);nukeMarks.forEach(m=>{if(m.userData.pulse){if(m.isSprite)m.position.y+=Math.sin(now/200)*.002;else m.material.opacity=k;}});}
   meterTick(dt);
   if(sx||sy){camera.position.x+=sx;camera.position.y+=sy;}
   if(useBloom)composer.render();else renderer.render(scene,camera);
@@ -1711,7 +1714,7 @@ async function roll(p,opt={}){
   const d1=$('#d1'),d2=$('#d2');d1.classList.add('rolling');d2.classList.add('rolling');SFX.play('dice');
   if(!p.ai)SFX.play('drum');
   for(let k=0;k<(p.ai?8:14);k++){face(d1,1+Math.random()*6|0);face(d2,1+Math.random()*6|0);await sleep(p.ai?55:45+k*6);}
-  let[a,b]=aimedDice(target,has(p,'lucky')?0.9:AIM_RATE);
+  let[a,b]=aimedDice(target,has(p,'lucky')?0.8:AIM_RATE);
   if(p.fixDice){[a,b]=p.fixDice;p.fixDice=null;}
   d1.classList.remove('rolling');d2.classList.remove('rolling');face(d1,a,a===b);face(d2,b,a===b);if(a===b)SFX.play('dbl');
   meterEl.classList.add('idle');
@@ -1720,7 +1723,8 @@ async function roll(p,opt={}){
 }
 
 /* ---------- decisions ---------- */
-function modal({title,html,options,grid,timeout,noTimer}){
+function modal({title,html,options,grid,timeout,noTimer,clear}){
+  $('#modal').classList.toggle('clear',!!clear);
   $('#m-title').textContent=title;$('#m-body').innerHTML=html||'';
   const acts=$('#m-acts');acts.innerHTML='';acts.classList.toggle('grid',!!grid);
   return new Promise(res=>{
@@ -1796,7 +1800,7 @@ async function walk(p,n){
   const dir=n>0?1:-1;
   for(let k=0;k<Math.abs(n);k++){
     p.pos=(p.pos+dir+N)%N;
-    if(dir>0&&p.pos===0){const s=SALARY+(has(p,'explorer')?20:0);gain(p,s,'월급');SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
+    if(dir>0&&p.pos===0){const s=SALARY+(has(p,'explorer')?80:0);gain(p,s,'월급');SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
     await hop(p,p.pos,Math.max(110,D(230)),0.4);
   }
 }
@@ -1842,7 +1846,7 @@ async function chargeToll(p,o,i){
   if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다. ⚓`,p);emote(p,'cool');return true;}
   if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`🛡️ ${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
-  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착! 이번 통행료를 3배(${fmt(amt*3)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=3;skillBurn(o,'바가지',`${t.name} 통행료 3배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
+  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착! 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
   say(`${nm(p)} ${nm(o)}의 ${t.name}에서 통행료 ${fmt(amt)}을 냅니다.`,p);
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
@@ -1881,6 +1885,25 @@ const enemyTargets=(p,i)=>blastTargets(p,i).filter(j=>S(j).owner!==p.id);
 const ownTargets=(p,i)=>blastTargets(p,i).filter(j=>S(j).owner===p.id);
 const tileLoss=j=>T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):invested(j);
 function blastValue(p,i){return enemyTargets(p,i).reduce((a,j)=>a+tileLoss(j),0)-ownTargets(p,i).reduce((a,j)=>a+(T(j).type==='city'&&S(j).level>0?cum(j,1,S(j).level):0),0)*0.8;}
+let nukeMarks=[];
+function nukePreviewClear(){nukeMarks.forEach(m=>{scene.remove(m);m.geometry.dispose();m.material.dispose();});nukeMarks=[];}
+function nukePreview(p,i){
+  nukePreviewClear();if(i==null||i<0)return;const rng=range(S(i).level);
+  const zone=[i];for(let o=1;o<=rng;o++)zone.push((i+o)%N,(i-o+N)%N);
+  zone.forEach(j=>{const rr=rect(j),st=S(j);const hasB=tiles[j].bgrp.children.length>0&&st.owner!=null;const mine=st.owner===p.id;
+    const col=j===i?0xffd166:!hasB?0xff9a5a:mine?0xb070ff:0xff2a2a;
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(rr.w-.06,rr.d-.06),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:hasB||j===i?.6:.3,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(rr.x,.238,rr.z);m.userData.pulse=hasB||j===i;scene.add(m);nukeMarks.push(m);
+    if(hasB&&j!==i){const sp=makeSprite(mine?'😢':'💥',.5);sp.position.set(rr.x,1.5,rr.z);sp.userData.pulse=true;scene.add(sp);nukeMarks.push(sp);}});
+  const ic=makeSprite('☢️',.7);const r0=rect(i);ic.position.set(r0.x,1.9,r0.z);scene.add(ic);nukeMarks.push(ic);
+}
+let nukePick=null;
+function pickNukeTarget(p,cands){
+  setMsg(`${nm(p)}, 핵폭탄을 쏠 <b>내 건물</b>을 보드에서 고르세요. 붉은 칸이 무너집니다.`);toast('☢️ 내 건물 칸을 누르면 붕괴 예상 범위가 보여요','danger',4500);
+  setPickable(new Set(cands));nukePick={p};
+  return new Promise(res=>{pickResolver=i=>{nukePick=null;setPickable(null);nukePreview(p,i);res(i);};
+    timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;nukePick=null;setPickable(null);res(-1);}});
+  }).then(v=>{timerStop();return v;});
+}
 async function offerNuke(p){
   if(G.nukesOn===false)return;
   if(p.nukes==null)p.nukes=NUKES;
@@ -1888,9 +1911,23 @@ async function offerNuke(p){
   const cands=owned(p).filter(i=>T(i).type==='city'&&S(i).level>=1);
   if(!cands.length){log(`${nm(p)} 핵폭탄을 쏠 건물이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 건물(별장 이상)이 있는 내 도시가 없어요`,'danger',5000);SFX.play('alarm');return;}
   if(cands.every(i=>enemyTargets(p,i).length===0)){log(`${nm(p)} 핵폭탄 사정거리 안에 남의 땅이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 사정거리 안에 남의 땅이 없어요 (건물을 키우면 사정거리 증가)`,'danger',5000);SFX.play('alarm');return;}
-  const i=await decide(p,{title:'☢️ 핵폭탄 발사',html:`<p>내 도시 하나를 고르면 건물 크기만큼 양옆 칸이 폭격됩니다 (별장 1 · 빌딩 2 · 호텔/랜드마크 3). 남의 건물은 무너지고 건물 없는 땅은 주인을 잃어요.</p><p class="muted">남은 핵폭탄 <b>${p.nukes}발</b> (1인당 ${NUKES}발).</p><p class="muted">⚠️ 폭심지와 범위 안의 <b>내 건물도 함께 무너집니다</b> (땅은 남아요).</p>`,
-    options:cands.map(i=>({label:`${T(i).ico} ${T(i).name} (${LV[S(i).level]} · 반경 ${range(S(i).level)}칸 · 상대 ${enemyTargets(p,i).length}곳 · 내 건물 ${ownTargets(p,i).filter(j=>S(j).level>0).length}곳)`,value:i,danger:enemyTargets(p,i).length>0})).concat([{label:'쏘지 않기',value:-1,primary:true}])},
-    ()=>{const best=cands.reduce((a,b)=>blastValue(p,b)>blastValue(p,a)?b:a);return blastValue(p,best)>40?best:-1;});
+  const aiBest=()=>{const best=cands.reduce((a,b)=>blastValue(p,b)>blastValue(p,a)?b:a);return blastValue(p,best)>40?best:-1;};
+  let i;
+  if(p.ai){await sleep(D(500));i=aiBest();if(i>=0){nukePreview(p,i);await sleep(D(1400));nukePreviewClear();}}
+  else{
+    const go=await modal({title:'☢️ 핵폭탄을 쓸까요?',html:`<p>출발 칸에 도착했어요. 핵폭탄은 게임에 <b>단 한 번</b>만 쓸 수 있어요.</p><p class="muted">쓰면 보드에서 내 건물을 고르고, 무너질 범위를 미리 본 뒤 발사합니다. 범위 안의 <b>내 건물도 함께 무너져요</b>.</p>`,
+      options:[{label:'☢️ 쓴다 — 위치 고르기',value:1,danger:true},{label:'이번엔 아껴 둔다',value:0,primary:true}]});
+    i=-1;
+    while(go){
+      const pick=await pickNukeTarget(p,cands);if(pick<0)break;
+      const en=enemyTargets(p,pick),own=ownTargets(p,pick).filter(j=>S(j).level>0);
+      const loss=v=>v.reduce((a,j)=>a+tileLoss(j),0);
+      const ok=await modal({title:`☢️ ${T(pick).name}에서 발사?`,html:`<p>반경 <b>${range(S(pick).level)}칸</b> · 붉게 표시된 칸이 무너집니다.</p><p>상대 피해 <b>${en.length}곳</b> (${fmt(loss(en))})${en.length?': '+[...new Set(en.map(j=>G.players[S(j).owner].name))].map(esc).join(', '):''}</p><p class="muted">내 건물 희생 ${own.length}곳 (${fmt(own.reduce((a,j)=>a+cum(j,1,S(j).level),0))})</p>`,
+        options:[{label:'☢️ 발사!',value:1,danger:true},{label:'다른 곳 고르기',value:2},{label:'취소',value:0,primary:true}],clear:true});
+      if(ok===1){i=pick;nukePreviewClear();break;}
+      nukePreviewClear();if(ok===0)break;
+    }
+  }
   if(i<0){log(`${nm(p)} 핵폭탄을 쏘지 않았습니다.`,p);return;}
   const rng=range(S(i).level),hits=blastTargets(p,i);p.nukes--;
   say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사! ☢️💥 (남은 핵폭탄 ${p.nukes}발)`,p);bigEvent(`☢️ 핵폭탄 발사!<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);emote(p,'cool','받아라!',{priority:5});
@@ -1929,7 +1966,7 @@ async function offerBuy(p,i){
   if(freeOK)opts.push({label:'✨ 땅 구매 + 긴급 공사 (별장+빌딩 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
   opts.push({label:'넘어가기',value:-1});
   const res=wouldComplete(p,i)?40:100;
-  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 15% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
+  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 30% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
     ()=>{for(let k=3;k>=0;k--)if(p.cash-disc(p,cum(i,0,k))>=res){if(k===0&&freeOK&&p.cash-landC>=30)return 'free1';return k;}return p.cash-landC>=30?(freeOK?'free1':0):-1;});
   let freeUp=false;if(l==='free1'){l=0;freeUp=true;}
   if(l<0){say(`${nm(p)} ${t.name}을(를) 사지 않았습니다.`,p);return;}
@@ -2213,7 +2250,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
