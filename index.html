@@ -1205,6 +1205,9 @@ function buildTiles(){
     base.position.y=0.11;base.castShadow=true;base.receiveShadow=true;grp.add(base);
     const rim=new THREE.Mesh(new THREE.BoxGeometry(r.w-0.02,0.2,r.d-0.02),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x000000,roughness:.5}));
     rim.position.y=0.09;rim.visible=false;grp.add(rim);
+    const frame=new THREE.Group(),frM=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x000000,roughness:.4,metalness:.2}),FT=.085,fw=r.w-0.1,fd=r.d-0.1;
+    [[fw,FT,0,(fd-FT)/2],[fw,FT,0,-(fd-FT)/2],[FT,fd,(fw-FT)/2,0],[FT,fd,-(fw-FT)/2,0]].forEach(([w,d,x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,.045,d),frM);m.position.set(x,.248,z);frame.add(m);});
+    frame.visible=false;frame.userData.mat=frM;grp.add(frame);
     const lab=new THREE.Mesh(new THREE.PlaneGeometry(r.w-0.12,r.d-0.12),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false}));
     lab.rotation.x=-Math.PI/2;lab.position.y=0.225;grp.add(lab);
     let band=null;
@@ -1220,7 +1223,7 @@ function buildTiles(){
     const fest=makeSprite('🎉',0.6);fest.position.set(0,0.95,0);fest.visible=false;grp.add(fest);
     const prop=tileProp(t,i);if(prop)grp.add(prop);grp.userData.prop=prop;
     base.userData.tile=i;lab.userData.tile=i;
-    scene.add(grp);tiles.push({grp,base,rim,lab,band,bgrp,fest,prop,key:null});
+    scene.add(grp);tiles.push({grp,base,rim,lab,band,bgrp,fest,prop,frame,key:null});
   });
 }
 function spriteTex(text,size=128,bg=null,ring=null){
@@ -1466,10 +1469,11 @@ function sync(){
       tl.bgrp.clear();
       if(s.owner!=null){
         const o=G.players[s.owner];tl.rim.visible=true;tl.rim.material.color.set(o.color);tl.rim.material.emissive.set(o.color).multiplyScalar(.35);
+        tl.frame.visible=true;tl.frameCol=o.color;tl.frame.userData.mat.color.set(o.color);tl.frame.userData.mat.emissive.set(o.color).multiplyScalar(.3);
         if(t.type==='city'&&s.level>0){s.rubble=false;const b=buildingMesh(s.level,o.color,t.name);const[bx,bz]=buildingPos(i);b.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(b);
           if(tl.level!=null&&s.level>tl.level&&!G.over)riseFx(b,s.level===4,new THREE.Vector3(bx,0.22,bz));}
         if(t.type==='tour'){const f=makeSprite('🎫',.42);const[bx,bz]=buildingPos(i);f.position.set(bx-tl.grp.position.x,.5,bz-tl.grp.position.z);tl.bgrp.add(f);}
-      }else tl.rim.visible=false;
+      }else{tl.rim.visible=false;tl.frame.visible=false;tl.frameCol=null;}
       if(s.rubble&&s.level===0&&t.type==='city'){const r=rubbleMesh();const[bx,bz]=buildingPos(i);r.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(r);}
       tl.fest.visible=false;tl.level=s.level;
       if(G.festival===i&&!tl.festFx){tl.festFx=festFx(i);tl.grp.add(tl.festFx);}
@@ -1764,16 +1768,47 @@ function frame(now){
     if(pk){tl.rim.visible=true;tl.rim.material.color.set(0xffcf3f);tl.rim.material.emissive.set(0xffcf3f).multiplyScalar(.5+.4*Math.sin(tms*6));}
     else if(hc){tl.rim.visible=true;tl.rim.material.color.set(hc);tl.rim.material.emissive.set(hc).multiplyScalar(.45+.35*Math.sin(tms*5));}
     else if(th){tl.rim.visible=true;const on=Math.sin(tms*7)>0;tl.rim.material.color.set(on?0xff2a2a:0xffffff);tl.rim.material.emissive.set(on?0xff2a2a:0xffffff).multiplyScalar(.7);}
+    const fm=tl.frame.userData.mat;
+    if(pk){tl.frame.visible=true;const c=tl.frameCol||0xffcf3f;fm.color.set(c);fm.emissive.set(c).multiplyScalar(.55+.45*Math.sin(tms*6));tl.frameHot=true;}
+    else if(tl.frameHot){tl.frameHot=false;tl.frame.visible=!!tl.frameCol;if(tl.frameCol){fm.color.set(tl.frameCol);fm.emissive.set(tl.frameCol).multiplyScalar(.3);}}
+    tl.lab.material.color.setScalar(pickable&&pickDim&&!pk?.38:1);
     if(i===hover)tl.base.position.y=0.16;else tl.base.position.y=0.11;
   });
   tokens.forEach(tk=>{if(tk.glow.visible)tk.glow.scale.setScalar(1+.15*Math.sin(tms*5));});
-  tokenTick(now);timerTick(now);hubTick(now,dt);
+  tokenTick(now);timerTick(now);hubTick(now,dt);pickMarkTick(now);
   if(nukeMarks.length){const k=.5+.35*Math.sin(now/120);nukeMarks.forEach(m=>{if(m.userData.pulse){if(m.isSprite)m.position.y+=Math.sin(now/200)*.002;else m.material.opacity=k;}});}
   meterTick(dt);
   if(sx||sy){camera.position.x+=sx;camera.position.y+=sy;}
   if(useBloom)composer.render();else renderer.render(scene,camera);
 }
-function setPickable(set){pickable=set;if(!set)sync_forceRims();}
+let pickDim=false;const pickMarks=[];
+function clearPickMarks(){pickMarks.forEach(m=>{scene.remove(m);m.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose();}});});pickMarks.length=0;}
+function mineBadge(p,i){
+  const cv=document.createElement('canvas');cv.width=256;cv.height=112;const g=cv.getContext('2d');
+  g.fillStyle=p.color;g.beginPath();g.roundRect(6,6,244,100,26);g.fill();g.lineWidth=6;g.strokeStyle='#fff';g.stroke();
+  g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='600 40px "Noto Sans KR","Malgun Gothic",sans-serif';
+  const st=S(i),lv=T(i).type==='tour'?'관광지':st.level===4?'랜드마크':st.level?'건물 '+st.level:'땅';
+  const tv=T(i).price?toll(i):0;g.fillText('내 땅 · '+lv,128,tv?40:56);if(tv){g.font='500 30px "Noto Sans KR","Malgun Gothic",sans-serif';g.fillText('통행료 '+fmt(tv),128,82);}
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false}));sp.scale.set(1.25,.55,1);sp.renderOrder=20;return sp;
+}
+/* set: pickable tiles; p: the human choosing — their own tiles get a light beam and a name badge; dim: grey out everything else */
+function setPickable(set,p,dim){
+  pickable=set;pickDim=!!(set&&dim);clearPickMarks();
+  if(!set){sync_forceRims();return;}
+  if(!p)return;
+  owned(p).forEach(i=>{const r=rect(i),g=new THREE.Group();g.position.set(r.x,0,r.z);
+    const beam=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,2.6,24,1,true),new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+    beam.position.y=1.5;beam.userData.beam=true;g.add(beam);
+    const ring=new THREE.Mesh(new THREE.RingGeometry(.42,.55,32),new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.27;ring.userData.ring=true;g.add(ring);
+    const b=mineBadge(p,i);b.position.y=2.35;b.userData.badge=true;g.add(b);
+    g.userData.phase=i;scene.add(g);pickMarks.push(g);});
+}
+function pickMarkTick(now){if(!pickMarks.length)return;const t=now/1000;
+  pickMarks.forEach(g=>{const ph=g.userData.phase;g.children.forEach(o=>{
+    if(o.userData.beam)o.material.opacity=.16+.1*Math.sin(t*4+ph);
+    else if(o.userData.ring){const k=1+.25*((t*1.2+ph*.1)%1);o.scale.set(k,k,1);o.material.opacity=.9*(1-((t*1.2+ph*.1)%1));}
+    else if(o.userData.badge)o.position.y=2.35+Math.sin(t*2.2+ph)*.08;});});}
 function sync_forceRims(){tiles.forEach(t=>t.key=null);sync();}
 
 /* =================== FEEDBACK & TENSION =================== */
@@ -2266,7 +2301,7 @@ function nukePreview(p,i){
 let nukePick=null;
 function pickNukeTarget(p,cands){
   setMsg(`${nm(p)}, 핵폭탄을 쏠 <b>내 건물</b>을 보드에서 고르세요. 붉은 칸이 무너집니다.`);toast('☢️ 내 건물 칸을 누르면 붕괴 예상 범위가 보여요','danger',4500);
-  setPickable(new Set(cands));nukePick={p};
+  setPickable(new Set(cands),p,true);nukePick={p};
   return new Promise(res=>{pickResolver=i=>{nukePick=null;setPickable(null);nukePreview(p,i);res(i);};
     timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;nukePick=null;setPickable(null);res(-1);}});
   }).then(v=>{timerStop();return v;});
@@ -2390,8 +2425,8 @@ function aiTravelTarget(p){
 }
 async function pickTravel(p){
   if(p.ai){await sleep(D(600));return aiTravelTarget(p);}
-  setMsg(`${nm(p)}, 보드에서 이동할 칸을 누르세요.`);toast('✈️ 보드에서 갈 칸을 누르세요','good',4000);
-  setPickable(new Set(TILES.map((t,i)=>i).filter(i=>i!==24)));
+  setMsg(`${nm(p)}, 보드에서 이동할 칸을 누르세요. 빛기둥이 서 있는 곳이 <b>내 땅</b>이에요.`);toast(`✈️ 보드에서 갈 칸을 누르세요 · 빛기둥 = 내 땅 ${owned(p).length}곳`,'good',4500);
+  setPickable(new Set(TILES.map((t,i)=>i).filter(i=>i!==24)),p,false);
   timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;r(aiTravelTarget(p));}});
   const i=await new Promise(r=>pickResolver=r);timerStop();
   setPickable(null);
@@ -2689,7 +2724,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction,setPickable,pickTravel};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
