@@ -52,6 +52,7 @@ const GAMES = +process.argv[3] || 300, LIMIT = +process.argv[4] || 30;
 const ids = sim.CHARS.map(c => c.id);
 const stat = Object.fromEntries(ids.map(id => [id, { games: 0, wins: 0, assets: 0, bankrupt: 0, first: 0 }]));
 const reasons = {};
+let lmTotal = 0, roundsTotal = 0, done = 0, lmPlayers = 0;
 const origLog = console.log;
 for (let g = 0; g < GAMES; g++) {
   const pool = [...ids].sort(() => Math.random() - 0.5).slice(0, 4);
@@ -72,6 +73,7 @@ for (let g = 0; g < GAMES; g++) {
   const winner = winLine && winLine[1] != null ? G.players[winLine[1]] : w;
   const reason = winLine ? winLine[0].replace(/<[^>]+>/g, '').split('🏆')[1]?.trim().slice(0, 30) : '?';
   reasons[reason] = (reasons[reason] || 0) + 1;
+  done++; roundsTotal += G.round; const lmOwners = new Set(); G.ts.forEach(t => { if (t.level === 4) { lmTotal++; lmOwners.add(t.owner); } }); lmPlayers += lmOwners.size;
   G.players.forEach((p, k) => { const s = stat[p.ch]; s.games++; s.assets += sim.assets(p); if (p.bankrupt) s.bankrupt++; if (p === winner) s.wins++; if (k === 0) s.first++; });
   if (g % 50 === 49) origLog('...', g + 1);
 }
@@ -81,3 +83,4 @@ for (const id of ids) {
   origLog(`${c.emoji} ${c.name.padEnd(4)} games ${String(s.games).padStart(4)}  win ${(100 * s.wins / s.games).toFixed(1).padStart(5)}%  bankrupt ${(100 * s.bankrupt / s.games).toFixed(1).padStart(5)}%  avg assets ${(s.assets / s.games).toFixed(0).padStart(5)}`);
 }
 origLog('win reasons:', reasons);
+origLog(`avg rounds ${(roundsTotal/done).toFixed(1)}  landmarks at end ${(lmTotal/done).toFixed(1)}  players with a landmark ${(lmPlayers/done).toFixed(1)}/4`);
