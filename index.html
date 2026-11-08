@@ -2140,6 +2140,12 @@ async function loop(){
 const DEF_NAMES=['플레이어 1','플레이어 2','플레이어 3','플레이어 4'];
 const AI_NAMES=['AI 바람','AI 파도','AI 구름','AI 노을'];
 let setupCfg=[0,1,2,3].map(k=>({name:'',ai:k>=2,ch:CHARS[k].id}));
+/* remember the setup screen choices in this browser */
+const OPT_IDS=['opt-limit','opt-timer','opt-nuke','opt-theme','opt-speed'];
+function saveSetup(){try{const o={};OPT_IDS.forEach(id=>{const el=$('#'+id);if(el)o[id]=el.value;});localStorage.setItem('ttm-setup',JSON.stringify({players:setupCfg,opts:o}));}catch(e){}}
+function loadSetup(){try{const d=JSON.parse(localStorage.getItem('ttm-setup')||'null');if(!d)return;
+  if(Array.isArray(d.players)&&d.players.length===4)setupCfg=d.players.map((c,k)=>({name:String(c.name||'').slice(0,10),ai:!!c.ai,ch:CHARS.some(x=>x.id===c.ch)?c.ch:CHARS[k].id}));
+  Object.entries(d.opts||{}).forEach(([id,v])=>{const el=$('#'+id);if(el&&[...el.options].some(o=>o.value===v))el.value=v;});}catch(e){}}
 function renderSetup(){
   const humans=setupCfg.filter(c=>!c.ai).length;
   $('#humans').innerHTML=[0,1,2,3,4].map(n=>`<button type="button" data-n="${n}" class="${n===humans?'on':''}">${n?n+'명':'관전'}</button>`).join('');
@@ -2166,7 +2172,7 @@ function startGame(g){
   renderAll();loop();
 }
 $('#btn-start').addEventListener('click',()=>{
-  readNames();RUN++;
+  readNames();saveSetup();RUN++;
   const g={players:setupCfg.map((c,k)=>newPlayer(k,c)),
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 500만으로 출발! 🌍',null]],
     limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:$('#opt-nuke').value==='1',stable:null};
@@ -2182,7 +2188,7 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- boot ---------- */
 {const sel=$('#opt-theme');sel.innerHTML=Object.entries(THEMES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');try{const t=localStorage.getItem('el-theme');if(t&&THEMES[t])sel.value=t;}catch(e){}sel.addEventListener('change',()=>{try{localStorage.setItem('el-theme',sel.value);}catch(e){}buildEnv(sel.value);});}
-buildEnv($('#opt-theme').value||'day');buildTiles();fitCamera();requestAnimationFrame(frame);
+loadSetup();buildEnv($('#opt-theme').value||'day');buildTiles();fitCamera();requestAnimationFrame(frame);
 $('#loading').hidden=true;
 document.fonts?.ready.then(()=>{tiles.forEach(t=>t.key=null);sync();});
 function start(data){
