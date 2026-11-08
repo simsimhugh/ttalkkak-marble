@@ -15,6 +15,7 @@ src = src.replace(/const sleep=ms=>\{[^\n]*\n/, "const sleep=ms=>new Promise(r=>
 src = src.replace(/requestAnimationFrame\(frame\);/g, "");
 // cinematics resolve through the render loop, which never runs headlessly
 src = src.replace(/function nukeCinematic\(i,rng,hits\)\{/, "function nukeCinematic(){return Promise.resolve();}\nfunction _nukeCinematicUnused(i,rng,hits){");
+src = src.replace(/async function sail\(p,from,to,kind,ms,dest\)\{/, "async function sail(p){p.anim=false;}\nasync function _sailUnused(p,from,to,kind,ms,dest){");
 // --- expose internals ---
 src += "\nglobalThis.__sim={startGame,getG:()=>G,CHARS,newPlayer,TILES,assets,bump:()=>RUN++};\n";
 
