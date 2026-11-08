@@ -1236,7 +1236,6 @@ function hubFestival(i){
   const disc=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.1,.22,32),new THREE.MeshStandardMaterial({color:0xff3b6b,emissive:0xff2a5a,emissiveIntensity:.5,roughness:.5}));disc.position.y=.1;g.add(disc);
   for(let k=0;k<12;k++){const a=k*Math.PI/6;const b=new THREE.Mesh(new THREE.SphereGeometry(.06,8,8),M([0xff5a5a,0xffd166,0x7cf29a,0x4fc3f7][k%4],{emissive:[0xff5a5a,0xffd166,0x7cf29a,0x4fc3f7][k%4],emissiveIntensity:2}));b.position.set(Math.cos(a)*1.05,.22,Math.sin(a)*1.05);g.add(b);}
   const sign=festSign();sign.scale.set(.95,.36,1);sign.position.y=.3+size.y*sc+.55;g.add(sign);
-  const nm=textPlane(t.name+' 축제',2.8,.8,'#fff','#c9302c','600 100px "Gothic A1","Malgun Gothic",sans-serif');nm.position.set(0,-.02,1.18);nm.rotation.x=-.35;g.add(nm);
   hb.add(g);hubFx.fest=g;hubFx.festLm=lm;
 }
 function hubTick(now,dt){
