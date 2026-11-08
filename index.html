@@ -824,8 +824,12 @@ const LOT_SCALE=5.0,LOT_LM=3.8,ARC0=215,ARC1=325,R_FRONT=17.5,R_BACK=21.5,BACK_Y
 /* the lots stand on a lit arc behind the board — a strip of landmarks that grows into the skyline as the game goes on */
 const PROP_IDX=TILES.map((t,i)=>i).filter(i=>TILES[i].type==='city'||TILES[i].type==='tour');
 const FRONT_N=Math.ceil(PROP_IDX.length/2),BACK_N=PROP_IDX.length-FRONT_N;
-function lotPos(i){const k=PROP_IDX.indexOf(i),back=k%2===1,idx=Math.floor(k/2),cnt=back?BACK_N:FRONT_N;const ja=((i*53)%7-3)*.55,jr=(((i*37)%11)/10-.5)*1.3;const a=(ARC0+idx*((ARC1-ARC0)/(cnt-1))+ja)*Math.PI/180,r=(back?R_BACK:R_FRONT)+jr;
-  const x=Math.cos(a)*r,z=Math.sin(a)*r;return{x,z,y:back?BACK_Y:0,rot:Math.atan2(-x,-z)};}
+/* each property tile gets its own city block around the plaza, picked by the tile's direction from the board centre */
+const BLOCK_P=9.4;let LOT_BLOCK=null;
+function lotBlocks(){if(LOT_BLOCK)return LOT_BLOCK;const cands=[];for(let bx=-3;bx<=3;bx++)for(let bz=-3;bz<=3;bz++){const ring=Math.max(Math.abs(bx),Math.abs(bz));if(ring<2)continue;cands.push({bx,bz,ring,a:Math.atan2(bz,bx),used:false});}
+  const map={};PROP_IDX.map(i=>{const r=rect(i);return{i,a:Math.atan2(r.z,r.x)};}).sort((p,q)=>p.a-q.a).forEach(({i,a})=>{let best=null,bs=1e9;cands.forEach(c=>{if(c.used)return;let d=Math.abs(((c.a-a)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI)+(c.ring-2)*.9;if(d<bs){bs=d;best=c;}});best.used=true;map[i]=best;});return LOT_BLOCK=map;}
+function lotPos(i){const b=lotBlocks()[i];const x=b.bx*BLOCK_P,z=b.bz*BLOCK_P;return{x,z,y:0,rot:Math.atan2(-x,-z)};}
+function lotBlock(bx,bz){return Object.values(lotBlocks()).some(b=>b.bx===bx&&b.bz===bz);}
 function arcBoxes(r,w,h,y,mat,n,a0=ARC0-6,a1=ARC1+6){for(let k=0;k<n;k++){const a=(a0+(a1-a0)*(k+.5)/n)*Math.PI/180;const seg=(a1-a0)/n*Math.PI/180*r+.06;const m=new THREE.Mesh(new THREE.BoxGeometry(seg,h,w),mat);m.position.set(Math.cos(a)*r,y,Math.sin(a)*r);m.rotation.y=-a;m.receiveShadow=true;env.root.add(m);}}
 function palm(x,z,s=1){const g=new THREE.Group();g.position.set(x,-0.42,z);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.07*s,.12*s,2.6*s,7),M(0x8b6a44));trunk.position.y=1.3*s;trunk.rotation.z=(Math.random()-.5)*.12;trunk.castShadow=true;g.add(trunk);
   for(let q=0;q<7;q++){const l=new THREE.Mesh(new THREE.ConeGeometry(.16*s,1.5*s,4),M([0x2e8b3d,0x3a9a48,0x277a33][q%3]));l.position.set(0,2.55*s,0);l.rotation.set(1.25,q*(Math.PI*2/7)+Math.random()*.3,0);l.castShadow=true;g.add(l);}
@@ -839,7 +843,7 @@ function neonSign(text,w,h,col,T){const g=new THREE.Group();const sign=textPlane
 function vegasBlock(cx,cz,T,size,ring,bx,bz){
   const g=new THREE.Group();g.position.set(cx,-0.4,cz);env.root.add(g);
   const face=Math.atan2(-cx,-cz),h=((bx*73+bz*31)%97+97)%97;
-  const kind=ring===2?['casino','motel','park'][h%3]:ring===3?['casino','tower','casino'][h%3]:['tower','casino','park'][h%3];
+  const kind='park'; // the city is the players' landmarks; everything else is green
   const col=NEON_COLS[h%NEON_COLS.length],name=VEGAS_NAMES[(h+ring)%VEGAS_NAMES.length];
   const lot=new THREE.Mesh(new THREE.PlaneGeometry(size,size),M(kind==='park'?0x6fa65a:0x4a4f57,{roughness:.95}));lot.rotation.x=-Math.PI/2;lot.position.y=.06;lot.receiveShadow=true;g.add(lot);
   const inner=new THREE.Group();inner.rotation.y=face;g.add(inner);
@@ -877,15 +881,8 @@ function vegasLandmarks(T){
     const needle=new THREE.Mesh(new THREE.CylinderGeometry(.05,.2,5,8),M(0x9aa3ad));needle.position.y=20.5;g.add(needle);const bc=new THREE.Mesh(new THREE.SphereGeometry(.2,8,8),M(0xff4040,{emissive:0xff2020,emissiveIntensity:3}));bc.position.y=23;g.add(bc);hubFx.beacons.push(bc);env.root.add(g);}
   {const sph=new THREE.Mesh(new THREE.SphereGeometry(5.5,32,24),new THREE.MeshStandardMaterial({color:0x6a3aff,emissive:0xb07cff,emissiveIntensity:T.night?1.2:.35,roughness:.4}));sph.position.set(2,-0.4+6,-36);env.root.add(sph);hubFx.spinners.push({obj:sph,speed:.15,y:-0.4+6,phase:0});}
 }
-function buildStrip(T){
-  vegasLandmarks(T);
+function buildStrip(T){ // (the generic Vegas icons are gone: only the players' landmarks and the entrance sign remain)
   const asph=M(0x2b2f36,{roughness:.95}),walk=M(0xc9c4b6,{roughness:.95}),stone=M(0xd9d2c0,{roughness:.9}),gold=M(0xd9a441,{metalness:.7,roughness:.3});
-  // the boulevard between the two rows, with lane dashes, kerbs and a raised podium for the back row
-  arcBoxes(19.5,2.0,.02,-0.405,asph,40);arcBoxes(18.45,.3,.08,-0.39,walk,40);arcBoxes(20.55,.3,.08,-0.39,walk,40);
-  const dash=new THREE.MeshBasicMaterial({color:0xffe08a});for(let k=0;k<36;k++){const a=(ARC0-5+(ARC1-ARC0+10)*(k+.5)/36)*Math.PI/180;const d=new THREE.Mesh(new THREE.PlaneGeometry(.7,.1),dash);d.rotation.x=-Math.PI/2;d.rotation.z=-a;d.position.set(Math.cos(a)*19.5,-0.39,Math.sin(a)*19.5);env.root.add(d);}
-  arcBoxes(R_BACK,3.6,BACK_Y,-0.4+BACK_Y/2,stone,30);arcBoxes(R_BACK-1.85,.14,.1,-0.4+BACK_Y+.05,gold,30);
-  // palms along the front kerb, lamps along the boulevard
-  for(let k=0;k<13;k++){const a=(ARC0-4+(ARC1-ARC0+8)*k/12)*Math.PI/180;palm(Math.cos(a)*15.9,Math.sin(a)*15.9,.9+Math.random()*.3);if(k%2)streetLamp(Math.cos(a)*18.6,Math.sin(a)*18.6,T);}
   // the big welcome sign behind everything
   {const a=270*Math.PI/180,r=25.5,x=Math.cos(a)*r,z=Math.sin(a)*r;const g=new THREE.Group();g.position.set(x,-0.4,z);g.rotation.y=Math.atan2(-x,-z);
     [-3.6,3.6].forEach(px=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.14,.2,4.6,10),M(0x3a3f46));p.position.set(px,2.3,0);g.add(p);});
@@ -921,9 +918,11 @@ function buildLots(T){
     const g=new THREE.Group();g.position.set(x,-0.4+y,z);g.rotation.y=rot;env.root.add(g);const fence=new THREE.Group();g.add(fence);
     const col=t.type==='tour'?'#2a8fa0':GCOLORS[t.g];
     // empty site: a soft garden — grass mound, flower ring, a palm and a lamp. No fences, no signs.
-    const grass=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.14,28),M(0x6fa65a,{roughness:1}));grass.position.y=.07;grass.receiveShadow=true;fence.add(grass);
-    for(let q=0;q<10;q++){const a=q*Math.PI/5+i;const f=new THREE.Mesh(new THREE.SphereGeometry(.09,6,6),M([0xff5a8a,0xffd166,0xff8a3a,0xffffff,0xb07cff][(q+i)%5]));f.position.set(Math.cos(a)*1.15,.2,Math.sin(a)*1.15);fence.add(f);}
-    const bush=new THREE.Mesh(new THREE.SphereGeometry(.42,10,8),M(0x3f8f3a));bush.position.set(-.6,.45,-.4);bush.castShadow=true;fence.add(bush);const bush2=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),M(0x4f9f44));bush2.position.set(.7,.36,.3);fence.add(bush2);
+    const lawn=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),M(0x6fa65a,{roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.06;lawn.receiveShadow=true;g.add(lawn);
+    const grass=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.4,.16,32),M(0x7bb565,{roughness:1}));grass.position.y=.08;grass.receiveShadow=true;fence.add(grass);
+    for(let q=0;q<14;q++){const a=q*Math.PI/7+i;const f=new THREE.Mesh(new THREE.SphereGeometry(.11,6,6),M([0xff5a8a,0xffd166,0xff8a3a,0xffffff,0xb07cff][(q+i)%5]));f.position.set(Math.cos(a)*1.7,.24,Math.sin(a)*1.7);fence.add(f);}
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),M(0x3f8f3a));bush.position.set(-.9,.55,-.6);bush.castShadow=true;fence.add(bush);const bush2=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),M(0x4f9f44));bush2.position.set(1.0,.45,.5);fence.add(bush2);
+    palm(x+2.6,z+2.4,.9);palm(x-2.7,z-2.3,1.0);
     const lp=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,1.3,6),M(0x3a3f46));lp.position.set(.9,.75,-.8);fence.add(lp);const lh=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),new THREE.MeshStandardMaterial({color:0xfff2c0,emissive:0xffe0a0,emissiveIntensity:T.lamps}));lh.position.set(.9,1.45,-.8);fence.add(lh);env.lamps.push(lh.material);
     lots[i]={grp:g,fence,bld:null,level:-1,owner:null,rubble:false,col};});
 }
@@ -978,7 +977,7 @@ function buildEnv(id){
   for(let bx=-4;bx<=4;bx++)for(let bz=-4;bz<=4;bz++){if(Math.abs(bx)<=1&&Math.abs(bz)<=1)continue;const cx=bx*P,cz=bz*P;const far=Math.max(Math.abs(bx),Math.abs(bz))>=4;
     const sw=new THREE.Mesh(new THREE.BoxGeometry(P-RW+.6,.1,P-RW+.6),walkM);sw.position.set(cx,-0.4,cz);sw.receiveShadow=true;env.root.add(sw);
     // near blocks are vacant land now; only the far ring keeps its skyline. The strip right behind the board holds the lots.
-    {const rr=Math.hypot(cx,cz);if(cz<-2&&rr>13&&rr<27)vacantBlock(cx,cz,T,P-RW-.4,true);else vegasBlock(cx,cz,T,P-RW-.4,Math.max(Math.abs(bx),Math.abs(bz)),bx,bz);}
+    if(!lotBlock(bx,bz))vegasBlock(cx,cz,T,P-RW-.4,Math.max(Math.abs(bx),Math.abs(bz)),bx,bz);
   }
   // ring road around the plaza: dashes, crosswalks, lamps
   const R=P*1.5;for(let k=0;k<4;k++){const horiz=k<2,s=k%2?1:-1;for(let u=-R+1;u<R;u+=1.6){const dsh=new THREE.Mesh(new THREE.PlaneGeometry(horiz?.8:.12,horiz?.12:.8),dashM);dsh.rotation.x=-Math.PI/2;dsh.position.set(horiz?u:s*R,-0.418,horiz?s*R:u);env.root.add(dsh);}
