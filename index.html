@@ -263,6 +263,8 @@ header.top h1{font-size:22px}
 #shop .perk{font:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 10px;cursor:pointer;display:flex;gap:6px;align-items:center}
 #shop .perk b{background:#ffe9a8;color:#5a3a00;border-radius:999px;padding:0 6px;font-size:11px}
 #shop .perk.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}#shop .perk:disabled{opacity:.45;cursor:not-allowed}
+.pcard.boss{background:linear-gradient(135deg,rgba(60,10,20,.92),rgba(20,4,8,.92))!important;border-color:#ffd166!important}
+.pcard.boss .pn{color:#ffd166!important}
 .chip.evchip{background:linear-gradient(90deg,#7a1fa2,#d8333c);box-shadow:0 0 12px rgba(216,51,60,.6)}
 .chip.jackchip{background:linear-gradient(90deg,#8a5a00,#f5b400);color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4)}
 .chip.jackchip.bump{animation:jackBump .6s ease}
@@ -363,6 +365,7 @@ header.top h1{font-size:22px}
     <li><b>잭팟:</b> 세금·벌금·무인도 탈출비는 잭팟에 쌓이고, 출발 칸에 정확히 서면 전부 가져갑니다.</li>
     <li><b>유물:</b> 출발을 지날 때마다 유물 3개 중 1개를 골라 이번 판 내내 가집니다(최대 6개). 자석·흡혈·속성 공사·납 주사위·파산 보험·핵 탄두·잭팟 사냥꾼·독점 왕관·연봉 협상·할인 쿠폰.</li>
     <li><b>판마다 바뀌는 칸:</b> 행운카드 칸 2~3곳이 🎰 카지노·🔨 경매장·🕶️ 암시장으로 바뀝니다.</li>
+    <li><b>🌏 세계 일주 런:</b> 아시아 → 유럽 → 아메리카 3스테이지. 사람 플레이어가 이기면 유물을 가지고 다음 스테이지로(새 유물 1개 추가). AI는 스테이지마다 자금·유물이 늘고, 마지막엔 3턴마다 땅을 강제로 사들이는 👑 재벌 회장 보스가 나옵니다.</li>
     <li><b>마일리지:</b> 판이 끝나면 순위·랜드마크·유물 수만큼 쌓이고, 시작 화면에서 시작 자금·시작 유물·핵폭탄·면제권을 삽니다.</li>
     <li><b>꼴찌 구호금:</b> 총자산 꼴찌가 출발을 지나면 월급 2배.</li>
     <li>승리: 색 그룹 3개 독점, 한 변의 도시 전부 독점, 관광지 4곳 독점, 최후의 1인, 또는 제한 라운드 후 총자산 1위.</li>
@@ -380,6 +383,9 @@ header.top h1{font-size:22px}
     <div class="sopts">
       <label for="opt-limit">제한 라운드
         <select id="opt-limit"><option value="20">20라운드</option><option value="30" selected>30라운드</option><option value="0">무제한</option></select>
+      </label>
+      <label for="opt-mode">모드
+        <select id="opt-mode"><option value="single" selected>한 판</option><option value="run">🌏 세계 일주 런 (3스테이지)</option></select>
       </label>
       <label for="opt-nuke">핵폭탄
         <select id="opt-nuke"><option value="1" selected>켜기</option><option value="0">끄기</option></select>
@@ -1247,9 +1253,49 @@ function tileProp(t,i){
       pl.position.set(cx,.22+.55,cz);pl.rotation.z=.15;g.add(pl);add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.04,.45,6),M(0x888)),cx,.22+.22,cz);hubFx.spinners.push({obj:pl,speed:.6,y:pl.position.y,phase:0});break;}
     case 'chance':{const cv=document.createElement('canvas');cv.width=128;cv.height=180;const gg=cv.getContext('2d');const gr=gg.createLinearGradient(0,0,128,180);gr.addColorStop(0,'#ffb347');gr.addColorStop(1,'#ff5a5a');gg.fillStyle=gr;gg.fillRect(0,0,128,180);gg.strokeStyle='#fff';gg.lineWidth=8;gg.strokeRect(8,8,112,164);gg.fillStyle='#fff';gg.font='bold 100px sans-serif';gg.textAlign='center';gg.textBaseline='middle';gg.fillText('?',64,92);
       const tx2=new THREE.CanvasTexture(cv);tx2.colorSpace=THREE.SRGBColorSpace;const card=add(new THREE.Mesh(new THREE.BoxGeometry(.3,.42,.02),[M(0xffffff),M(0xffffff),M(0xffffff),M(0xffffff),new THREE.MeshStandardMaterial({map:tx2,roughness:.5}),new THREE.MeshStandardMaterial({map:tx2,roughness:.5})]),cx,.22+.5,cz);hubFx.spinners.push({obj:card,speed:1.4,y:card.position.y,phase:i});break;}
-    case 'tax':{const stone=M(0xe8e2d2);add(new THREE.Mesh(new THREE.BoxGeometry(.7,.08,.5),stone),cx,.22+.04,cz);for(let k=0;k<4;k++)add(new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.42,8),stone),cx-.26+k*.173,.22+.29,cz+.18);
-      add(new THREE.Mesh(new THREE.BoxGeometry(.6,.3,.3),M(0xd9d2c0)),cx,.22+.23,cz-.05);const ped=add(new THREE.Mesh(new THREE.ConeGeometry(.42,.2,4),stone),cx,.22+.6,cz);ped.rotation.y=Math.PI/4;ped.scale.z=.6;
-      add(new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),M(0xffd166,{metalness:.8,roughness:.3,emissive:0x553300,emissiveIntensity:.5})),cx,.22+.76,cz);break;}
+    case 'tax':{
+      /* 국세청: stepped granite plinth, six fluted columns, gold-lettered frieze, pediment with a coin emblem, flags and coin stacks */
+      const B=new THREE.Group();B.position.set(cx,.22,cz);g.add(B);const put=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;B.add(m);return m;};
+      const granite=M(0xd9d4c7,{roughness:.85}),marble=M(0xf1ede3,{roughness:.55}),dark=M(0x5b6270,{roughness:.7}),gold=M(0xffcf4a,{metalness:.85,roughness:.28,emissive:0x5a3a00,emissiveIntensity:.45});
+      // steps
+      [[.92,.62,.035],[.86,.56,.035],[.8,.5,.035]].forEach(([w,d,h],k)=>put(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),k%2?marble:granite),0,h/2+k*h,0));
+      const base=3*.035;
+      // main hall behind the colonnade, with lit windows
+      const hall=put(new THREE.Mesh(new THREE.BoxGeometry(.72,.34,.3),granite),0,base+.17,-.08);
+      const win=M(0xffe7a8,{emissive:0xffc35a,emissiveIntensity:.9,roughness:.4});
+      for(let r=0;r<2;r++)for(let c=0;c<5;c++)put(new THREE.Mesh(new THREE.BoxGeometry(.07,.08,.01),win),-.24+c*.12,base+.1+r*.13,.072);
+      put(new THREE.Mesh(new THREE.BoxGeometry(.11,.17,.012),dark),0,base+.085,.074); // door
+      // colonnade
+      for(let k=0;k<6;k++){const x=-.3+k*.12;
+        put(new THREE.Mesh(new THREE.BoxGeometry(.075,.025,.075),marble),x,base+.0125,.17);
+        put(new THREE.Mesh(new THREE.CylinderGeometry(.026,.031,.3,10),marble),x,base+.025+.15,.17);
+        put(new THREE.Mesh(new THREE.BoxGeometry(.075,.025,.075),marble),x,base+.025+.3+.0125,.17);}
+      const top=base+.35+.025;
+      // entablature with frieze sign
+      const cv=document.createElement('canvas');cv.width=256;cv.height=48;const x2=cv.getContext('2d');x2.fillStyle='#3a4150';x2.fillRect(0,0,256,48);x2.strokeStyle='#ffcf4a';x2.lineWidth=3;x2.strokeRect(4,4,248,40);
+      x2.fillStyle='#ffd866';x2.font='600 28px "Noto Sans KR","Malgun Gothic",sans-serif';x2.textAlign='center';x2.textBaseline='middle';x2.fillText('국 세 청',128,26);
+      const ft=new THREE.CanvasTexture(cv);ft.colorSpace=THREE.SRGBColorSpace;const fm=new THREE.MeshStandardMaterial({map:ft,roughness:.6});
+      put(new THREE.Mesh(new THREE.BoxGeometry(.8,.075,.5),[marble,marble,marble,marble,fm,marble]),0,top+.0375,-.02);
+      put(new THREE.Mesh(new THREE.BoxGeometry(.84,.02,.54),granite),0,top+.085,-.02);
+      // pediment (triangular prism)
+      const sh=new THREE.Shape();sh.moveTo(-.42,0);sh.lineTo(.42,0);sh.lineTo(0,.17);sh.lineTo(-.42,0);
+      const ped=put(new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.5,bevelEnabled:false}),marble),0,top+.095,-.27);
+      const tym=new THREE.Shape();tym.moveTo(-.34,0);tym.lineTo(.34,0);tym.lineTo(0,.12);tym.lineTo(-.34,0);
+      put(new THREE.Mesh(new THREE.ExtrudeGeometry(tym,{depth:.01,bevelEnabled:false}),M(0x8c95a6,{roughness:.7})),0,top+.115,.232);
+      // gold coin emblem in the tympanum, slowly turning
+      const coin=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.014,24),gold);coin.rotation.x=Math.PI/2;const cg=new THREE.Group();cg.add(coin);
+      const wcv=document.createElement('canvas');wcv.width=wcv.height=64;const w2=wcv.getContext('2d');w2.fillStyle='#c98f12';w2.beginPath();w2.arc(32,32,30,0,7);w2.fill();w2.fillStyle='#fff3b0';w2.font='700 40px sans-serif';w2.textAlign='center';w2.textBaseline='middle';w2.fillText('₩',32,35);
+      const wt=new THREE.CanvasTexture(wcv);wt.colorSpace=THREE.SRGBColorSpace;const face=new THREE.Mesh(new THREE.CircleGeometry(.046,24),new THREE.MeshBasicMaterial({map:wt}));face.position.z=.008;cg.add(face);const back=face.clone();back.rotation.y=Math.PI;back.position.z=-.008;cg.add(back);
+      put(cg,0,top+.16,.25);hubFx.spinners.push({obj:cg,speed:.8,y:cg.position.y,phase:i});
+      // ridge acroterion
+      put(new THREE.Mesh(new THREE.ConeGeometry(.025,.06,6),gold),0,top+.095+.2,-.02);
+      // flagpoles on both sides of the steps
+      [-1,1].forEach((sd,k)=>{put(new THREE.Mesh(new THREE.CylinderGeometry(.008,.011,.62,6),M(0xe0e0e0,{metalness:.6,roughness:.3})),sd*.43,.31,.26);
+        put(new THREE.Mesh(new THREE.SphereGeometry(.016,8,6),gold),sd*.43,.625,.26);
+        const fl=put(new THREE.Mesh(new THREE.PlaneGeometry(.15,.095),new THREE.MeshStandardMaterial({color:k?0x1f4fa8:0xffffff,side:THREE.DoubleSide,roughness:.8})),sd*.43+sd*.08,.55,.26);fl.castShadow=false;hubFx.spinners.push({obj:fl,speed:0,y:fl.position.y,phase:i+k*3});});
+      // coin stacks on the forecourt
+      [[-.36,.29,4],[.33,.3,3],[.39,.22,2]].forEach(([x,z,n])=>{for(let q=0;q<n;q++){const c=put(new THREE.Mesh(new THREE.CylinderGeometry(.034,.034,.014,14),gold),x+(q%2)*.004,base*0+.007+q*.015,z);c.castShadow=false;}});
+      break;}
     case 'casino':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.5,.3),M(0xd8333c,{metalness:.3})),cx,.22+.25,cz);const scr=add(new THREE.Mesh(new THREE.BoxGeometry(.32,.16,.02),M(0xfff0a0,{emissive:0xffcc40,emissiveIntensity:1.2})),cx,.22+.36,cz+.16);
       ['🍒','7','🍋'].forEach((c,k)=>{});const lever=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.3,6),M(0xcccccc)),cx+.24,.22+.5,cz);add(new THREE.Mesh(new THREE.SphereGeometry(.04,8,8),M(0xd8333c)),cx+.24,.22+.66,cz);hubFx.beacons.push(scr);break;}
     case 'auction':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.3,.25),M(0x8b5a2b)),cx,.22+.15,cz);const head=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.18,10),M(0x5a3a1a)),cx+.05,.22+.42,cz);head.rotation.z=Math.PI/2;const hd=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.26,6),M(0x8b5a2b)),cx+.05,.22+.33,cz);hd.rotation.x=.4;break;}
@@ -1963,7 +2009,7 @@ function renderPlayers(){
     if(p.fixDice)st.push(`다음 주사위 ${p.fixDice[0]+p.fixDice[1]}`);
     const nk=p.nukes==null?NUKES:p.nukes;
     const rk=p.bankrupt?0:rankOf(p),fl=p.flash&&Date.now()<p.flash.until?p.flash.cls:'';
-    return `<div class="pcard ${k===G.cur&&!G.over?'cur':''} ${p.bankrupt?'out':''} ${!p.bankrupt&&p.cash<250?'low':''} ${fl}" style="--pc:${p.color}">
+    return `<div class="pcard ${p.boss?'boss':''} ${k===G.cur&&!G.over?'cur':''} ${p.bankrupt?'out':''} ${!p.bankrupt&&p.cash<250?'low':''} ${fl}" style="--pc:${p.color}">
       <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${p.skillUsed?'used':''}" title="${c.sdesc}">${p.skillUsed?'스킬 사용함':'✨ '+c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
       <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span><span title="남은 핵폭탄">☢️${nk}</span>${(p.relics||[]).length?`<span class="relics" title="${p.relics.map(id=>RELICS[id].name+': '+RELICS[id].desc).join('\n')}">${p.relics.map(id=>RELICS[id].ico).join('')}</span>`:''}${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
   });
@@ -1972,7 +2018,7 @@ function renderPlayers(){
 function renderAll(){
   sync();renderPlayers();
   const p=G.players[G.cur];
-  const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
+  const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=(G.run?`${RUN_STAGES[G.run.stage].ico} ${G.run.stage+1}/${RUN_STAGES.length} · `:'')+`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
   {const jc=$('#jackchip');const jt='💰 잭팟 '+fmt(G.jackpot||0);if(jc.textContent!==jt){jc.textContent=jt;jc.classList.remove('bump');void jc.offsetWidth;jc.classList.add('bump');}const ec=$('#evchip');if(G.event){ec.hidden=false;ec.textContent=WEVENTS[G.event.id].short(G.event)+' · '+(G.event.until-G.round+1)+'R';}else ec.hidden=true;}
   $('#turn').innerHTML=`<i style="--pc:${p.color}">${CH(p.ch).emoji}</i>${esc(p.name)}의 차례`;$('#turn').style.setProperty('--pc',p.color);stage.style.setProperty('--pc',p.color);
 }
@@ -2465,7 +2511,7 @@ async function worldEvent(){
   await sleep(D(1800));renderAll();
 }
 async function playTurn(p){
-  if(p.startDraft){p.startDraft=false;await relicDraft(p,'✈️ 시작 유물');}
+  if(p.boss&&!p.bankrupt&&!G.over){await bossAction(p);if(G.over)return;}
   if(G.event&&G.round>G.event.until){toast(`🌍 ${WEVENTS[G.event.id].name} 종료`,'info',2500);G.event=null;renderAll();}
   if(G.pendingEvent){G.pendingEvent=false;await worldEvent();if(G.over)return;}
   if(p.startDraft){p.startDraft=false;await relicDraft(p,'✈️ 시작 유물');}
@@ -2509,12 +2555,54 @@ function endByLimit(){
   const w=alive().reduce((a,b)=>assets(b)>assets(a)?b:a);
   endGame(w,`${G.limit}라운드가 끝나 총자산이 가장 많은 플레이어가 이겼습니다.`);
 }
+/* ---- world-tour run ---- */
+const RUN_STAGES=[
+  {name:'아시아',ico:'🏯',theme:'day',limit:20,aiCash:0,aiRelics:0},
+  {name:'유럽',ico:'🏰',theme:'sunset',limit:20,aiCash:400,aiRelics:1},
+  {name:'아메리카',ico:'🗽',theme:'night',limit:22,aiCash:800,aiRelics:2,boss:true},
+];
+function stageBanner(){const st=RUN_STAGES[G.run.stage];bigEvent(`${st.ico} 스테이지 ${G.run.stage+1} · ${st.name}${st.boss?'<small>👑 보스: 재벌 회장 등장</small>':`<small>${G.run.stage?'AI가 더 강해졌어요':'세 지역을 정복하세요'}</small>`}`,'gold',3200);}
+function nextStage(){
+  const prev=G;const run={...prev.run,stage:prev.run.stage+1};const st=RUN_STAGES[run.stage];
+  const players=prev.players.map(p=>{const q=newPlayer(p.id,{name:p.name,ai:p.ai,ch:p.ch});q.name=p.name.replace(/^👑 /,'');
+    if(!p.ai){q.relics=[...(p.relics||[])];q.startDraft=true;if(q.relics.includes('warhead'))q.nukes=NUKES+1;}
+    else{q.cash+=st.aiCash;q.relics=[];for(let k=0;k<st.aiRelics;k++){const ch=Object.keys(RELICS).filter(id=>!q.relics.includes(id)&&!(RELICS[id].needNuke&&prev.nukesOn===false));q.relics.push(ch[Math.random()*ch.length|0]);}}
+    return q;});
+  if(st.boss){const b=players.find(p=>p.ai);if(b){b.boss=true;b.name='👑 재벌 회장';b.cash=3200;b.relics=['crown','leech'];}}
+  const g={players,ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[[`${st.ico} 스테이지 ${run.stage+1}: ${st.name} — 사람 플레이어는 유물을 가지고 갑니다`,null]],
+    limit:st.limit,speed:prev.speed,turnSec:prev.turnSec,theme:st.theme,nukesOn:prev.nukesOn,stable:null,specials:rollSpecials(),jackpot:0,run};
+  RUN++;startGame(g);setTimeout(stageBanner,600);
+}
+/* the boss buys up the board: every 3rd boss turn it takes over the most valuable non-landmark city (or buys an empty one) */
+async function bossAction(p){
+  p.bossTurns=(p.bossTurns||0)+1;if(p.bossTurns%3!==0)return;
+  const targets=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).owner!==p.id&&S(i).level<4);
+  let i,price,from=null;
+  if(targets.length){i=targets.reduce((a,b)=>invested(b)>invested(a)?b:a);price=Math.round(invested(i)*1.2);from=G.players[S(i).owner];}
+  else{const free=G.ts.map((s,k)=>k).filter(k=>T(k).type==='city'&&S(k).owner==null);if(!free.length)return;i=free.reduce((a,b)=>T(b).price>T(a).price?b:a);price=T(i).price;}
+  if(p.cash<price+200)return;
+  bigEvent(`🏢 재벌의 기업 인수!<small>${T(i).name} · ${fmt(price)}${from?' → '+esc(from.name):''}</small>`,'doom',2600);SFX.play('alarm');focusOn(i,2400,1.1);await sleep(D(1400));
+  pay(p,from,price,{quiet:true,why:'기업 인수'});S(i).owner=p.id;emote(p,'cool','이것도 내 거.',{priority:6});if(from)emote(from,'angry','강제 인수라니!',{priority:6,silent:true});
+  log(`🏢 ${nm(p)} 기업 인수: ${T(i).name} (${fmt(price)})${from?' ← '+nm(from):''}`,p);renderAll();checkWin(p);
+}
 function endGame(w,reason){
   if(G.over)return;G.over=true;G.stable=null;timerStop();setTimeout(updateEmoteBar,6500);
   $('#roll').disabled=true;$('#skill').hidden=true;meter.active=false;
   say(`${nm(w)} 승리! 🏆 ${reason}`,w);renderAll();confetti();SFX.play('win');bigEvent(`🏆 ${esc(w.name)} 승리!<small>${reason}</small>`,'gold',4000);
   emote(w,'laugh','내가 1등!',{priority:9,ms:6000});alive().filter(q=>q!==w).forEach(q=>emote(q,'cry','졌다…',{priority:8,ms:6000,silent:true}));
   const rank=[...G.players].sort((a,b)=>(a.bankrupt-b.bankrupt)||assets(b)-assets(a));
+  if(G.run){
+    const st=RUN_STAGES[G.run.stage];const humanWon=!w.ai;const last=G.run.stage===RUN_STAGES.length-1;
+    if(humanWon){G.run.cleared=G.run.stage+1;}
+    if(humanWon&&!last){const bonus=150*(G.run.stage+1);const m=loadMeta();m.miles+=bonus;saveMeta(m);
+      setTimeout(()=>modal({title:`${st.ico} 스테이지 ${G.run.stage+1} 클리어!`,html:`<div class="big-ico">🎉</div><p><b>${esc(w.name)}</b>이(가) ${st.name} 지역을 정복했어요. ${reason}</p><p>✈️ 클리어 보너스 <b>+${bonus}</b> 마일리지</p><p class="muted">다음: ${RUN_STAGES[G.run.stage+1].ico} ${RUN_STAGES[G.run.stage+1].name} — 사람 플레이어는 유물을 가지고 가고 새 유물을 하나 더 고릅니다. AI는 자금과 유물을 더 들고 시작해요.${RUN_STAGES[G.run.stage+1].boss?' <b>👑 보스 재벌 회장이 등장합니다.</b>':''}</p>`,
+        options:[{label:`${RUN_STAGES[G.run.stage+1].ico} 다음 스테이지로`,value:1,primary:true},{label:'런 포기',value:0}],noTimer:true}).then(v=>{if(v)nextStage();else showSetup();}),900);
+      return;}
+    const miles=awardMiles()+(humanWon?600:G.run.cleared*100);if(humanWon||G.run.cleared){const m=loadMeta();m.miles+=humanWon?600:G.run.cleared*100;saveMeta(m);}const mtot=loadMeta().miles;
+    setTimeout(()=>modal({title:humanWon?'🌏 세계 일주 완주!':`💀 런 종료 — ${st.name}에서 패배`,html:`<div class="big-ico">${humanWon?'🏆':'🧳'}</div><p>${humanWon?'세 지역을 모두 정복했어요!':`${esc(w.name)}이(가) 이겼어요. ${reason}`}</p><p>클리어한 스테이지 <b>${G.run.cleared}/${RUN_STAGES.length}</b></p><p><b>✈️ 마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')})</p>`,
+      options:[{label:'새 게임',value:1,primary:true},{label:'보드 보기',value:0}],noTimer:true}).then(v=>{if(v)showSetup();}),900);
+    return;
+  }
   const miles=awardMiles();const mtot=loadMeta().miles;
   setTimeout(()=>modal({title:`🏆 ${w.name} 승리!`,html:`<div class="big-ico">${CH(w.ch).emoji}</div><p>${reason}</p>${miles?`<p><b>✈️ 마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')}) — 다음 판 시작 화면에서 보너스를 사세요.</p>`:''}<ol class="rank">${rank.map((p,k)=>`<li style="--pc:${p.color}"><span>${['🥇','🥈','🥉','4위'][k]} ${CH(p.ch).emoji} ${esc(p.name)}${p.bankrupt?' (파산)':''}</span><b>${fmt(assets(p))}</b></li>`).join('')}</ol>`,
     options:[{label:'새 게임',value:1,primary:true},{label:'보드 보기',value:0}]}).then(v=>{if(v)showSetup();}),400);
@@ -2537,7 +2625,7 @@ const DEF_NAMES=['플레이어 1','플레이어 2','플레이어 3','플레이�
 const AI_NAMES=['AI 바람','AI 파도','AI 구름','AI 노을'];
 let setupCfg=[0,1,2,3].map(k=>({name:'',ai:k>=2,ch:CHARS[k].id}));
 /* remember the setup screen choices in this browser */
-const OPT_IDS=['opt-limit','opt-timer','opt-nuke','opt-theme','opt-speed'];
+const OPT_IDS=['opt-limit','opt-timer','opt-nuke','opt-theme','opt-speed','opt-mode'];
 function saveSetup(){try{const o={};OPT_IDS.forEach(id=>{const el=$('#'+id);if(el)o[id]=el.value;});localStorage.setItem('ttm-setup',JSON.stringify({players:setupCfg,opts:o}));}catch(e){}}
 function loadSetup(){try{const d=JSON.parse(localStorage.getItem('ttm-setup')||'null');if(!d)return;
   if(Array.isArray(d.players)&&d.players.length===4)setupCfg=d.players.map((c,k)=>({name:String(c.name||'').slice(0,10),ai:!!c.ai,ch:CHARS.some(x=>x.id===c.ch)?c.ch:CHARS[k].id}));
@@ -2566,7 +2654,7 @@ const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color
 function startGame(g){
   G=g;applySpecials(G.specials);if(env.theme!==(G.theme||'day'))buildEnv(G.theme||'day');tiles.forEach(t=>{t.level=null;t.key=null;});$('#log').innerHTML='';[...G.logs].reverse().forEach(([t,pid])=>{const li=document.createElement('li');li.innerHTML=t;if(pid!=null)li.style.setProperty('--pc',G.players[pid].color);$('#log').prepend(li);});
   tiles.forEach(t=>t.key=null);buildTokens();face($('#d1'),1);face($('#d2'),1);meterSet(7);meterEl.classList.add('idle');updateEmoteBar();$('#toasts').innerHTML='';threatTiles.clear();
-  renderAll();loop();
+  renderAll();loop();if(G.run&&G.run.stage===0&&G.round===1)setTimeout(stageBanner,600);
 }
 $('#btn-start').addEventListener('click',()=>{
   readNames();saveSetup();RUN++;
@@ -2574,6 +2662,7 @@ $('#btn-start').addEventListener('click',()=>{
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 1,500만으로 출발! 🌍',null]],
     limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:$('#opt-nuke').value==='1',stable:null};
   g.specials=rollSpecials();g.jackpot=0;
+  if($('#opt-mode').value==='run'){g.run={stage:0,cleared:0};const st=RUN_STAGES[0];g.theme=st.theme;g.limit=st.limit;g.logs.unshift([`🌏 세계 일주 런 시작 — 스테이지 1: ${st.name}`,null]);}
   const m=loadMeta();const humansP=g.players.filter(p=>!p.ai);let spent=0;
   if(humansP.length)perkSel.forEach(k=>{if(m.miles-spent>=PERKS[k].cost){spent+=PERKS[k].cost;humansP.forEach(p=>{if(k==='cash')p.cash+=500;if(k==='relic')p.startDraft=true;if(k==='nuke')p.nukes=(p.nukes??NUKES)+1;if(k==='shield')p.shield+=2;});g.logs.unshift([`✈️ 마일리지 보너스: ${PERKS[k].ico} ${PERKS[k].name}`,null]);}});
   if(spent){m.miles-=spent;saveMeta(m);}perkSel.clear();
@@ -2600,7 +2689,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
