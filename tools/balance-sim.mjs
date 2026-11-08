@@ -8,11 +8,13 @@ let src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
 
 // --- stub three.js imports ---
 src = src.replace(/import \* as THREE from 'three';/, "const THREE=globalThis.__ANY;")
-         .replace(/import \{ OrbitControls \} from [^;]+;/, "const OrbitControls=globalThis.__ANY;");
+         .replace(/import \{ (\w+) \} from 'three\/addons\/[^']+';/g, "const $1=globalThis.__ANY;");
 // --- make animations/sleeps instant ---
 src = src.replace(/function tween\(obj,from,to,ms,arc=0\.5\)\{[\s\S]*?\n\}/, "function tween(){return Promise.resolve();}");
 src = src.replace(/const sleep=ms=>\{[^\n]*\n/, "const sleep=ms=>new Promise(r=>setImmediate(r));\n");
 src = src.replace(/requestAnimationFrame\(frame\);/g, "");
+// cinematics resolve through the render loop, which never runs headlessly
+src = src.replace(/function nukeCinematic\(i,rng,hits\)\{/, "function nukeCinematic(){return Promise.resolve();}\nfunction _nukeCinematicUnused(i,rng,hits){");
 // --- expose internals ---
 src += "\nglobalThis.__sim={startGame,getG:()=>G,CHARS,newPlayer,TILES,assets,bump:()=>RUN++};\n";
 
@@ -29,7 +31,13 @@ globalThis.localStorage = { getItem: () => null, setItem() {} };
 globalThis.ResizeObserver = class { observe() {} };
 globalThis.requestAnimationFrame = () => 0;
 globalThis.devicePixelRatio = 1;
-globalThis.innerWidth = 800;
+globalThis.innerWidth = 800; globalThis.innerHeight = 600;
+globalThis.matchMedia = () => ({ matches: false });
+globalThis.addEventListener = () => {};
+globalThis.getComputedStyle = () => ({ transform: 'none' });
+globalThis.screen = {};
+globalThis.DOMMatrix = class { inverse() { return this; } transformPoint(p) { return p; } };
+globalThis.DOMPoint = class { constructor(x, y) { this.x = x; this.y = y; } };
 
 const tmp = path.join(path.dirname(process.argv[2]), '_game_sim.mjs');
 fs.writeFileSync(tmp, src);
