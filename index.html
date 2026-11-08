@@ -824,7 +824,7 @@ const LOT_SCALE=5.0,LOT_LM=3.8,ARC0=215,ARC1=325,R_FRONT=17.5,R_BACK=21.5,BACK_Y
 /* the lots stand on a lit arc behind the board — a strip of landmarks that grows into the skyline as the game goes on */
 const PROP_IDX=TILES.map((t,i)=>i).filter(i=>TILES[i].type==='city'||TILES[i].type==='tour');
 const FRONT_N=Math.ceil(PROP_IDX.length/2),BACK_N=PROP_IDX.length-FRONT_N;
-function lotPos(i){const k=PROP_IDX.indexOf(i),back=k%2===1,idx=Math.floor(k/2),cnt=back?BACK_N:FRONT_N;const a=(ARC0+idx*((ARC1-ARC0)/(cnt-1)))*Math.PI/180,r=back?R_BACK:R_FRONT;
+function lotPos(i){const k=PROP_IDX.indexOf(i),back=k%2===1,idx=Math.floor(k/2),cnt=back?BACK_N:FRONT_N;const ja=((i*53)%7-3)*.55,jr=(((i*37)%11)/10-.5)*1.3;const a=(ARC0+idx*((ARC1-ARC0)/(cnt-1))+ja)*Math.PI/180,r=(back?R_BACK:R_FRONT)+jr;
   const x=Math.cos(a)*r,z=Math.sin(a)*r;return{x,z,y:back?BACK_Y:0,rot:Math.atan2(-x,-z)};}
 function arcBoxes(r,w,h,y,mat,n,a0=ARC0-6,a1=ARC1+6){for(let k=0;k<n;k++){const a=(a0+(a1-a0)*(k+.5)/n)*Math.PI/180;const seg=(a1-a0)/n*Math.PI/180*r+.06;const m=new THREE.Mesh(new THREE.BoxGeometry(seg,h,w),mat);m.position.set(Math.cos(a)*r,y,Math.sin(a)*r);m.rotation.y=-a;m.receiveShadow=true;env.root.add(m);}}
 function palm(x,z,s=1){const g=new THREE.Group();g.position.set(x,-0.42,z);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.07*s,.12*s,2.6*s,7),M(0x8b6a44));trunk.position.y=1.3*s;trunk.rotation.z=(Math.random()-.5)*.12;trunk.castShadow=true;g.add(trunk);
@@ -919,15 +919,21 @@ function buildLots(T){
   lots.length=0;buildStrip(T);
   TILES.forEach((t,i)=>{if(t.type!=='city'&&t.type!=='tour')return;const {x,z,y,rot}=lotPos(i);
     const g=new THREE.Group();g.position.set(x,-0.4+y,z);g.rotation.y=rot;env.root.add(g);const fence=new THREE.Group();g.add(fence);
-    const pad=new THREE.Mesh(new THREE.BoxGeometry(2.6,.1,2.6),M(0x3a3632,{roughness:.9}));pad.position.y=.05;pad.receiveShadow=true;g.add(pad);
-    const trim=new THREE.Mesh(new THREE.BoxGeometry(2.75,.06,2.75),M(0xd9a441,{metalness:.6,roughness:.4}));trim.position.y=.03;g.add(trim);
-    const wood=M(0x8b6a44);[[-1.2,-1.2],[1.2,-1.2],[-1.2,1.2],[1.2,1.2]].forEach(([px,pz])=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.1,.7,.1),wood);p.position.set(px,.45,pz);fence.add(p);});
-    [[0,-1.2,2.4,.06],[-1.2,0,.06,2.4],[1.2,0,.06,2.4]].forEach(([rx,rz,w,d])=>{const r=new THREE.Mesh(new THREE.BoxGeometry(w,.05,d),wood);r.position.set(rx,.68,rz);fence.add(r);});
     const col=t.type==='tour'?'#2a8fa0':GCOLORS[t.g];
-    const sign=textPlane(t.name+' 분양',1.5,.5,'#fff',col,'bold 110px "Gothic A1",sans-serif');sign.position.set(0,1.3,1.25);fence.add(sign);const post=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,1.3,6),wood);post.position.set(0,.65,1.22);fence.add(post);
-    for(let q=0;q<8;q++){const w=new THREE.Mesh(new THREE.ConeGeometry(.06,.25,4),M(0x5a9a3a));w.position.set((Math.random()-.5)*2.0,.22,(Math.random()-.5)*2.0);fence.add(w);}
+    // empty site: a soft garden — grass mound, flower ring, a palm and a lamp. No fences, no signs.
+    const grass=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.14,28),M(0x6fa65a,{roughness:1}));grass.position.y=.07;grass.receiveShadow=true;fence.add(grass);
+    for(let q=0;q<10;q++){const a=q*Math.PI/5+i;const f=new THREE.Mesh(new THREE.SphereGeometry(.09,6,6),M([0xff5a8a,0xffd166,0xff8a3a,0xffffff,0xb07cff][(q+i)%5]));f.position.set(Math.cos(a)*1.15,.2,Math.sin(a)*1.15);fence.add(f);}
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(.42,10,8),M(0x3f8f3a));bush.position.set(-.6,.45,-.4);bush.castShadow=true;fence.add(bush);const bush2=new THREE.Mesh(new THREE.SphereGeometry(.3,10,8),M(0x4f9f44));bush2.position.set(.7,.36,.3);fence.add(bush2);
+    const lp=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,1.3,6),M(0x3a3f46));lp.position.set(.9,.75,-.8);fence.add(lp);const lh=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),new THREE.MeshStandardMaterial({color:0xfff2c0,emissive:0xffe0a0,emissiveIntensity:T.lamps}));lh.position.set(.9,1.45,-.8);fence.add(lh);env.lamps.push(lh.material);
     lots[i]={grp:g,fence,bld:null,level:-1,owner:null,rubble:false,col};});
 }
+function plazaBase(col,T){const g=new THREE.Group();const c=new THREE.Color(col);
+  const plinth=new THREE.Mesh(new THREE.CylinderGeometry(1.75,1.9,.26,36),M(0xe8e2d2,{roughness:.8}));plinth.position.y=.13;plinth.castShadow=true;plinth.receiveShadow=true;g.add(plinth);
+  const inlay=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.03,36),new THREE.MeshStandardMaterial({color:c,roughness:.6}));inlay.position.y=.27;g.add(inlay);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.78,.05,10,48),M(0xd9a441,{metalness:.7,roughness:.3}));ring.rotation.x=Math.PI/2;ring.position.y=.27;g.add(ring);
+  for(let q=0;q<4;q++){const a=q*Math.PI/2+Math.PI/4;const up=new THREE.Mesh(new THREE.ConeGeometry(.12,.22,8),new THREE.MeshStandardMaterial({color:0xfff6d0,emissive:0xfff0b0,emissiveIntensity:T.night?2.5:.8}));up.position.set(Math.cos(a)*1.55,.37,Math.sin(a)*1.55);g.add(up);
+    const bed=new THREE.Mesh(new THREE.CylinderGeometry(.42,.46,.14,12),M(0x6fa65a));bed.position.set(Math.cos(a+Math.PI/4)*2.25,.07,Math.sin(a+Math.PI/4)*2.25);g.add(bed);for(let f=0;f<5;f++){const fl=new THREE.Mesh(new THREE.SphereGeometry(.07,6,6),M([0xff5a8a,0xffd166,0xffffff,0xb07cff][(f+q)%4]));fl.position.set(bed.position.x+Math.cos(f*1.26)*.25,.2,bed.position.z+Math.sin(f*1.26)*.25);g.add(fl);}}
+  return g;}
 function tourKiosk(color){const g=new THREE.Group();const c=new THREE.Color(color);[[-.14,-.14],[.14,-.14],[-.14,.14],[.14,.14]].forEach(([x,z])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.3,6),M(0xf4f4f4));p.position.set(x,.15,z);g.add(p);});
   const roof=new THREE.Mesh(new THREE.ConeGeometry(.26,.14,4),new THREE.MeshStandardMaterial({color:c,roughness:.7}));roof.rotation.y=Math.PI/4;roof.position.y=.37;g.add(roof);const counter=new THREE.Mesh(new THREE.BoxGeometry(.3,.12,.1),M(0xd9d2c0));counter.position.set(0,.06,.1);g.add(counter);const tk=makeSprite('🎫',.22);tk.position.set(0,.55,0);g.add(tk);return g;}
 function disposeObj(o){o.traverse(c=>{if(c.geometry)c.geometry.dispose();if(c.material){const ms=Array.isArray(c.material)?c.material:[c.material];ms.forEach(m=>{if(m.map)m.map.dispose();m.dispose();});}});}
@@ -936,11 +942,12 @@ function lotSync(i,s,t){
   const L=lots[i];if(!L)return;
   const lvl=s.owner==null?0:(t.type==='tour'?1:s.level),owner=s.owner,rub=!!(s.rubble&&s.level===0&&t.type==='city');
   if(L.level===lvl&&L.owner===owner&&L.rubble===rub)return;
-  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}L.fence.visible=true;
+  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}if(L.base){L.grp.remove(L.base);disposeObj(L.base);L.base=null;}L.fence.visible=true;
   const rising=owner!=null&&lvl>L.level&&L.level>=0&&!G.over;
   if(owner!=null&&lvl>0){const o=G.players[owner];const b=t.type==='tour'?tourKiosk(o.color):buildingMesh(lvl,o.color,t.name);
-    const sc=lvl===4?LOT_LM:LOT_SCALE;b.scale.setScalar(sc);b.position.y=.1;L.grp.add(b);L.bld=b;L.fence.visible=false;
-    if(t.type==='city'){const bb=new THREE.Box3().setFromObject(b);const h=bb.max.y-bb.min.y;const mq=marquee(t.name,L.col,THEMES[env.theme]||THEMES.day,.1+h);L.grp.add(mq);L.mq=mq;}
+    const sc=lvl===4?LOT_LM:LOT_SCALE,TH=THEMES[env.theme]||THEMES.day;const base=plazaBase(L.col,TH);L.grp.add(base);L.base=base;
+    b.scale.setScalar(sc);b.position.y=.28;L.grp.add(b);L.bld=b;L.fence.visible=false;
+    if(t.type==='city'){const bb=new THREE.Box3().setFromObject(b);const h=bb.max.y-bb.min.y;const mq=marquee(t.name,L.col,TH,.28+h);L.grp.add(mq);L.mq=mq;}
     if(rising){const wp=new THREE.Vector3();L.grp.getWorldPosition(wp);wp.y=L.grp.position.y+.1;b.scale.y=.05;landDust(wp,14,3.6);
       effects.push({t0:performance.now()+200,ms:lvl===4?1300:900,type:'fn',fn:u=>{b.scale.y=sc*Math.max(.02,Math.min(1,u*1.2))*(1+Math.sin(u*Math.PI)*.1);},done:()=>{b.scale.y=sc;}});}}
   else if(rub){const r=rubbleMesh();r.scale.setScalar(5);r.position.y=.1;L.fence.visible=false;L.grp.add(r);L.bld=r;}
