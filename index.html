@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>지구한바퀴</title>
+<title>딸깍 마블</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -281,7 +281,7 @@ header.top h1{font-size:22px}
 <div id="rot">
 <div class="app">
   <header class="top">
-    <h1>지구한바퀴</h1>
+    <h1>딸깍 마블</h1>
     <span class="sub">캐릭터를 골라 세계 도시를 사고 짓고 독점하는 4인 3D 보드게임</span>
   </header>
   <section class="stage" id="stage">
@@ -352,7 +352,7 @@ header.top h1{font-size:22px}
 
 <div class="overlay" id="setup" hidden>
   <div class="card setup">
-    <h3>지구한바퀴</h3>
+    <h3>딸깍 마블</h3>
     <p class="lbl">사람 수 (나머지는 AI가 플레이)</p>
     <div class="seg" id="humans" style="margin-bottom:12px"></div>
     <div id="srows"></div>
@@ -611,7 +611,7 @@ function cityBuilding(w,h,d,T,far){
     if(r<.3){const wt=new THREE.Group();wt.position.set(w*.25,h,d*.2);const tank=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.5,12),M(0x8b6a44));tank.position.y=.65;wt.add(tank);const cap=new THREE.Mesh(new THREE.ConeGeometry(.3,.18,12),M(0x5a4030));cap.position.y=.99;wt.add(cap);for(let k=0;k<4;k++){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.4,4),M(0x444));leg.position.set(Math.cos(k*1.57)*.2,.2,Math.sin(k*1.57)*.2);wt.add(leg);}g.add(wt);}
     else if(r<.55){for(let k=0;k<3;k++){const ac=new THREE.Mesh(new THREE.BoxGeometry(.4,.3,.4),M(0xb0b8c0));ac.position.set(-w*.3+k*w*.3,h+.15,(k%2?.3:-.3)*d*.4);g.add(ac);}}
     else if(r<.75){const pole=new THREE.Mesh(new THREE.CylinderGeometry(.02,.03,1.2,4),M(0x666));pole.position.set(0,h+.6,0);g.add(pole);const bc=new THREE.Mesh(new THREE.SphereGeometry(.07,8,8),M(0xff4040,{emissive:0xff2020,emissiveIntensity:3}));bc.position.set(0,h+1.25,0);g.add(bc);env.beacons.push(bc);}
-    else if(r<.9&&!far){const txt=['WORLD TOUR','🌍 지구한바퀴','HOTEL','✈ TRAVEL','🎲 PLAY','NEON','☕ CAFE','🏨 STAY'][Math.random()*8|0];const bb=textPlane(txt,Math.min(w*.9,3),Math.min(w*.9,3)*.4,'#fff',['#d8333c','#1c7fb3','#7a1fa2','#f39c12','#16a085'][Math.random()*5|0],'bold 90px "Black Han Sans","Gothic A1",sans-serif');bb.position.set(0,h+Math.min(w*.9,3)*.25+.15,d/2+.05);g.add(bb);const back=new THREE.Mesh(new THREE.BoxGeometry(Math.min(w*.9,3)+.1,Math.min(w*.9,3)*.4+.1,.08),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:T.neon}));back.position.set(0,bb.position.y,d/2);g.add(back);env.neon.push(back.material);}
+    else if(r<.9&&!far){const txt=['WORLD TOUR','🎲 딸깍 마블','HOTEL','✈ TRAVEL','🎲 PLAY','NEON','☕ CAFE','🏨 STAY'][Math.random()*8|0];const bb=textPlane(txt,Math.min(w*.9,3),Math.min(w*.9,3)*.4,'#fff',['#d8333c','#1c7fb3','#7a1fa2','#f39c12','#16a085'][Math.random()*5|0],'bold 90px "Black Han Sans","Gothic A1",sans-serif');bb.position.set(0,h+Math.min(w*.9,3)*.25+.15,d/2+.05);g.add(bb);const back=new THREE.Mesh(new THREE.BoxGeometry(Math.min(w*.9,3)+.1,Math.min(w*.9,3)*.4+.1,.08),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:T.neon}));back.position.set(0,bb.position.y,d/2);g.add(back);env.neon.push(back.material);}
     else{const pad=new THREE.Mesh(new THREE.CircleGeometry(Math.min(w,d)*.35,24),new THREE.MeshStandardMaterial({color:0x555c66}));pad.rotation.x=-Math.PI/2;pad.position.y=h+.005;g.add(pad);const H=textPlane('H',Math.min(w,d)*.4,Math.min(w,d)*.4,'#fff',null,'bold 300px sans-serif');H.rotation.x=-Math.PI/2;H.position.y=h+.01;g.add(H);}
     const ledge=new THREE.Mesh(new THREE.BoxGeometry(w+.12,.08,d+.12),roofM);ledge.position.y=h;g.add(ledge);
   }
@@ -823,8 +823,8 @@ const hubFx={globe:null,atmo:null,orbit:null,orbiter:null,spinners:[],beacons:[]
   const grd=g.createRadialGradient(200,180,20,256,256,256);grd.addColorStop(0,'#2d8fc9');grd.addColorStop(.55,'#1c6f9f');grd.addColorStop(1,'#0b3d63');
   g.fillStyle=grd;g.beginPath();g.arc(256,256,250,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(255,255,255,.14)';g.lineWidth=1.5;for(let k=1;k<6;k++){g.beginPath();g.arc(256,256,k*42,0,Math.PI*2);g.stroke();}for(let k=0;k<12;k++){g.beginPath();g.moveTo(256,256);g.lineTo(256+Math.cos(k*Math.PI/6)*250,256+Math.sin(k*Math.PI/6)*250);g.stroke();}
-  g.fillStyle='#fff';g.font='bold 66px "Black Han Sans","Gothic A1",sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=10;g.fillText('지구한바퀴',256,405);
-  g.font='bold 24px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.85)';g.fillText('WORLD TOUR BOARD',256,452);
+  g.fillStyle='#fff';g.font='bold 66px "Black Han Sans","Gothic A1",sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=10;g.fillText('딸깍 마블',256,405);
+  g.font='bold 24px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.85)';g.fillText('TTALKKAK MARBLE · WORLD TOUR',256,452);
   const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
   const hub=new THREE.Mesh(new THREE.CircleGeometry(3.3,64),new THREE.MeshStandardMaterial({map:tex,roughness:.7}));
   hub.rotation.x=-Math.PI/2;hub.position.y=0.012;hub.receiveShadow=true;scene.add(hub);

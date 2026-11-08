@@ -1,9 +1,9 @@
-# 지구한바퀴 (Earth Lap)
+# 딸깍 마블 (Ttalkkak Marble)
 
 캐릭터를 골라 세계 도시를 사고, 건물을 올리고, 독점하는 4인 3D 보드게임입니다.
 사람이 고르지 않은 자리는 AI가 플레이합니다. 설치 없이 브라우저(PC·휴대폰)에서 바로 할 수 있습니다.
 
-**플레이:** https://simsimhugh.github.io/earth-lap/
+**플레이:** https://simsimhugh.github.io/ttalkkak-marble/
 
 ## 특징
 
