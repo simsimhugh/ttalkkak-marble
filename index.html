@@ -1203,41 +1203,75 @@ function explosion(i,rng){
 }
 /* ---- SMASH-style nuke cinematic: chase-cam on the falling bomb, flash, mushroom cloud, collapsing buildings ---- */
 let cinema=null;
+/* the bomb's look follows its blast range: round fused bomb (1), striped missile (2), parachuted warhead (3) */
+function bombMesh(rng){
+  const g=new THREE.Group();const met=(c,m=.5,r=.35)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r});
+  if(rng<=1){
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(.34,20,16),met(0x22272e)));
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.12,12),met(0x8a8f96,.7,.3));cap.position.y=.36;g.add(cap);
+    const fuse=new THREE.Mesh(new THREE.TorusGeometry(.12,.02,8,16,Math.PI),M(0xb08a5a));fuse.position.set(.1,.46,0);g.add(fuse);
+    const spark=new THREE.Mesh(new THREE.SphereGeometry(.05,8,8),new THREE.MeshStandardMaterial({color:0xfff0a0,emissive:0xffaa00,emissiveIntensity:4}));spark.position.set(.22,.5,0);g.add(spark);g.userData.spark=spark;
+    const hl=new THREE.Mesh(new THREE.SphereGeometry(.08,8,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35}));hl.position.set(-.14,.16,.2);g.add(hl);
+  }else if(rng===2){
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(.14,.17,.9,16),met(0xe8e8e8,.4)));
+    const nose=new THREE.Mesh(new THREE.ConeGeometry(.17,.45,16),met(0xd8333c,.3,.5));nose.position.y=-.67;nose.rotation.x=Math.PI;g.add(nose);
+    [-.1,.15].forEach(y=>{const st=new THREE.Mesh(new THREE.CylinderGeometry(.175,.175,.08,16),M(0xd8333c));st.position.y=y;g.add(st);});
+    for(let k=0;k<4;k++){const fin=new THREE.Mesh(new THREE.BoxGeometry(.03,.32,.24),M(0x3b4651));fin.position.set(Math.cos(k*Math.PI/2)*.19,.42,Math.sin(k*Math.PI/2)*.19);fin.rotation.y=-k*Math.PI/2;g.add(fin);}
+    const jet=new THREE.Mesh(new THREE.ConeGeometry(.1,.45,10),new THREE.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:.85}));jet.position.y=.66;g.add(jet);g.userData.jet=jet;
+  }else{
+    g.add(new THREE.Mesh(new THREE.CylinderGeometry(.3,.34,1.0,20),met(0x6b7280,.6)));
+    const nose=new THREE.Mesh(new THREE.SphereGeometry(.34,20,14,0,Math.PI*2,Math.PI/2,Math.PI/2),met(0x6b7280,.6));nose.position.y=-.5;g.add(nose);
+    const hz=new THREE.Mesh(new THREE.CylinderGeometry(.345,.345,.22,20),new THREE.MeshStandardMaterial({map:stripeTex('#111111','#ffd400',12),roughness:.6}));hz.position.y=.2;g.add(hz);
+    const rad=textPlane('☢',.5,.5,'#ffd400',null,'bold 300px sans-serif');rad.position.set(0,-.1,.35);g.add(rad);
+    for(let k=0;k<4;k++){const fin=new THREE.Mesh(new THREE.BoxGeometry(.04,.36,.3),M(0x3b4651));fin.position.set(Math.cos(k*Math.PI/2)*.33,.42,Math.sin(k*Math.PI/2)*.33);fin.rotation.y=-k*Math.PI/2;g.add(fin);}
+    const chute=new THREE.Mesh(new THREE.SphereGeometry(1.1,20,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({map:stripeTex('#d8333c','#ffffff',10),side:THREE.DoubleSide,roughness:.9}));chute.position.y=2.6;g.add(chute);
+    for(let k=0;k<8;k++){const a=k*Math.PI/4;const line=new THREE.Mesh(new THREE.CylinderGeometry(.008,.008,2.2,4),new THREE.MeshBasicMaterial({color:0xeeeeee}));line.position.set(Math.cos(a)*.5,1.5,Math.sin(a)*.5);line.rotation.z=Math.cos(a)*.4;line.rotation.x=-Math.sin(a)*.4;g.add(line);}
+    g.userData.chute=chute;
+  }
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;
+}
 function nukeCinematic(i,rng,hits){
   const r=rect(i);const target=new THREE.Vector3(r.x,0.25,r.z);
-  // bomb
-  const bomb=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.CylinderGeometry(.16,.2,.8,14),new THREE.MeshStandardMaterial({color:0x3b4651,metalness:.6,roughness:.4}));bomb.add(body);
-  const nose=new THREE.Mesh(new THREE.ConeGeometry(.2,.4,14),new THREE.MeshStandardMaterial({color:0xd8333c,metalness:.3,roughness:.5}));nose.position.y=-.6;nose.rotation.x=Math.PI;bomb.add(nose);
-  const stripe=new THREE.Mesh(new THREE.CylinderGeometry(.21,.21,.12,14),new THREE.MeshStandardMaterial({color:0xffcf3f,emissive:0xaa7700,emissiveIntensity:.8}));stripe.position.y=.1;bomb.add(stripe);
-  for(let k=0;k<4;k++){const fin=new THREE.Mesh(new THREE.BoxGeometry(.03,.3,.22),new THREE.MeshStandardMaterial({color:0xd8333c}));fin.position.set(Math.cos(k*Math.PI/2)*.18,.45,Math.sin(k*Math.PI/2)*.18);fin.rotation.y=-k*Math.PI/2;bomb.add(fin);}
-  const start=target.clone().add(new THREE.Vector3(-1.2,16,2.5));bomb.position.copy(start);bomb.castShadow=true;scene.add(bomb);
-  // smoke trail
+  const bomb=bombMesh(rng);
+  const start=target.clone().add(new THREE.Vector3(-1.2,rng>=3?18:16,2.5));bomb.position.copy(start);scene.add(bomb);
   const puffs=[];const puffM=new THREE.MeshBasicMaterial({color:0xdde6ee,transparent:true,opacity:.5});
-  cinema={pos:bomb.position,off:new THREE.Vector3(2.2,1.2,2.6)};freeUntil=0;focusOverride=null;
+  cinema={pos:bomb.position,off:new THREE.Vector3(2.4+rng*.3,1.4,2.8+rng*.3)};freeUntil=0;focusOverride=null;
   SFX.play('siren');
-  const FALL=2200;
+  const FALL=rng>=3?3400:rng===2?2200:1800;
+  // the tiles inside the blast radius (owned or not) get a red zone marker on landing
+  const zone=[i];for(let o=1;o<=rng;o++){zone.push((i+o)%N,(i-o+N)%N);}
   return new Promise(res=>{
     effects.push({t0:performance.now(),ms:FALL,type:'fn',fn:u=>{
-      const e=u*u;bomb.position.lerpVectors(start,target,e);bomb.rotation.z=Math.sin(u*9)*.08;bomb.rotation.x=.25*(1-u);
-      if(Math.random()<.5){const p=new THREE.Mesh(new THREE.SphereGeometry(.08+Math.random()*.08,6,6),puffM);p.position.copy(bomb.position).add(new THREE.Vector3((Math.random()-.5)*.2,.5,(Math.random()-.5)*.2));scene.add(p);puffs.push(p);}
+      const e=rng>=3?u:u*u;bomb.position.lerpVectors(start,target,e);
+      if(rng>=3){bomb.rotation.z=Math.sin(u*5)*.12;bomb.rotation.x=Math.cos(u*4)*.1;if(u>.92)bomb.userData.chute.scale.setScalar(Math.max(.05,1-(u-.92)*12));}
+      else if(rng===2){bomb.rotation.z=Math.sin(u*9)*.08;bomb.rotation.x=.25*(1-u);bomb.userData.jet.scale.set(1,.7+Math.random()*.6,1);}
+      else{bomb.rotation.z=u*9;bomb.rotation.x=u*5;bomb.userData.spark.material.emissiveIntensity=2+3*Math.random();}
+      if(rng===2&&Math.random()<.6){const p=new THREE.Mesh(new THREE.SphereGeometry(.08+Math.random()*.08,6,6),puffM);p.position.copy(bomb.position).add(new THREE.Vector3((Math.random()-.5)*.2,.6,(Math.random()-.5)*.2));scene.add(p);puffs.push(p);}
       puffs.forEach(p=>{p.scale.multiplyScalar(1.02);p.position.y+=.004;});
-      cinema.off.set(2.2-u*.8,1.2+u*.6,2.6-u*.6);
+      cinema.off.set(2.4+rng*.3-u*.8,1.4+u*.6,2.8+rng*.3-u*.6);
     },done:()=>{
       scene.remove(bomb);puffs.forEach(p=>scene.remove(p));
       // impact
-      SFX.play('nuke');flash();shake(0.7,1400);
+      SFX.play('nuke');flash();shake(0.5+rng*.1,1200+rng*200);
       mushroom(target,rng);
-      // collapsing buildings: tilt + sink, flying debris, dust puffs
-      const victims=hits.filter(j=>tiles[j].bgrp.children.length);const STEP=1700,HOLD=900,OUT=2200;
-      victims.forEach((j,k)=>collapseFx(j,HOLD+k*STEP));
-      const camPos=target.clone();cinema={pos:camPos,off:new THREE.Vector3(3.2,2.4,4.2)};
-      const total=HOLD+victims.length*STEP+OUT;
+      // blast zone drawn tile by tile, hit tiles brighter
+      const marks=zone.map(j=>{const rr=rect(j);const hit=hits.includes(j)&&tiles[j].bgrp.children.length>0;const m=new THREE.Mesh(new THREE.PlaneGeometry(rr.w-.06,rr.d-.06),new THREE.MeshBasicMaterial({color:hit?0xff3020:0xff7a3a,transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(rr.x,0.236,rr.z);scene.add(m);return{m,hit};});
+      const edge=new THREE.Mesh(new THREE.RingGeometry(.3,.45,48),new THREE.MeshBasicMaterial({color:0xff3020,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));edge.rotation.x=-Math.PI/2;edge.position.copy(target).setY(.24);scene.add(edge);
+      setTimeout(()=>{SFX.play('alarm');toast(`☢️ 폭발 범위 ${rng}칸 — 건물 ${hits.filter(j=>tiles[j].bgrp.children.length).length}곳이 동시에 무너집니다`,'danger',4000);},300);
+      // everything inside falls at the same moment
+      const victims=hits.filter(j=>tiles[j].bgrp.children.length);const HOLD=1400,FALLALL=3600,OUT=2000;
+      victims.forEach(j=>collapseFx(j,HOLD));
+      // camera frames the whole zone
+      const c=new THREE.Vector3();zone.forEach(j=>{const rr=rect(j);c.x+=rr.x;c.z+=rr.z;});c.multiplyScalar(1/zone.length);c.y=.3;
+      const ext=zone.reduce((m,j)=>{const rr=rect(j);return Math.max(m,Math.hypot(rr.x-c.x,rr.z-c.z));},1);
+      const camPos=target.clone();cinema={pos:camPos,off:new THREE.Vector3(3.2,2.4,4.2)};const zoneOff=new THREE.Vector3(1.2+ext*.75,1.4+ext*.6,1.8+ext*.85);
+      const total=HOLD+FALLALL+OUT;
       effects.push({t0:performance.now(),ms:total,type:'fn',fn:u=>{const ms=u*total;
-        if(ms<HOLD){cinema.off.set(3.2,2.4,4.2);}
-        else if(ms<HOLD+victims.length*STEP){const k=Math.floor((ms-HOLD)/STEP);const r=rect(victims[k]);camPos.lerp(new THREE.Vector3(r.x,0.45,r.z),0.09);cinema.off.lerp(new THREE.Vector3(1.5,1.3,1.8),0.09);}
-        else{const q=(ms-HOLD-victims.length*STEP)/OUT;camPos.lerp(target,0.05);cinema.off.lerp(new THREE.Vector3(3.2+q*2.5,2.4+q*2.6,4.2+q*3.2),0.08);}
-      },done:()=>{cinema=null;res();}});
+        const pulse=.35+.3*Math.sin(ms/90);
+        if(ms<HOLD){marks.forEach(mk=>mk.m.material.opacity=Math.min(1,ms/300)*(mk.hit?pulse+.2:pulse*.7));edge.scale.setScalar(1+(ms/HOLD)*ext*2.4);edge.material.opacity=.9*(1-ms/HOLD);camPos.lerp(c,0.08);cinema.off.lerp(zoneOff,0.08);}
+        else if(ms<HOLD+FALLALL){const q=(ms-HOLD)/FALLALL;marks.forEach(mk=>mk.m.material.opacity=(mk.hit?.5:.3)*(1-q));camPos.lerp(c,0.05);cinema.off.lerp(zoneOff,0.05);}
+        else{const q=(ms-HOLD-FALLALL)/OUT;marks.forEach(mk=>mk.m.material.opacity=0);camPos.lerp(target,0.05);cinema.off.lerp(new THREE.Vector3(3.2+q*2.5,2.4+q*2.6,4.2+q*3.2),0.08);}
+      },done:()=>{marks.forEach(mk=>{scene.remove(mk.m);mk.m.geometry.dispose();mk.m.material.dispose();});scene.remove(edge);edge.geometry.dispose();edge.material.dispose();cinema=null;res();}});
     }});
   });
 }
@@ -2071,7 +2105,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
