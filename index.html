@@ -256,6 +256,10 @@ header.top h1{font-size:22px}
 @keyframes cardGainD{20%{background:rgba(34,160,107,.75);transform:scale(1.04)}}
 @keyframes cardLossD{20%{background:rgba(200,52,60,.8);transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}}
 .panel{width:min(100%,400px);margin:0 6px}
+.chip.evchip{background:linear-gradient(90deg,#7a1fa2,#d8333c);box-shadow:0 0 12px rgba(216,51,60,.6)}
+.chip.jackchip{background:linear-gradient(90deg,#8a5a00,#f5b400);color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.chip.jackchip.bump{animation:jackBump .6s ease}
+@keyframes jackBump{40%{transform:scale(1.25)}}
 .chip.timer{background:#1c7fb3;font-variant-numeric:tabular-nums;min-width:62px;justify-content:center}
 .chip.timer.urgent{background:#c8343c;animation:lowCash .5s infinite}
 .mtimer{position:absolute;right:16px;top:16px}
@@ -312,6 +316,8 @@ header.top h1{font-size:22px}
           <span class="chip" id="round">1 라운드</span>
           <span class="chip" id="turn"></span>
           <span class="chip timer" id="timer" hidden>⏱ 30</span>
+          <span class="chip evchip" id="evchip" hidden></span>
+          <span class="chip jackchip" id="jackchip" title="세금·벌금·탈출비가 모입니다. 출발 칸에 정확히 서면 전부 가져가요.">💰 잭팟 0만</span>
         </div>
         <div class="corner" id="pc1"></div>
       </div>
@@ -346,6 +352,9 @@ header.top h1{font-size:22px}
     <li>같은 색 도시를 모두 가지면 통행료 2배. 축제가 열린 곳도 2배.</li>
     <li>더블이면 한 번 더. 더블 세 번이면 무인도행. 무인도는 3턴, 더블이나 100만으로 탈출.</li>
     <li>세계여행 칸에 서면 다음 턴에 원하는 칸으로 이동합니다.</li>
+    <li><b>세계 이벤트:</b> 4라운드마다 올림픽(한 그룹 통행료 2배)·경기 침체(통행료 절반)·건설 붐(건설비 40% 할인)·관광 시즌(관광지 3배)·대지진·랜드마크 배당 중 하나가 터집니다.</li>
+    <li><b>잭팟:</b> 세금·벌금·무인도 탈출비는 잭팟에 쌓이고, 출발 칸에 정확히 서면 전부 가져갑니다.</li>
+    <li><b>꼴찌 구호금:</b> 총자산 꼴찌가 출발을 지나면 월급 2배.</li>
     <li>승리: 색 그룹 3개 독점, 한 변의 도시 전부 독점, 관광지 4곳 독점, 최후의 1인, 또는 제한 라운드 후 총자산 1위.</li>
     <li>무인도에 걸리면 배를 타고 옆 유배 섬으로 호송됩니다. 더블이면 쾌속정, 비용을 내면 요금 보트, 형기가 끝나면 구조선이 데려옵니다.</li>
     <li>보드는 드래그로 돌리고 휠/핀치로 확대. 칸을 누르면 정보가 보여요. 왼쪽 얼굴 버튼으로 감정 표현! 배경 테마는 시작 화면에서 고릅니다.</li>
@@ -414,10 +423,10 @@ const SALARY=150, START_CASH=1500, ISLAND_FEE=100, AIM_RATE=0.65, NUKES=1;
 /* ---------- characters ---------- */
 const CHARS=[
   {id:'explorer',name:'모험가',emoji:'🧭',passive:'세계여행 칸에 서면 기다리지 않고 바로 이동. 출발 월급 +80만.',skill:'순간이동',sdesc:'남의 땅에서 통행료를 내야 할 때, 절반만 내고 원하는 칸으로 도망갑니다.'},
-  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 30% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
-  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +40%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 2배로 받습니다.'},
+  {id:'architect',name:'건축가',emoji:'👷',passive:'모든 건설비 35% 할인.',skill:'긴급 공사',sdesc:'내 도시에 도착해 건설할 때 무료로 두 단계를 올립니다 (호텔까지). 땅을 살 때는 별장+빌딩이 무료.'},
+  {id:'merchant',name:'상인',emoji:'💰',passive:'받는 통행료 +30%.',skill:'바가지',sdesc:'상대가 내 땅에 도착한 순간, 그 통행료를 2배로 받습니다.'},
   {id:'lucky',name:'행운아',emoji:'🍀',passive:'주사위 포인터 명중률 80% (기본 65%). 나쁜 카드는 다시 뽑고 카드 수입 2배.',skill:'운명의 주사위',sdesc:'주사위가 나쁜 칸(통행료·무인도·세금)에 떨어지면 숫자를 골라 다시 던집니다.'},
-  {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 20% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
+  {id:'negotiator',name:'협상가',emoji:'🤝',passive:'내는 통행료 30% 할인.',skill:'외교 면책',sdesc:'통행료를 내야 할 때 이번 한 번을 면제받습니다.'},
   {id:'captain',name:'선장',emoji:'⚓',passive:'무인도 1턴만. 관광지를 40% 싸게 사고 관광지 통행료는 내지 않습니다.',skill:'폭풍 소환',sdesc:'무인도에 갇히는 순간 상대를 대신 보내거나, 통행료(120만 이상)를 낼 때 땅 주인을 무인도로 날리고 통행료를 내지 않습니다.'},
 ];
 const CH=id=>CHARS.find(c=>c.id===id);
@@ -448,7 +457,7 @@ const T=i=>TILES[i], S=i=>G.ts[i];
 const alive=()=>G.players.filter(p=>!p.bankrupt);
 const cost=(i,l)=>Math.round(T(i).price*BUILD[l]);
 const cum=(i,from,to)=>{let s=0;for(let l=from;l<=to;l++)s+=cost(i,l);return s;};
-const disc=(p,c)=>has(p,'architect')?Math.round(c*0.7):c;
+const disc=(p,c)=>Math.round(c*(has(p,'architect')?0.65:1)*(G&&G.event&&G.event.id==='boom'?0.6:1));
 function invested(i){const s=S(i);if(s.owner==null)return 0;return T(i).type==='tour'?T(i).price:cum(i,0,s.level);}
 const groupIdx=g=>TILES.map((t,i)=>t.type==='city'&&t.g===g?i:-1).filter(i=>i>=0);
 const ownsGroup=(pid,g)=>groupIdx(g).every(i=>S(i).owner===pid);
@@ -460,7 +469,8 @@ function toll(i){
   if(t.type==='tour'){const c=tourIdx.filter(j=>S(j).owner===s.owner).length;v=110*2**(c-1);}
   else{v=Math.round(t.price*MULT[s.level]);if(ownsGroup(s.owner,t.g))v*=2;}
   if(G.festival===i)v*=2;
-  if(has(o,'merchant'))v=Math.round(v*1.4);
+  if(G.event){if(G.event.id==='olympic'&&t.type==='city'&&t.g===G.event.g)v*=2;if(G.event.id==='recession')v=Math.round(v*0.5);if(G.event.id==='tourism'&&t.type==='tour')v*=3;}
+  if(has(o,'merchant'))v=Math.round(v*1.3);
   if(o.boost)v*=2;
   return v;
 }
@@ -887,9 +897,27 @@ function monoFx(i,color){
   const sparks=[];for(let k=0;k<8;k++){const sp=new THREE.Mesh(new THREE.SphereGeometry(.03,6,6),new THREE.MeshBasicMaterial({color:k%2?0xffd166:0xffffff,transparent:true}));sp.userData.a=Math.random()*Math.PI*2;sp.userData.r=.25+Math.random()*.2;sp.userData.ph=Math.random();g.add(sp);sparks.push(sp);}
   g.userData={color,glow,pillar,crown,sparks};monoTiles.add(g);return g;
 }
-const monoTiles=new Set();
+const monoTiles=new Set(),festTiles=new Set();
+function festSign(){const cv=document.createElement('canvas');cv.width=320;cv.height=120;const g=cv.getContext('2d');g.fillStyle='#d8333c';g.beginPath();g.roundRect(6,6,308,108,28);g.fill();g.strokeStyle='#ffd166';g.lineWidth=8;g.stroke();g.fillStyle='#fff';g.font='54px "Jua","Gothic A1",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('🎉 축제 ×2',160,64);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));sp.scale.set(1.3,.49,1);sp.renderOrder=20;return sp;}
+function festFx(i){
+  const r=rect(i),g=new THREE.Group();
+  // striped canopy on four poles
+  const poleM=new THREE.MeshStandardMaterial({color:0xffd166,metalness:.5,roughness:.4});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.0,6),poleM);p.position.set(sx*(r.w/2-.08),.72,sz*(r.d/2-.08));g.add(p);});
+  const canopy=new THREE.Mesh(new THREE.ConeGeometry(Math.max(r.w,r.d)*.62,.45,4,1,true),new THREE.MeshStandardMaterial({map:stripeTex('#ff3b6b','#ffd166',12),side:THREE.DoubleSide,roughness:.8}));canopy.rotation.y=Math.PI/4;canopy.scale.set(r.w/Math.max(r.w,r.d)*1.1,1,r.d/Math.max(r.w,r.d)*1.1);canopy.position.y=1.45;g.add(canopy);
+  // bunting
+  for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const f=new THREE.Mesh(new THREE.ConeGeometry(.05,.12,3),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a][k%4]}));f.rotation.x=Math.PI;f.position.set(Math.cos(a)*r.w*.5,1.17,Math.sin(a)*r.d*.5);g.add(f);}
+  // spotlight beams
+  const beams=[];[0xff3bd6,0x3bd6ff,0xffd166].forEach((c,k)=>{const b=new THREE.Mesh(new THREE.ConeGeometry(.35,2.6,16,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));b.geometry.translate(0,-1.3,0);b.position.y=2.9;b.userData.k=k;g.add(b);beams.push(b);});
+  const sign=festSign();sign.position.y=2.1;g.add(sign);
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(r.w-.04,r.d-.04),new THREE.MeshBasicMaterial({color:0xff3b6b,transparent:true,opacity:.3,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=.236;g.add(glow);
+  const conf=[];for(let k=0;k<26;k++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.05,.08),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a,0xffffff][k%5],side:THREE.DoubleSide}));m.userData={x:(Math.random()-.5)*r.w,z:(Math.random()-.5)*r.d,ph:Math.random(),sp:.25+Math.random()*.3};g.add(m);conf.push(m);}
+  const light=new THREE.PointLight(0xff6aa0,2.5,4);light.position.y=1.2;g.add(light);
+  g.userData={beams,sign,glow,conf,light,canopy};festTiles.add(g);return g;
+}
 function hubTick(now,dt){
   const t=now/1000;
+  festTiles.forEach(g=>{if(!g.parent){festTiles.delete(g);return;}const u=g.userData;u.beams.forEach(b=>{const a=t*1.4+b.userData.k*2.1;b.rotation.z=Math.sin(a)*.5;b.rotation.x=Math.cos(a*1.3)*.4;});u.sign.position.y=2.1+Math.sin(t*3)*.08;const sc=1+.06*Math.sin(t*6);u.sign.scale.set(1.3*sc,.49*sc,1);u.glow.material.opacity=.2+.18*Math.sin(t*5);u.light.intensity=2+1.2*Math.sin(t*7);u.canopy.rotation.y=Math.PI/4+Math.sin(t*1.5)*.05;
+    u.conf.forEach(m=>{const q=(t*m.userData.sp+m.userData.ph)%1;m.position.set(m.userData.x+Math.sin(t*3+m.userData.ph*9)*.08,1.3-q*1.1,m.userData.z);m.rotation.set(t*4+m.userData.ph,t*3,0);});});
   monoTiles.forEach(g=>{if(!g.parent){monoTiles.delete(g);return;}const u=g.userData;u.glow.material.opacity=.25+.15*Math.sin(t*3);u.pillar.material.opacity=.12+.08*Math.sin(t*2.2);u.pillar.rotation.y=t*.6;u.crown.position.y=1.9+Math.sin(t*2)*.08;
     u.sparks.forEach(sp=>{const q=(t*.35+sp.userData.ph)%1;sp.position.set(Math.cos(sp.userData.a+t)*sp.userData.r,.3+q*2.2,Math.sin(sp.userData.a+t)*sp.userData.r);sp.material.opacity=Math.sin(q*Math.PI);});});
   if(hubFx.globe){hubFx.globe.rotation.y+=dt*.25;hubFx.atmo.scale.setScalar(1+.015*Math.sin(t*1.5));}
@@ -1227,7 +1255,9 @@ function sync(){
         if(t.type==='tour'){const f=makeSprite('🎫',.42);const[bx,bz]=buildingPos(i);f.position.set(bx-tl.grp.position.x,.5,bz-tl.grp.position.z);tl.bgrp.add(f);}
       }else tl.rim.visible=false;
       if(s.rubble&&s.level===0&&t.type==='city'){const r=rubbleMesh();const[bx,bz]=buildingPos(i);r.position.set(bx-tl.grp.position.x,0.22,bz-tl.grp.position.z);tl.bgrp.add(r);}
-      tl.fest.visible=G.festival===i;tl.level=s.level;
+      tl.fest.visible=false;tl.level=s.level;
+      if(G.festival===i&&!tl.festFx){tl.festFx=festFx(i);tl.grp.add(tl.festFx);}
+      else if(G.festival!==i&&tl.festFx){tl.grp.remove(tl.festFx);tl.festFx.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});festTiles.delete(tl.festFx);tl.festFx=null;}
     }
     // monopoly aura (checked every sync: depends on the whole group, not just this tile)
     const mono=t.type==='city'&&s.owner!=null&&ownsGroup(s.owner,t.g);
@@ -1569,7 +1599,7 @@ function landingInfo(p,i){
   if(t.type==='city'||t.type==='tour'){
     if(s.owner==null)return{cls:'free',txt:'구매 '+fmt(t.price)};
     if(s.owner===p.id){const rng=t.type==='city'?range(s.level):0;const v=rng?alive().filter(q=>q!==p&&q.island===0&&q.pos!==i&&Math.min((q.pos-i+N)%N,(i-q.pos+N)%N)<=rng):[];return{cls:'own',txt:v.length?`🧲${v.length}명`:'내 땅',pull:v};}
-    let amt=toll(i);if(has(p,'negotiator'))amt=Math.round(amt*.85);if(has(p,'captain')&&t.type==='tour')return{cls:'own',txt:'면제'};if(p.shield>0)return{cls:'own',txt:'면제권'};
+    let amt=toll(i);if(has(p,'negotiator'))amt=Math.round(amt*.7);if(has(p,'captain')&&t.type==='tour')return{cls:'own',txt:'면제'};if(p.shield>0)return{cls:'own',txt:'면제권'};
     return{cls:amt>=p.cash*.4||amt>=400?'deadly':'pay',txt:'-'+fmt(amt)};
   }
   if(t.type==='start')return G.nukesOn!==false&&(p.nukes==null||p.nukes>0)&&owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
@@ -1661,6 +1691,7 @@ function renderAll(){
   sync();renderPlayers();
   const p=G.players[G.cur];
   const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
+  {const jc=$('#jackchip');const jt='💰 잭팟 '+fmt(G.jackpot||0);if(jc.textContent!==jt){jc.textContent=jt;jc.classList.remove('bump');void jc.offsetWidth;jc.classList.add('bump');}const ec=$('#evchip');if(G.event){ec.hidden=false;ec.textContent=WEVENTS[G.event.id].short(G.event)+' · '+(G.event.until-G.round+1)+'R';}else ec.hidden=true;}
   $('#turn').innerHTML=`<i style="--pc:${p.color}">${CH(p.ch).emoji}</i>${esc(p.name)}의 차례`;$('#turn').style.setProperty('--pc',p.color);stage.style.setProperty('--pc',p.color);
 }
 function setMsg(t){$('#msg').innerHTML=t;}
@@ -1779,7 +1810,7 @@ function pay(p,to,amt,opt={}){
   if(amt<=0)return true;
   const before=p.cash;
   if(p.cash<amt)liquidate(p,amt);
-  if(p.cash>=amt){p.cash-=amt;if(to)to.cash+=amt;moneyFx(p,to,amt,before,opt);return true;}
+  if(p.cash>=amt){p.cash-=amt;if(to)to.cash+=amt;else if(opt.pool)G.jackpot=(G.jackpot||0)+amt;moneyFx(p,to,amt,before,opt);return true;}
   const rest=p.cash;p.cash=0;if(to){to.cash+=amt;if(amt>rest)log(`${nm(to)} 파산한 ${nm(p)} 대신 은행이 부족분 ${fmt(amt-rest)}을 채워 ${fmt(amt)} 전액을 받습니다.`,to);}moneyFx(p,to,amt,before,{...opt,quiet:true});
   p.bankrupt=true;SFX.play('bankrupt');owned(p).forEach(i=>{S(i).owner=null;S(i).level=0;if(G.festival===i)G.festival=null;});
   say(`${nm(p)} 파산했습니다. 💸`,p);bankruptFx(p);renderAll();
@@ -1800,7 +1831,7 @@ async function walk(p,n){
   const dir=n>0?1:-1;
   for(let k=0;k<Math.abs(n);k++){
     p.pos=(p.pos+dir+N)%N;
-    if(dir>0&&p.pos===0){const s=SALARY+(has(p,'explorer')?80:0);gain(p,s,'월급');SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
+    if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금! 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();}
     await hop(p,p.pos,Math.max(110,D(230)),0.4);
   }
 }
@@ -1812,7 +1843,9 @@ async function land(p){
   if(G.over||p.bankrupt)return;
   const i=p.pos,t=T(i);renderAll();SFX.play('land');
   switch(t.type){
-    case 'start':say(`${nm(p)} 출발지에 도착했습니다.`,p);await offerNuke(p);break;
+    case 'start':say(`${nm(p)} 출발지에 도착했습니다.`,p);
+      if((G.jackpot||0)>0){const jp=G.jackpot;G.jackpot=0;bigEvent(`💰 잭팟!<small>${esc(p.name)} +${fmt(jp)}</small>`,'gold',2600);SFX.play('win');confetti();gain(p,jp,'잭팟');emote(p,'laugh','잭팟이다!',{priority:6});log(`${nm(p)} 출발 칸에 정확히 도착해 잭팟 ${fmt(jp)} 획득!`,p);renderAll();await sleep(D(1200));}
+      await offerNuke(p);break;
     case 'island':if(await captainStorm(p))break;jail(p);SFX.play('island');emote(p,'shock','갇혔다!');say(`${nm(p)} 무인도에 갇혔습니다. ${p.island}턴 동안 쉬어요.${has(p,'captain')?' (선장은 금방 빠져나와요)':''}`,p);await sailToIsland(p);break;
     case 'travel':
       if(has(p,'explorer')){say(`${nm(p)} 모험가의 세계여행! 바로 이동합니다.`,p);const tg=await pickTravel(p);await walk(p,(tg-p.pos+N)%N);await land(p);}
@@ -1822,7 +1855,7 @@ async function land(p){
     case 'tax':{
       const v=owned(p).reduce((a,j)=>a+invested(j),0),amt=Math.round(v*0.1);
       if(amt<=0){say(`${nm(p)} 국세청 방문. 낼 세금이 없습니다.`,p);break;}
-      say(`${nm(p)} 국세청에 세금 ${fmt(amt)}을 냅니다.`,p);SFX.play('pay');pay(p,null,amt,{why:'세금'});break;}
+      say(`${nm(p)} 국세청에 세금 ${fmt(amt)}을 냅니다.`,p);SFX.play('pay');pay(p,null,amt,{why:'세금 → 잭팟',pool:true});break;}
     case 'chance':await drawChance(p);break;
     default:await landProperty(p,i);
   }
@@ -1842,7 +1875,7 @@ async function landProperty(p,i){
 }
 async function chargeToll(p,o,i){
   const t=T(i);let amt=toll(i);
-  if(has(p,'negotiator'))amt=Math.round(amt*0.8);
+  if(has(p,'negotiator'))amt=Math.round(amt*0.7);
   if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다. ⚓`,p);emote(p,'cool');return true;}
   if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`🛡️ ${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
@@ -1966,7 +1999,7 @@ async function offerBuy(p,i){
   if(freeOK)opts.push({label:'✨ 땅 구매 + 긴급 공사 (별장+빌딩 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
   opts.push({label:'넘어가기',value:-1});
   const res=wouldComplete(p,i)?40:100;
-  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 30% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
+  let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 35% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
     ()=>{for(let k=3;k>=0;k--)if(p.cash-disc(p,cum(i,0,k))>=res){if(k===0&&freeOK&&p.cash-landC>=30)return 'free1';return k;}return p.cash-landC>=30?(freeOK?'free1':0):-1;});
   let freeUp=false;if(l==='free1'){l=0;freeUp=true;}
   if(l<0){say(`${nm(p)} ${t.name}을(를) 사지 않았습니다.`,p);return;}
@@ -2012,7 +2045,7 @@ async function hostFestival(p){
     options:c.map(i=>({label:`${T(i).ico} ${T(i).name}`,value:i,cost:withF(i)})).concat([{label:'열지 않기',value:-1}])},
     ()=>c.reduce((a,b)=>withF(b)>withF(a)?b:a));
   if(i<0)return;
-  G.festival=i;SFX.play('festival');say(`${nm(p)} ${T(i).name}에서 축제를 엽니다! 🎉 통행료 2배.`,p);renderAll();
+  G.festival=i;SFX.play('festival');say(`${nm(p)} ${T(i).name}에서 축제를 엽니다! 🎉 통행료 2배.`,p);renderAll();bigEvent(`🎉 축제 개막!<small>${T(i).name} 통행료 2배</small>`,'gold',2400);focusOn(i,2200,1.1);for(let k=0;k<4;k++)setTimeout(()=>{const rr=rect(i);firework(new THREE.Vector3(rr.x,.3,rr.z),true);},k*350);emote(p,'happy','축제다!',{silent:true});
 }
 function aiTravelTarget(p){
   const free=TILES.map((t,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner==null&&disc(p,T(i).price)<=p.cash-60).sort((a,b)=>T(b).price-T(a).price);
@@ -2085,7 +2118,7 @@ async function captainStorm(p){
 const CARDS=[
   {t:'복권 당첨',d:'250만을 받습니다.',art:{big:'🎟️',s1:'💰',s2:'✨',bg:'linear-gradient(160deg,#ffe98a,#ff9f43)',pat:'rays'},f:async p=>gain(p,has(p,'lucky')?500:250)},
   {t:'장학금',d:'120만을 받습니다.',art:{big:'🎓',s1:'📚',s2:'💵',bg:'linear-gradient(160deg,#c7f0ff,#6fb6ff)',pat:'grid'},f:async p=>gain(p,has(p,'lucky')?240:120)},
-  {t:'과속 벌금',d:'80만을 냅니다.',bad:1,art:{big:'🚓',s1:'🚦',s2:'💸',bg:'linear-gradient(160deg,#ffd1d1,#ff6b6b)',pat:'stripes'},f:async p=>{pay(p,null,80);}},
+  {t:'과속 벌금',d:'80만을 냅니다.',bad:1,art:{big:'🚓',s1:'🚦',s2:'💸',bg:'linear-gradient(160deg,#ffd1d1,#ff6b6b)',pat:'stripes'},f:async p=>{pay(p,null,80,{why:'벌금 → 잭팟',pool:true});}},
   {t:'생일 축하',d:'다른 플레이어들에게 50만씩 받습니다.',art:{big:'🎂',s1:'🎈',s2:'🎁',bg:'linear-gradient(160deg,#ffd6f0,#ff8ad4)',pat:'dots'},f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,has(p,'lucky')?100:50);});}},
   {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🛡️',s1:'🚧',s2:'🆓',bg:'linear-gradient(160deg,#d8f5e0,#6fd39a)',pat:'grid'},f:async p=>{p.shield++;}},
   {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🎫',s1:'🛡️',s2:'✅',bg:'linear-gradient(160deg,#dff3ff,#7fc8ff)',pat:'stripes'},f:async p=>{p.shield++;}},
@@ -2124,7 +2157,28 @@ async function drawChance(p){
 }
 
 /* ---------- turn loop ---------- */
+const GN=['연두','청록','하늘','남보라','보라','분홍','주황','빨강'];
+const WEVENTS={
+  olympic:{name:'🏅 올림픽 개최',dur:2,setup:ev=>{const gs=[...new Set(TILES.filter(t=>t.type==='city').map(t=>t.g))];ev.g=gs[Math.random()*gs.length|0];},desc:ev=>`${GN[ev.g]} 그룹 도시 통행료 2배`,short:ev=>`🏅 ${GN[ev.g]} ×2`},
+  recession:{name:'📉 경기 침체',dur:1,desc:()=>'모든 통행료 절반',short:()=>'📉 통행료 ½'},
+  boom:{name:'🏗️ 건설 붐',dur:2,desc:()=>'모든 건설비 40% 할인',short:()=>'🏗️ 건설 -40%'},
+  tourism:{name:'✈️ 관광 시즌',dur:2,desc:()=>'관광지 통행료 3배',short:()=>'✈️ 관광지 ×3'},
+  quake:{name:'🌋 대지진',dur:0,desc:()=>'건물 2곳이 한 단계 무너집니다',short:()=>'🌋'},
+  dividend:{name:'💸 랜드마크 배당',dur:0,desc:()=>'랜드마크 1곳당 150만씩 받습니다',short:()=>'💸'},
+};
+async function worldEvent(){
+  const ids=Object.keys(WEVENTS);const id=ids[Math.random()*ids.length|0];const W=WEVENTS[id];const ev={id,until:G.round+W.dur-1};if(W.setup)W.setup(ev);
+  bigEvent(`${W.name}<small>${W.desc(ev)}${W.dur?` · ${W.dur}라운드`:''}</small>`,'gold',3200);SFX.play('monopoly');toast(`🌍 세계 이벤트 — ${W.name}: ${W.desc(ev)}`,'good',5000);log(`🌍 세계 이벤트: ${W.name} — ${W.desc(ev)}`);
+  if(id==='quake'){const c=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).level>=1&&S(i).level<=3);const hit=[];for(let k=0;k<2&&c.length;k++)hit.push(c.splice(Math.random()*c.length|0,1)[0]);
+    hit.forEach((i,k)=>collapseFx(i,k*400));shake(.4,1600);await sleep(D(2800));
+    hit.forEach(i=>{S(i).level--;S(i).rubble=S(i).level===0;log(`🌋 ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`);});if(!hit.length)log('🌋 지진이 왔지만 무너질 건물이 없었습니다.');renderAll();}
+  else if(id==='dividend'){alive().forEach(q=>{const n=owned(q).filter(i=>S(i).level===4).length;if(n)gain(q,n*150,'랜드마크 배당');});renderAll();}
+  else G.event=ev;
+  await sleep(D(1800));renderAll();
+}
 async function playTurn(p){
+  if(G.event&&G.round>G.event.until){toast(`🌍 ${WEVENTS[G.event.id].name} 종료`,'info',2500);G.event=null;renderAll();}
+  if(G.pendingEvent){G.pendingEvent=false;await worldEvent();if(G.over)return;}
   p.boost=false;renderAll();banner(p);SFX.play(p.ai?'click':'skill');updateThreats();
   if(G.limit&&G.limit-G.round===2&&!G.lateWarned){G.lateWarned=1;const lead=alive().reduce((a,b)=>assets(b)>assets(a)?b:a);toast(`⏰ 3라운드 남음! 현재 1위 ${nm(lead)} (${fmt(assets(lead))})`,'danger',6000);SFX.play('alarm');}
   await sleep(D(700));
@@ -2138,7 +2192,7 @@ async function playTurn(p){
     const ch=await decide(p,{title:'🦜 무인도',html:`<p>남은 ${p.island}턴. 더블이 나오면 바로 탈출해요.</p>`,
       options:[{label:'주사위로 탈출 시도',value:'roll',primary:true},{label:'탈출 비용 내기',value:'pay',cost:ISLAND_FEE,disabled:p.cash<ISLAND_FEE}]},
       ()=>p.cash>700&&p.island>1?'pay':'roll');
-    if(ch==='pay'){pay(p,null,ISLAND_FEE,{quiet:true,why:'탈출 비용'});p.island=0;say(`${nm(p)} ${fmt(ISLAND_FEE)}을 내고 무인도를 탈출했습니다.`,p);await sailBack(p,'taxi');renderAll();}
+    if(ch==='pay'){pay(p,null,ISLAND_FEE,{quiet:true,why:'탈출 비용 → 잭팟',pool:true});p.island=0;say(`${nm(p)} ${fmt(ISLAND_FEE)}을 내고 무인도를 탈출했습니다.`,p);await sailBack(p,'taxi');renderAll();}
     else{
       const d=await roll(p,{noSkill:true});if(!d)return;const[a,b]=d;
       if(a===b){p.island=0;say(`${nm(p)} 더블! 무인도를 탈출합니다.`,p);await sailBack(p,'speed');await walk(p,a+b);await land(p);return;}
@@ -2158,7 +2212,7 @@ async function playTurn(p){
 function nextPlayer(){
   let n=G.cur;
   do{n=(n+1)%4;}while(G.players[n].bankrupt);
-  if(n<=G.cur){G.round++;if(G.limit&&G.round>G.limit){G.round=G.limit;endByLimit();return;}}
+  if(n<=G.cur){G.round++;if(G.limit&&G.round>G.limit){G.round=G.limit;endByLimit();return;}if(G.round>1&&G.round%4===0)G.pendingEvent=true;}
   G.cur=n;
 }
 function endByLimit(){
