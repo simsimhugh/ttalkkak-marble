@@ -835,9 +835,9 @@ const hubFx={globe:null,atmo:null,orbit:null,orbiter:null,spinners:[],beacons:[]
   const grd=g.createRadialGradient(200,180,20,256,256,256);grd.addColorStop(0,'#2d8fc9');grd.addColorStop(.55,'#1c6f9f');grd.addColorStop(1,'#0b3d63');
   g.fillStyle=grd;g.beginPath();g.arc(256,256,250,0,Math.PI*2);g.fill();
   g.strokeStyle='rgba(255,255,255,.14)';g.lineWidth=1.5;for(let k=1;k<6;k++){g.beginPath();g.arc(256,256,k*42,0,Math.PI*2);g.stroke();}for(let k=0;k<12;k++){g.beginPath();g.moveTo(256,256);g.lineTo(256+Math.cos(k*Math.PI/6)*250,256+Math.sin(k*Math.PI/6)*250);g.stroke();}
-  g.fillStyle='rgba(6,18,32,.85)';g.beginPath();g.roundRect(136,288,240,86,22);g.fill();g.strokeStyle='rgba(255,209,102,.9)';g.lineWidth=3;g.stroke();
-  g.textAlign='center';g.textBaseline='middle';g.font='52px "Jua","Gothic A1",sans-serif';g.lineWidth=7;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText('딸깍 마블',256,322);g.fillStyle='#fff7d6';g.fillText('딸깍 마블',256,322);
-  g.font='600 15px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.9)';g.fillText('TTALKKAK MARBLE',256,358);
+  g.fillStyle='rgba(6,18,32,.85)';g.beginPath();g.roundRect(140,334,232,76,20);g.fill();g.strokeStyle='rgba(255,209,102,.9)';g.lineWidth=3;g.stroke();
+  g.textAlign='center';g.textBaseline='middle';g.font='48px "Jua","Gothic A1",sans-serif';g.lineWidth=7;g.strokeStyle='rgba(0,0,0,.55)';g.strokeText('딸깍 마블',256,362);g.fillStyle='#fff7d6';g.fillText('딸깍 마블',256,362);
+  g.font='600 15px "Gothic A1",sans-serif';g.fillStyle='rgba(255,255,255,.9)';g.fillText('TTALKKAK MARBLE',256,396);
   const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
   const hub=new THREE.Mesh(new THREE.CircleGeometry(3.3,64),new THREE.MeshStandardMaterial({map:tex,roughness:.7}));
   hub.rotation.x=-Math.PI/2;hub.position.y=0.012;hub.receiveShadow=true;scene.add(hub);
@@ -845,6 +845,7 @@ const hubFx={globe:null,atmo:null,orbit:null,orbiter:null,spinners:[],beacons:[]
   ring.rotation.x=Math.PI/2;ring.position.y=0.03;scene.add(ring);
   buildHub();
 }
+
 /* ---- the hub: a spinning globe on a pedestal, ringed by a lit miniature skyline ---- */
 function globeTex(){
   const cv=document.createElement('canvas');cv.width=1024;cv.height=512;const g=cv.getContext('2d');
@@ -869,13 +870,13 @@ function buildHub(){
   const ped=new THREE.Mesh(new THREE.CylinderGeometry(.5,.7,.35,24),new THREE.MeshStandardMaterial({color:0xffd166,metalness:.6,roughness:.35,emissive:0x553300,emissiveIntensity:.3}));ped.position.y=.19;ped.castShadow=true;hb.add(ped);
   const stem=new THREE.Mesh(new THREE.CylinderGeometry(.08,.12,.9,12),new THREE.MeshStandardMaterial({color:0xd9a441,metalness:.7,roughness:.3}));stem.position.y=.8;hb.add(stem);
   const arc=new THREE.Mesh(new THREE.TorusGeometry(1.08,.035,10,48,Math.PI),new THREE.MeshStandardMaterial({color:0xd9a441,metalness:.7,roughness:.3}));arc.position.y=2.15;arc.rotation.z=Math.PI;arc.rotation.y=.4;hb.add(arc);
-  const globe=new THREE.Mesh(new THREE.SphereGeometry(.92,40,28),new THREE.MeshStandardMaterial({map:globeTex(),roughness:.55}));globe.position.y=2.15;globe.rotation.z=.41;globe.castShadow=true;hb.add(globe);hubFx.globe=globe;
-  const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.0,32,24),new THREE.MeshBasicMaterial({color:0x7fc4ff,transparent:true,opacity:.14,side:THREE.BackSide}));atmo.position.y=2.15;hb.add(atmo);hubFx.atmo=atmo;
+  const globe=new THREE.Mesh(new THREE.SphereGeometry(.8,40,28),new THREE.MeshStandardMaterial({map:globeTex(),roughness:.55}));globe.position.y=2.15;globe.rotation.z=.41;globe.castShadow=true;hb.add(globe);hubFx.globe=globe;
+  const atmo=new THREE.Mesh(new THREE.SphereGeometry(.87,32,24),new THREE.MeshBasicMaterial({color:0x7fc4ff,transparent:true,opacity:.14,side:THREE.BackSide}));atmo.position.y=2.15;hb.add(atmo);hubFx.atmo=atmo;
   // tiny plane orbiting the globe
   const orbit=new THREE.Group();orbit.position.y=2.15;hb.add(orbit);const pl=new THREE.Group();pl.position.set(1.25,0,0);
   const body=new THREE.Mesh(new THREE.CapsuleGeometry(.04,.22,4,8),new THREE.MeshStandardMaterial({color:0xffffff}));body.rotation.x=Math.PI/2;pl.add(body);const wing=new THREE.Mesh(new THREE.BoxGeometry(.3,.015,.08),new THREE.MeshStandardMaterial({color:0xd8333c}));pl.add(wing);orbit.add(pl);hubFx.orbit=orbit;hubFx.orbiter=pl;
   // miniature skyline around the hub (the front sector stays open so the title can be read)
-  const n=16;for(let k=0;k<n;k++){const a=k/n*Math.PI*2;const toward=Math.abs(((a-Math.PI/2)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI);if(toward<.75)continue;
+  const n=16;for(let k=0;k<n;k++){const a=k/n*Math.PI*2;const toward=Math.abs(((a-Math.PI/2)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI);if(toward<1.05)continue;
     const r=2.35+Math.random()*.4,h=.35+Math.random()*.95,w=.22+Math.random()*.18;const cols=Math.max(2,Math.round(w*12)),rows=Math.max(2,Math.round(h*7));
     const tint=[0x9fb3c8,0xb8c7d8,0x8aa0b8,0xcad6e2,0x7f93a8][k%5];const wt=windowTex(cols,rows);
     const mat=new THREE.MeshStandardMaterial({color:tint,roughness:.5,metalness:.15,map:wt,emissiveMap:wt,emissive:0xffffff,emissiveIntensity:.45});
@@ -902,22 +903,22 @@ function festSign(){const cv=document.createElement('canvas');cv.width=320;cv.he
 function festFx(i){
   const r=rect(i),g=new THREE.Group();
   // striped canopy on four poles
-  const poleM=new THREE.MeshStandardMaterial({color:0xffd166,metalness:.5,roughness:.4});[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.0,6),poleM);p.position.set(sx*(r.w/2-.08),.72,sz*(r.d/2-.08));g.add(p);});
-  const canopy=new THREE.Mesh(new THREE.ConeGeometry(Math.max(r.w,r.d)*.62,.45,4,1,true),new THREE.MeshStandardMaterial({map:stripeTex('#ff3b6b','#ffd166',12),side:THREE.DoubleSide,roughness:.8}));canopy.rotation.y=Math.PI/4;canopy.scale.set(r.w/Math.max(r.w,r.d)*1.1,1,r.d/Math.max(r.w,r.d)*1.1);canopy.position.y=1.45;g.add(canopy);
+
+  const canopy=new THREE.Object3D();g.add(canopy);
   // bunting
-  for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const f=new THREE.Mesh(new THREE.ConeGeometry(.05,.12,3),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a][k%4]}));f.rotation.x=Math.PI;f.position.set(Math.cos(a)*r.w*.5,1.17,Math.sin(a)*r.d*.5);g.add(f);}
+  for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const f=new THREE.Mesh(new THREE.ConeGeometry(.05,.12,3),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a][k%4]}));f.rotation.x=Math.PI;f.scale.setScalar(.7);f.position.set(Math.cos(a)*r.w*.47,.3,Math.sin(a)*r.d*.47);g.add(f);}
   // spotlight beams
-  const beams=[];[0xff3bd6,0x3bd6ff,0xffd166].forEach((c,k)=>{const b=new THREE.Mesh(new THREE.ConeGeometry(.35,2.6,16,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));b.geometry.translate(0,-1.3,0);b.position.y=2.9;b.userData.k=k;g.add(b);beams.push(b);});
-  const sign=festSign();sign.position.y=2.1;g.add(sign);
-  const glow=new THREE.Mesh(new THREE.PlaneGeometry(r.w-.04,r.d-.04),new THREE.MeshBasicMaterial({color:0xff3b6b,transparent:true,opacity:.3,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=.236;g.add(glow);
-  const conf=[];for(let k=0;k<26;k++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.05,.08),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a,0xffffff][k%5],side:THREE.DoubleSide}));m.userData={x:(Math.random()-.5)*r.w,z:(Math.random()-.5)*r.d,ph:Math.random(),sp:.25+Math.random()*.3};g.add(m);conf.push(m);}
-  const light=new THREE.PointLight(0xff6aa0,2.5,4);light.position.y=1.2;g.add(light);
+  const beams=[];[].forEach((c,k)=>{const b=new THREE.Mesh(new THREE.ConeGeometry(.35,2.6,16,1,true),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));b.geometry.translate(0,-1.3,0);b.position.y=2.9;b.userData.k=k;g.add(b);beams.push(b);});
+  const sign=festSign();sign.scale.set(.9,.34,1);sign.position.y=2.6;g.add(sign);
+  const glow=new THREE.Mesh(new THREE.PlaneGeometry(r.w-.04,r.d-.04),new THREE.MeshBasicMaterial({color:0xff3b6b,transparent:true,opacity:.18,depthWrite:false}));glow.rotation.x=-Math.PI/2;glow.position.y=.236;g.add(glow);
+  const conf=[];for(let k=0;k<10;k++){const m=new THREE.Mesh(new THREE.PlaneGeometry(.05,.08),new THREE.MeshBasicMaterial({color:[0xff3b6b,0xffd166,0x4fc3f7,0x7cf29a,0xffffff][k%5],side:THREE.DoubleSide}));m.userData={x:(Math.random()-.5)*r.w,z:(Math.random()-.5)*r.d,ph:Math.random(),sp:.25+Math.random()*.3};g.add(m);conf.push(m);}
+  const light=new THREE.PointLight(0xff6aa0,1.2,3);light.position.y=.8;g.add(light);
   g.userData={beams,sign,glow,conf,light,canopy};festTiles.add(g);return g;
 }
 function hubTick(now,dt){
   const t=now/1000;
-  festTiles.forEach(g=>{if(!g.parent){festTiles.delete(g);return;}const u=g.userData;u.beams.forEach(b=>{const a=t*1.4+b.userData.k*2.1;b.rotation.z=Math.sin(a)*.5;b.rotation.x=Math.cos(a*1.3)*.4;});u.sign.position.y=2.1+Math.sin(t*3)*.08;const sc=1+.06*Math.sin(t*6);u.sign.scale.set(1.3*sc,.49*sc,1);u.glow.material.opacity=.2+.18*Math.sin(t*5);u.light.intensity=2+1.2*Math.sin(t*7);u.canopy.rotation.y=Math.PI/4+Math.sin(t*1.5)*.05;
-    u.conf.forEach(m=>{const q=(t*m.userData.sp+m.userData.ph)%1;m.position.set(m.userData.x+Math.sin(t*3+m.userData.ph*9)*.08,1.3-q*1.1,m.userData.z);m.rotation.set(t*4+m.userData.ph,t*3,0);});});
+  festTiles.forEach(g=>{if(!g.parent){festTiles.delete(g);return;}const u=g.userData;u.beams.forEach(b=>{const a=t*1.4+b.userData.k*2.1;b.rotation.z=Math.sin(a)*.5;b.rotation.x=Math.cos(a*1.3)*.4;});u.sign.position.y=2.6+Math.sin(t*3)*.06;const sc=1+.04*Math.sin(t*6);u.sign.scale.set(.9*sc,.34*sc,1);u.glow.material.opacity=.12+.08*Math.sin(t*5);u.light.intensity=1+.5*Math.sin(t*7);u.canopy.rotation.y=Math.PI/4+Math.sin(t*1.5)*.05;
+    u.conf.forEach(m=>{const q=(t*m.userData.sp+m.userData.ph)%1;m.position.set(m.userData.x*.9+Math.sin(t*3+m.userData.ph*9)*.05,.75-q*.5,m.userData.z*.9);m.rotation.set(t*4+m.userData.ph,t*3,0);});});
   monoTiles.forEach(g=>{if(!g.parent){monoTiles.delete(g);return;}const u=g.userData;u.glow.material.opacity=.25+.15*Math.sin(t*3);u.pillar.material.opacity=.12+.08*Math.sin(t*2.2);u.pillar.rotation.y=t*.6;u.crown.position.y=1.9+Math.sin(t*2)*.08;
     u.sparks.forEach(sp=>{const q=(t*.35+sp.userData.ph)%1;sp.position.set(Math.cos(sp.userData.a+t)*sp.userData.r,.3+q*2.2,Math.sin(sp.userData.a+t)*sp.userData.r);sp.material.opacity=Math.sin(q*Math.PI);});});
   if(hubFx.globe){hubFx.globe.rotation.y+=dt*.25;hubFx.atmo.scale.setScalar(1+.015*Math.sin(t*1.5));}
@@ -944,26 +945,179 @@ function lmHelpers(g){
     add,
   };
 }
+/* window-grid facade material for landmark towers */
+const lmWinCache={};
+function lmWin(base,lit,cols,rows,o={}){
+  const key=base+lit+cols+'x'+rows;let t=lmWinCache[key];
+  if(!t){const cv=document.createElement('canvas');cv.width=128;cv.height=Math.max(32,Math.round(128*rows/cols));const g=cv.getContext('2d');g.fillStyle=base;g.fillRect(0,0,cv.width,cv.height);const cw=cv.width/cols,ch=cv.height/rows;
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){g.fillStyle=Math.random()<.7?lit:'rgba(0,0,0,.35)';g.fillRect(x*cw+cw*.18,y*ch+ch*.2,cw*.64,ch*.55);}
+    t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;lmWinCache[key]=t;}
+  return new THREE.MeshStandardMaterial({color:0xffffff,map:t,emissiveMap:t,emissive:0xffffff,emissiveIntensity:o.glow??.25,roughness:o.rough??.45,metalness:o.metal??.1});
+}
+function lmHelpers2(g){
+  const base=lmHelpers(g);const add=base.add;
+  return Object.assign(base,{
+    mbox:(w,h,d,mat,x=0,y=0,z=0)=>add(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat),x,y+h/2,z),
+    mcyl:(rt,rb,h,mat,x=0,y=0,z=0,seg=20)=>add(new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),mat),x,y+h/2,z),
+    lathe:(pts,c,x=0,y=0,z=0,o)=>add(new THREE.Mesh(new THREE.LatheGeometry(pts.map(([a,b])=>new THREE.Vector2(a,b)),24),LMM(c,o)),x,y,z),
+    torus:(r,t,c,x=0,y=0,z=0,o)=>{const m=add(new THREE.Mesh(new THREE.TorusGeometry(r,t,8,32),LMM(c,o)),x,y,z);m.rotation.x=Math.PI/2;return m;},
+    arch:(w,h,d,c,x=0,y=0,z=0,o)=>{const m=add(new THREE.Mesh(new THREE.CylinderGeometry(w/2,w/2,d,16,1,false,0,Math.PI),LMM(c,o)),x,y+h,z);m.rotation.z=Math.PI/2;m.rotation.y=Math.PI/2;return m;},
+    ring:(n,r,fn)=>{for(let k=0;k<n;k++){const a=k/n*Math.PI*2;fn(Math.cos(a)*r,Math.sin(a)*r,a,k);}},
+  });
+}
 const LANDMARKS={
-  '타이베이':g=>{const h=lmHelpers(g);h.box(.5,.25,.5,LM.dark);for(let k=0;k<8;k++){h.box(.34+k*.012,.13,.34+k*.012,LM.teal,0,.25+k*.14,0,{metalness:.3,roughness:.35});h.box(.3,.02,.3,LM.gold,0,.38+k*.14,0);}h.box(.2,.14,.2,LM.teal,0,1.37,0);h.cyl(.015,.03,.4,LM.gold,0,1.51,0,6);},
-  '마닐라':g=>{const h=lmHelpers(g);h.box(.7,.42,.45,LM.cream);h.dome(.18,LM.copper,0,.42,0);h.cyl(.03,.03,.14,LM.gold,0,.6,0,6);[-.28,.28].forEach(x=>{h.box(.16,.62,.16,LM.cream,x,0,.1);h.cone(.11,.2,LM.copper,x,.62,.1,4);});h.box(.14,.2,.04,LM.wood,0,.05,.23);},
-  '하노이':g=>{const h=lmHelpers(g);h.cyl(.4,.45,.08,0x6f8f6a,0,0,0,10);for(let k=0;k<3;k++){const w=.36-k*.08;h.box(w,.2,w,LM.cream,0,.08+k*.3,0);h.box(w+.1,.05,w+.1,LM.brick,0,.28+k*.3,0);}h.cone(.08,.16,LM.brick,0,.98,0,4);h.box(.06,.14,.03,0x335,0,.1,.19);},
-  '방콕':g=>{const h=lmHelpers(g);h.box(.7,.12,.7,LM.cream);for(let k=0;k<7;k++){h.cyl(.22-k*.028,.26-k*.028,.17,k%2?LM.cream:0xd9c9a8,0,.12+k*.16,0,8);}h.cone(.06,.3,LM.gold,0,1.24,0,8,{metalness:.6});[[.28,.28],[-.28,.28],[.28,-.28],[-.28,-.28]].forEach(([x,z])=>{h.cyl(.06,.09,.3,0xd9c9a8,x,.12,z,8);h.cone(.05,.14,LM.gold,x,.42,z,8);});},
-  '싱가포르':g=>{const h=lmHelpers(g);[-.26,0,.26].forEach(x=>h.box(.16,1.0,.3,LM.glass,x,0,0,{metalness:.3,roughness:.3}));const deck=h.box(.86,.08,.34,LM.white,0,1.0,0);deck.rotation.z=.02;h.box(.7,.05,.24,0x6fb6a0,0,1.08,0);h.cyl(.03,.03,.12,0x3f8f3a,-.2,1.13,0,6);h.cyl(.03,.03,.12,0x3f8f3a,.15,1.13,0,6);},
-  '카이로':g=>{const h=lmHelpers(g);const p=h.cone(.5,.7,0xd9b77a,-.1,0,-.05,4);p.rotation.y=Math.PI/4;const p2=h.cone(.28,.4,0xcfa868,.32,0,.2,4);p2.rotation.y=Math.PI/4;h.box(.3,.14,.14,0xcfa868,-.1,0,.42);h.box(.12,.16,.1,0xcfa868,.02,.12,.42);},
-  '이스탄불':g=>{const h=lmHelpers(g);h.box(.6,.3,.6,0xcfd4dc);h.dome(.3,0x8fa3b8,0,.3,0);[[.3,0],[-.3,0],[0,.3],[0,-.3]].forEach(([x,z])=>h.dome(.13,0x8fa3b8,x,.3,z));[[.42,.42],[-.42,.42],[.42,-.42],[-.42,-.42]].forEach(([x,z])=>{h.cyl(.03,.04,.95,0xdfe3ea,x,0,z,8);h.cone(.045,.14,0x8fa3b8,x,.95,z,8);});h.cyl(.01,.01,.12,LM.gold,0,.6,0,4);},
-  '아테네':g=>{const h=lmHelpers(g);h.box(.9,.08,.5,LM.stone);h.box(.8,.06,.42,LM.stone,0,.08,0);for(let k=0;k<6;k++)h.cyl(.035,.04,.42,LM.stone,-.33+k*.132,.14,.17,10);for(let k=0;k<6;k++)h.cyl(.035,.04,.42,LM.stone,-.33+k*.132,.14,-.17,10);h.box(.84,.07,.46,LM.stone,0,.56,0);const ped=h.cone(.5,.16,LM.stone,0,.63,0,4);ped.rotation.y=Math.PI/4;ped.scale.z=.55;},
-  '코펜하겐':g=>{const h=lmHelpers(g);[0xe0613a,0xf2c14e,0x4f8fc0,0xd9534f,0x6fb6a0,0xf4f4f4].forEach((c,k)=>{const hh=.42+(k%3)*.1;h.box(.14,hh,.3,c,-.37+k*.15,0,0);h.cone(.1,.1,LM.brick,-.37+k*.15,hh,0,4).rotation.y=Math.PI/4;});h.cyl(.012,.012,.7,LM.wood,.3,0,.35,6);h.box(.02,.1,.16,LM.white,.3,.5,.44);},
-  '스톡홀름':g=>{const h=lmHelpers(g);h.box(.7,.35,.4,LM.brick,-.1,0,0);h.box(.26,1.0,.26,LM.brick,.28,0,0);h.box(.3,.05,.3,0x7a4a2a,.28,1.0,0);h.cyl(.012,.012,.2,LM.gold,.28,1.05,0,6);[0,.05,.1].forEach((y,k)=>h.sphere(.035,LM.gold,.28,1.3+k*.07,0,{metalness:.8}));for(let k=0;k<4;k++)h.box(.03,.08,.03,LM.brick,.16+k*.08,1.0,.14);},
-  '베를린':g=>{const h=lmHelpers(g);h.box(.9,.06,.3,LM.stone);for(let k=0;k<6;k++)h.cyl(.04,.045,.5,LM.stone,-.38+k*.152,.06,0,10);h.box(.94,.12,.34,LM.stone,0,.56,0);h.box(.5,.1,.2,LM.stone,0,.68,0);h.box(.14,.1,.1,LM.copper,-.02,.78,0);[-.1,-.03,.04,.11].forEach(x=>h.box(.05,.09,.04,LM.copper,x,.78,.07));h.box(.05,.12,.03,LM.copper,.06,.86,0);},
-  '오타와':g=>{const h=lmHelpers(g);h.box(.6,.3,.4,0x9a8f84,-.15,0,0);h.box(.22,.9,.22,0x9a8f84,.2,0,0);[.14,-.14].forEach(dz=>h.box(.1,.1,.01,LM.white,.2,.7,.11*Math.sign(dz)*1));h.box(.1,.1,.01,LM.white,.31,.7,0).rotation.y=Math.PI/2;h.cone(.17,.38,LM.copper,.2,.9,0,4).rotation.y=Math.PI/4;h.cyl(.01,.01,.15,LM.gold,.2,1.28,0,4);h.cone(.09,.2,LM.copper,-.3,.3,0,4).rotation.y=Math.PI/4;},
-  '취리히':g=>{const h=lmHelpers(g);h.box(.5,.35,.4,LM.stone,0,0,-.05);[-.18,.18].forEach(x=>{h.box(.16,.75,.16,LM.stone,x,0,.12);h.cyl(.1,.1,.08,0x6a7f8a,x,.75,.12,10);h.dome(.1,0x6a7f8a,x,.83,.12);h.cyl(.01,.01,.1,LM.gold,x,.93,.12,4);});h.cone(.12,.18,0x6a7f8a,0,.35,-.1,4).rotation.y=Math.PI/4;},
-  '시드니':g=>{const h=lmHelpers(g);h.box(.9,.08,.5,0xd9d2c0);[[-.28,.26,0],[-.06,.3,0],[.18,.24,0],[.36,.16,.1]].forEach(([x,r,z])=>{const sh=h.add(new THREE.Mesh(new THREE.SphereGeometry(r,16,12,0,Math.PI,0,Math.PI/2),LMM(LM.white,{roughness:.4,side:THREE.DoubleSide})),x,.08,z);sh.rotation.y=-Math.PI/2;sh.rotation.z=.35;});},
-  '상파울루':g=>{const h=lmHelpers(g);h.box(.7,.4,.45,0xb9b2a5);h.dome(.17,0x5f7f8a,0,.4,0);h.cyl(.01,.01,.12,LM.gold,0,.57,0,4);[-.26,.26].forEach(x=>{h.box(.16,.6,.16,0xb9b2a5,x,0,.12);h.cone(.1,.35,0x5f7f8a,x,.6,.12,4).rotation.y=Math.PI/4;});h.box(.16,.22,.03,0x3a3f46,0,.08,.23);},
-  '런던':g=>{const h=lmHelpers(g);h.box(.6,.28,.35,0xc9b48a,-.2,0,0);h.box(.22,.95,.22,0xc9b48a,.22,0,0);[0,1,2,3].forEach(k=>{const a=k*Math.PI/2;const f=h.box(.12,.12,.01,LM.cream,.22+Math.sin(a)*.115,.78,Math.cos(a)*.115);f.rotation.y=a;});h.box(.26,.06,.26,0x9a8f84,.22,.95,0);h.cone(.14,.3,0x5a7f6a,.22,1.01,0,4).rotation.y=Math.PI/4;h.cyl(.008,.008,.14,LM.gold,.22,1.31,0,4);},
-  '파리':g=>{const h=lmHelpers(g);const iron=0x5a4a3a;[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{const leg=h.cyl(.025,.045,.75,iron,sx*.2,0,sz*.2,6);leg.rotation.z=-sx*.28;leg.rotation.x=sz*.28;leg.position.set(sx*.26,.36,sz*.26);});h.box(.56,.04,.56,iron,0,.42,0);h.box(.3,.04,.3,iron,0,.8,0);h.cyl(.05,.12,.4,iron,0,.84,0,6);h.cyl(.01,.02,.3,iron,0,1.24,0,4);h.sphere(.025,0xffe0a0,0,1.56,0,{emissive:0xffcc40,emissiveIntensity:2});},
-  '뉴욕':g=>{const h=lmHelpers(g);h.box(.5,.12,.5,0x9a8f84);h.box(.36,.3,.36,0xa39a8c,0,.12,0);h.cyl(.09,.11,.5,LM.copper,0,.42,0,10);h.sphere(.09,LM.copper,0,.98,0);for(let k=0;k<7;k++){const a=-Math.PI*.6+k*Math.PI*.2;h.cone(.015,.12,LM.copper,Math.cos(a)*.09,1.0,Math.sin(a)*.09-.0,4).rotation.z=Math.cos(a)*.6;}const arm=h.cyl(.025,.03,.4,LM.copper,.14,.6,0,6);arm.rotation.z=-.25;h.cyl(.03,.02,.06,LM.gold,.2,1.0,0,6);h.sphere(.05,0xffd050,.2,1.08,0,{emissive:0xffa020,emissiveIntensity:2});h.box(.1,.16,.03,LM.copper,-.12,.5,.06);},
-  '서울':g=>{const h=lmHelpers(g);h.cone(.5,.3,0x4f8f3a,0,0,0,10);h.cyl(.06,.09,.7,LM.white,0,.3,0,10);h.cyl(.2,.14,.14,LM.white,0,1.0,0,12);h.box(.42,.04,.42,0x8fd3ff,0,1.14,0,{emissive:0x3a8ad0,emissiveIntensity:.8});h.cyl(.17,.2,.1,LM.white,0,1.18,0,12);h.cyl(.012,.02,.5,0xd8333c,0,1.28,0,6);h.sphere(.03,0xff4040,0,1.8,0,{emissive:0xff2020,emissiveIntensity:3});},
+  // Taipei 101: eight flared stacked segments, ruyi discs, glass, spire
+  '타이베이':g=>{const h=lmHelpers2(g);const glass=lmWin('#1f6f6a','#bff3ea',4,3,{metal:.35});
+    h.box(.62,.06,.62,0x5a6a70);h.mbox(.44,.24,.44,glass,0,.06,0);h.box(.5,.03,.5,LM.gold,0,.3,0,{metalness:.7});
+    for(let k=0;k<8;k++){const y=.33+k*.13;const seg=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.21,.16,.13,4),glass),0,y+.065,0);seg.rotation.y=Math.PI/4;h.box(.33,.012,.33,0x9ad8cc,0,y+.125,0,{metalness:.6});}
+    h.ring(4,.19,(x,z)=>h.cyl(.035,.035,.01,LM.gold,x,.6,z,12));
+    h.mbox(.2,.12,.2,glass,0,1.37,0);h.cyl(.06,.08,.08,0x9ad8cc,0,1.49,0,8);h.cyl(.008,.02,.32,0xcccccc,0,1.57,0,6);h.sphere(.018,0xff4040,0,1.9,0,{emissive:0xff2020,emissiveIntensity:3});},
+  // Manila Cathedral: romanesque façade, rose window, green dome, bell tower
+  '마닐라':g=>{const h=lmHelpers2(g);const st=LMM(0xe3d8bf);
+    h.box(.72,.05,.5,0xb0a690);h.mbox(.56,.5,.4,st,0,.05,0);h.box(.6,.05,.44,0xcbbf9f,0,.55,0);
+    const ped=h.cone(.32,.16,0xe3d8bf,0,.6,.0,3);ped.rotation.z=0;ped.rotation.y=Math.PI/2;ped.scale.z=.35;ped.position.z=.18;
+    h.cyl(.07,.07,.02,0x3a6a9a,0,.36,.205,16,{emissive:0x2a5a8a,emissiveIntensity:.6}).rotation.x=Math.PI/2;
+    h.box(.12,.2,.02,0x5a3a2a,0,.05,.205);[-.17,.17].forEach(x=>h.box(.06,.12,.02,0x3a5a7a,x,.22,.205));
+    h.cyl(.14,.16,.12,0xe3d8bf,0,.55,-.05,16);h.dome(.15,0x4f9a7a,0,.67,-.05,{metalness:.3});h.cyl(.02,.02,.08,LM.gold,0,.82,-.05,6);h.box(.04,.01,.01,LM.gold,0,.88,-.05);
+    h.mbox(.16,.75,.16,st,.32,.05,-.12);h.box(.18,.04,.18,0xcbbf9f,.32,.8,-.12);h.cyl(.07,.08,.12,0xe3d8bf,.32,.84,-.12,8);h.dome(.08,0x4f9a7a,.32,.96,-.12);},
+  // Hanoi: One Pillar Pagoda on a lotus pond
+  '하노이':g=>{const h=lmHelpers2(g);
+    h.cyl(.46,.48,.05,0x4f8f7a,0,0,0,28);h.cyl(.42,.42,.01,0x6fb6c8,0,.05,0,28,{metalness:.3,roughness:.15});
+    h.ring(6,.32,(x,z)=>h.cyl(.05,.05,.01,0x5fae4a,x,.06,z,10));h.ring(3,.28,(x,z)=>h.sphere(.025,0xff8ab0,x,.08,z));
+    h.cyl(.06,.07,.38,0x9a8f84,0,.06,0,12);
+    h.box(.36,.03,.36,0x8b4a2b,0,.44,0);h.mbox(.26,.18,.26,LMM(0x9b2f2a),0,.47,0);[[0,.135],[0,-.135],[.135,0],[-.135,0]].forEach(([x,z])=>h.box(z?.08:.01,.1,z?.01:.08,0x3a2010,x,.5,z));
+    const r1=h.cone(.32,.16,0x6a3a20,0,.65,0,4);r1.rotation.y=Math.PI/4;h.ring(4,.23,(x,z,a)=>{const c=h.cone(.03,.08,0x6a3a20,x,.66,z,6);c.rotation.z=.6;c.rotation.y=-a;});
+    h.cyl(.025,.03,.06,LM.gold,0,.8,0,8);h.sphere(.03,LM.gold,0,.89,0,{metalness:.7});},
+  // Bangkok: Wat Arun central prang with four satellites, tiered and gilded
+  '방콕':g=>{const h=lmHelpers2(g);const porc=0xe8dcc6,gold=0xd9a441;
+    h.box(.78,.06,.78,0xb9ae96);h.box(.66,.06,.66,0xcfc3a8,0,.06,0);
+    h.lathe([[0,0],[.26,0],[.26,.12],[.22,.14],[.22,.3],[.17,.33],[.17,.48],[.13,.52],[.12,.68],[.085,.72],[.08,.86],[.05,.9],[.03,1.02],[.015,1.1],[0,1.2]],porc,0,.12,0);
+    [.26,.42,.56,.7,.84].forEach((y,k)=>h.torus(.2-k*.033,.012,gold,0,.12+y,0,{metalness:.6}));
+    h.cyl(.004,.006,.12,gold,0,1.3,0,6);
+    h.ring(4,.3,(x,z)=>{h.lathe([[0,0],[.08,0],[.08,.06],[.06,.08],[.055,.2],[.035,.24],[.02,.34],[0,.42]],porc,x,.12,z);h.torus(.05,.008,gold,x,.24,z);});
+    h.ring(8,.37,(x,z)=>h.cyl(.012,.012,.08,0xa0522d,x,.12,z,6));},
+  // Marina Bay Sands: three curved towers with the SkyPark ship on top
+  '싱가포르':g=>{const h=lmHelpers2(g);const glass=lmWin('#4a6f8a','#d6eeff',3,10,{metal:.4,glow:.3});
+    h.box(.9,.04,.44,0x9aa3ad);
+    [-.27,0,.27].forEach((x,k)=>{const t=h.mbox(.15,.95,.2,glass,x,.04,0);t.rotation.y=.08*(k-1);const lean=h.mbox(.07,.95,.18,glass,x+.09,.04,0);lean.rotation.z=-.06;});
+    const deck=h.add(new THREE.Mesh(new THREE.BoxGeometry(1.02,.06,.24),LMM(0xf4f4f4,{roughness:.4})),.04,1.02,0);
+    h.box(.88,.025,.2,0x3aa6c8,.0,1.05,0,{metalness:.4,roughness:.1,emissive:0x1a5a7a,emissiveIntensity:.4});
+    const prow=h.cone(.12,.18,0xf4f4f4,.56,1.02,0,4);prow.rotation.z=-Math.PI/2;prow.scale.set(1,1,.6);
+    [-.3,-.1,.15,.32].forEach(x=>h.sphere(.03,0x3f8f3a,x,1.09,.06));
+    h.lathe([[0,0],[.12,0],[.16,.06],[.06,.12],[0,.14]],0xf4f4f4,.42,.04,.28);},
+  // Cairo: Great Pyramid, smaller pyramid, Sphinx in sand
+  '카이로':g=>{const h=lmHelpers2(g);const sand=0xdcc08a;
+    h.box(.9,.03,.7,0xe6cf98);
+    const p=h.cone(.46,.66,0xd9b77a,-.12,.03,-.1,4);p.rotation.y=Math.PI/4;const cap=h.cone(.07,.1,LM.gold,-.12,.59,-.1,4,{metalness:.7});cap.rotation.y=Math.PI/4;
+    for(let k=1;k<6;k++){const r=h.add(new THREE.Mesh(new THREE.TorusGeometry(.46*(1-k/6)*1.414*.71,.004,4,4),LMM(0xc4a066)),-.12,.03+k*.11,-.1);r.rotation.x=Math.PI/2;r.rotation.z=Math.PI/4;}
+    const p2=h.cone(.24,.34,0xcfa868,.3,.03,.22,4);p2.rotation.y=Math.PI/4;
+    h.box(.36,.1,.12,sand,-.1,.03,.38);h.box(.1,.08,.12,sand,.03,.13,.38);h.box(.08,.1,.1,sand,.1,.13,.38);h.box(.06,.04,.05,0x3a6a9a,.1,.23,.38);h.box(.12,.03,.03,sand,.12,.05,.45);h.box(.12,.03,.03,sand,.12,.05,.31);
+    h.cyl(.012,.012,.3,0x6b8e3a,.38,.03,-.26,6);h.ring(5,.04,(x,z,a)=>{const l=h.cone(.02,.14,0x4f8f3a,.38+x,.32,-.26+z,4);l.rotation.z=Math.cos(a)*1.1;l.rotation.x=Math.sin(a)*1.1;});},
+  // Istanbul: Blue Mosque — cascading domes, six minarets with balconies
+  '이스탄불':g=>{const h=lmHelpers2(g);const stn=0xd6dae2,lead=0x8a9cb4;
+    h.box(.86,.05,.86,0xb9b2a5);h.box(.56,.26,.56,stn,0,.05,0);
+    h.cyl(.2,.22,.08,stn,0,.31,0,24);h.dome(.22,lead,0,.39,0,{metalness:.4});h.cyl(.012,.012,.12,LM.gold,0,.6,0,6);h.sphere(.02,LM.gold,0,.73,0,{metalness:.7});
+    h.ring(4,.25,(x,z)=>{h.cyl(.1,.1,.06,stn,x,.31,z,16);h.dome(.1,lead,x,.37,z,{metalness:.4});});
+    h.ring(4,.25,(x,z)=>h.dome(.07,lead,x*1.35,.31,z*1.35,{metalness:.4}),Math.PI/4);
+    [[.4,.4],[-.4,.4],[.4,-.4],[-.4,-.4],[.4,0],[-.4,0]].forEach(([x,z])=>{h.cyl(.022,.03,.95,0xe6e9ef,x,.05,z,12);h.cyl(.04,.04,.015,0xb9bfca,x,.6,z,12);h.cyl(.04,.04,.015,0xb9bfca,x,.8,z,12);h.cone(.032,.16,lead,x,1.0,z,12);});
+    h.box(.2,.14,.02,0x3a5a7a,0,.08,.285);},
+  // Athens: Parthenon on the Acropolis rock — stylobate steps, 8x17 columns read as 8x6, frieze, pediments
+  '아테네':g=>{const h=lmHelpers2(g);const m=0xece6d6;
+    h.lathe([[0,0],[.5,0],[.48,.08],[.4,.12],[0,.12]],0xb3a58a,0,0,0);
+    [.0,.025,.05].forEach((y,k)=>h.box(.86-k*.04,.025,.5-k*.04,m,0,.12+y,0));
+    for(let k=0;k<8;k++){const x=-.35+k*.1;[.19,-.19].forEach(z=>{h.cyl(.026,.03,.36,m,x,.195,z,12);h.box(.06,.015,.06,m,x,.555,z);});}
+    for(let k=1;k<5;k++)[.35,-.35].forEach(x=>{h.cyl(.026,.03,.36,m,x,.195,-.19+k*.076,12);});
+    h.box(.06,.3,.3,0xd9cfb8,0,.195,0);h.box(.82,.04,.46,m,0,.57,0);h.box(.82,.035,.46,0xd8cfba,0,.61,0);
+    [.23,-.23].forEach(z=>{const p=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.0,.44,.14,3,1),LMM(m)),0,.715,z*1.0);p.rotation.z=Math.PI/2;p.rotation.y=Math.PI/2;p.scale.set(1,1,.08);});
+    const roof=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.0,.24,.82,3,1),LMM(0xcfc6b0)),0,.7,0);roof.rotation.z=Math.PI/2;roof.scale.set(1,.55,1);},
+  // Copenhagen: Nyhavn — colourful gabled houses on a canal, sailboat and the Little Mermaid
+  '코펜하겐':g=>{const h=lmHelpers2(g);
+    h.box(.9,.03,.7,0x7a8a94);h.box(.9,.012,.28,0x3f7fa8,0,.03,.2,{metalness:.3,roughness:.1});
+    [0xe0613a,0xf2c14e,0x4f8fc0,0xd9534f,0x6fb6a0,0xf4e6c8].forEach((c,k)=>{const x=-.38+k*.152,hh=.36+(k%3)*.08;const win=lmWin('#'+c.toString(16).padStart(6,'0'),'#fff6d6',2,3,{glow:.15,rough:.7});h.mbox(.14,hh,.26,win,x,.03,-.14);
+      const gab=h.add(new THREE.Mesh(new THREE.CylinderGeometry(0,.1,.12,3),LMM(0x8b3a2a)),x,.03+hh+.06,-.14);gab.rotation.x=Math.PI/2;gab.rotation.z=Math.PI/2;gab.scale.set(1,1,2.6);h.box(.03,.06,.03,0x6a5a50,x+.03,.03+hh+.08,-.2);});
+    const boat=h.box(.32,.05,.09,0x8b4a2b,.05,.04,.2);h.cyl(.006,.006,.38,0xdddddd,.05,.09,.2,4);const sail=h.add(new THREE.Mesh(new THREE.PlaneGeometry(.16,.28),LMM(0xffffff,{side:THREE.DoubleSide})),.12,.26,.2);
+    h.cyl(.05,.06,.06,0x7a7f86,.38,.03,.28,8);h.add(new THREE.Mesh(new THREE.CapsuleGeometry(.025,.06,4,8),LMM(0x5fa58a,{metalness:.4})),.38,.15,.28);h.sphere(.022,0x5fa58a,.38,.21,.28,{metalness:.4});},
+  // Stockholm City Hall: red brick block, slim tower with gilded three crowns, waterfront
+  '스톡홀름':g=>{const h=lmHelpers2(g);const brick=lmWin('#9a3b25','#ffd9a0',6,3,{glow:.12,rough:.85});
+    h.box(.9,.03,.7,0x7a8a94);h.box(.9,.012,.2,0x3f7fa8,0,.03,.25,{metalness:.3,roughness:.1});
+    h.mbox(.62,.3,.36,brick,-.08,.03,-.08);h.box(.64,.03,.38,0x2f6a5a,-.08,.33,-.08);for(let k=0;k<7;k++)h.box(.04,.05,.04,0x9a3b25,-.36+k*.09,.33,.1);
+    [-.25,.0].forEach(x=>{h.cyl(.04,.04,.1,0x2f6a5a,x,.36,-.18,8);h.dome(.045,0x2f6a5a,x,.46,-.18);});
+    h.mbox(.18,.95,.18,brick,.28,.03,-.02);h.box(.2,.04,.2,0x2f6a5a,.28,.98,-.02);for(let k=0;k<4;k++){const a=k*Math.PI/2;h.box(.05,.08,.01,0x2a2a2a,.28+Math.sin(a)*.1,.82,-.02+Math.cos(a)*.1).rotation.y=a;}
+    h.cyl(.06,.08,.14,0x2f6a5a,.28,1.02,-.02,8);h.cyl(.012,.012,.16,LM.gold,.28,1.16,-.02,6);[0,1,2].forEach(k=>{h.torus(.025,.008,LM.gold,.28,1.22+k*.05,-.02,{metalness:.8});});
+    h.ring(3,.06,(x,z)=>h.cyl(.012,.012,.1,0x6b5a4a,-.08+x*2,.03,.27+z*.3,6));},
+  // Berlin: Brandenburg Gate with the Quadriga
+  '베를린':g=>{const h=lmHelpers2(g);const sst=0xe5dcc5;
+    h.box(.96,.04,.46,0xa9a191);h.box(.92,.04,.36,sst,0,.04,0);
+    for(let k=0;k<6;k++){const x=-.4+k*.16;[.12,-.12].forEach(z=>{h.cyl(.03,.034,.46,sst,x,.08,z,14);h.box(.07,.02,.07,sst,x,.54,z);});}
+    [-.48,.48].forEach(x=>h.box(.12,.42,.34,sst,x,.08,0));
+    h.box(1.0,.06,.38,sst,0,.56,0);h.box(.98,.04,.36,0xd8cdb0,0,.62,0);for(let k=0;k<10;k++)h.box(.05,.03,.01,0xb9ae96,-.45+k*.1,.6,.19);
+    h.box(.5,.1,.3,sst,0,.66,0);h.box(.46,.02,.28,0xd8cdb0,0,.76,0);
+    const cop=0x5fa58a;[-.12,-.04,.04,.12].forEach((x,k)=>{h.add(new THREE.Mesh(new THREE.CapsuleGeometry(.022,.08,4,8),LMM(cop,{metalness:.5})),x,.84,.03).rotation.x=Math.PI/2;h.box(.02,.06,.02,cop,x,.78,.07,{metalness:.5});h.box(.02,.06,.02,cop,x,.78,-.01,{metalness:.5});h.sphere(.018,cop,x,.88,.09,{metalness:.5});});
+    h.box(.18,.06,.06,cop,0,.78,-.08,{metalness:.5});h.cyl(.01,.01,.22,cop,0,.84,-.08,6,{metalness:.5});h.add(new THREE.Mesh(new THREE.CapsuleGeometry(.02,.08,4,8),LMM(cop,{metalness:.5})),0,.96,-.08);h.box(.12,.04,.01,cop,0,1.06,-.08,{metalness:.5});},
+  // Ottawa: Parliament Centre Block with the Peace Tower
+  '오타와':g=>{const h=lmHelpers2(g);const sand=lmWin('#b8ad98','#ffe9b0',8,3,{glow:.1,rough:.85});const copper=0x5fa58a;
+    h.box(.96,.04,.6,0x6f9a5a);h.box(.08,.02,.4,0xa9a191,0,.04,.3);
+    h.mbox(.86,.3,.3,sand,0,.04,-.05);h.box(.88,.025,.32,0x8a8070,0,.34,-.05);
+    [-.38,.38].forEach(x=>{h.mbox(.12,.34,.12,sand,x,.04,-.05);const r=h.cone(.1,.18,copper,x,.38,-.05,4,{metalness:.4});r.rotation.y=Math.PI/4;});
+    const roofL=h.add(new THREE.Mesh(new THREE.CylinderGeometry(0,.16,.84,4,1),LMM(copper,{metalness:.4})),0,.42,-.05);roofL.rotation.z=Math.PI/2;roofL.rotation.x=Math.PI/4;roofL.scale.set(1,1,.5);
+    h.mbox(.2,.82,.2,sand,0,.04,.1);for(let k=0;k<4;k++){const a=k*Math.PI/2;const f=h.add(new THREE.Mesh(new THREE.CircleGeometry(.05,20),LMM(0xfff7e0,{emissive:0xffe9b0,emissiveIntensity:.6})),Math.sin(a)*.101,.72,.1+Math.cos(a)*.101);f.rotation.y=a;}
+    h.box(.24,.03,.24,0x8a8070,0,.86,.1);const sp=h.cone(.13,.3,copper,0,.89,.1,4,{metalness:.4});sp.rotation.y=Math.PI/4;h.cyl(.006,.006,.14,0xdddddd,0,1.19,.1,4);h.box(.07,.04,.004,0xd8333c,.035,1.3,.1);},
+  // Zurich: Grossmünster twin towers by the Limmat
+  '취리히':g=>{const h=lmHelpers2(g);const stn=lmWin('#d8cfbc','#ffe9b0',2,5,{glow:.08,rough:.85});
+    h.box(.9,.03,.7,0x9aa3ad);h.box(.9,.012,.22,0x4f8fb0,0,.03,.24,{metalness:.3,roughness:.1});
+    h.mbox(.52,.34,.36,stn,0,.03,-.1);const roof=h.add(new THREE.Mesh(new THREE.CylinderGeometry(0,.22,.5,3,1),LMM(0x7a4a3a)),0,.44,-.1);roof.rotation.z=Math.PI/2;roof.rotation.y=Math.PI/2;roof.scale.set(1,.6,1.2);
+    [-.16,.16].forEach(x=>{h.mbox(.16,.72,.16,stn,x,.03,.06);h.box(.18,.03,.18,0xb9ae96,x,.75,.06);h.cyl(.07,.08,.08,0x6a7f8a,x,.78,.06,8);h.dome(.075,0x6a7f8a,x,.86,.06,{metalness:.3});h.cyl(.006,.01,.1,LM.gold,x,.93,.06,6);
+      h.cyl(.03,.03,.01,0x2a2a2a,x,.62,.141,16).rotation.x=Math.PI/2;});
+    h.arch(.12,.1,.02,0x5a3a2a,0,.03,.08);},
+  // Sydney Opera House: interlocking shell sails on a podium by the harbour
+  '시드니':g=>{const h=lmHelpers2(g);
+    h.box(.96,.02,.7,0x3f7fa8,0,0,0,{metalness:.3,roughness:.1});h.box(.86,.1,.4,0xc9b48a,0,.02,-.04);for(let k=0;k<8;k++)h.box(.08,.012,.02,0xb09a70,-.36+k*.1,.1,.17);
+    const shell=(x,z,r,rot,s)=>{const m=h.add(new THREE.Mesh(new THREE.SphereGeometry(r,20,12,0,Math.PI,0,Math.PI/2),LMM(0xf8f6f0,{roughness:.35,side:THREE.DoubleSide})),x,.12,z);m.rotation.set(0,rot,0);m.scale.set(.55,s,1);
+      const rib=h.add(new THREE.Mesh(new THREE.TorusGeometry(r,.006,4,24,Math.PI),LMM(0xd8d2c4)),x,.12,z);rib.rotation.set(0,rot+Math.PI/2,0);rib.scale.set(1,s,1);return m;};
+    shell(-.26,-.04,.24,-Math.PI/2,1.6);shell(-.1,-.04,.21,-Math.PI/2,1.5);shell(.04,-.04,.16,-Math.PI/2,1.4);
+    shell(.2,.02,.18,-Math.PI/2+.1,1.45);shell(.33,.02,.14,-Math.PI/2+.1,1.35);
+    h.box(.12,.06,.06,0x8fd3ff,-.34,.12,-.04,{emissive:0x3a8ad0,emissiveIntensity:.5});},
+  // São Paulo: Metropolitan Cathedral — neo-gothic spires around a green dome
+  '상파울루':g=>{const h=lmHelpers2(g);const stn=lmWin('#a39a8c','#ffe9b0',3,5,{glow:.08,rough:.9});const cop=0x4f7f7a;
+    h.box(.9,.04,.7,0x8f8a80);h.mbox(.56,.38,.42,stn,0,.04,-.04);
+    h.cyl(.16,.18,.16,0xa39a8c,0,.42,-.06,16);h.dome(.17,cop,0,.58,-.06,{metalness:.4});h.cyl(.03,.04,.1,cop,0,.74,-.06,8);h.cyl(.006,.006,.1,LM.gold,0,.84,-.06,4);
+    [-.24,.24].forEach(x=>{h.mbox(.15,.66,.15,stn,x,.04,.14);h.box(.17,.03,.17,0x8a8070,x,.7,.14);h.cone(.09,.42,cop,x,.73,.14,8,{metalness:.4});h.ring(4,.075,(dx,dz)=>h.cone(.018,.12,cop,x+dx,.7,.14+dz,6));h.cyl(.004,.004,.08,LM.gold,x,1.15,.14,4);});
+    h.add(new THREE.Mesh(new THREE.CircleGeometry(.07,20),LMM(0x3a5a8a,{emissive:0x2a4a8a,emissiveIntensity:.6})),0,.32,.172);h.arch(.14,.12,.02,0x3a2a1a,0,.04,.17);},
+  // London: Elizabeth Tower (Big Ben) with clock faces, beside the Palace roofline
+  '런던':g=>{const h=lmHelpers2(g);const gold=0xc9b48a,dark=0x3a4a3a;const fac=lmWin('#c9b48a','#ffe9b0',2,8,{glow:.08,rough:.8});
+    h.box(.96,.04,.5,0x8f8a80);h.mbox(.62,.26,.3,lmWin('#c9b48a','#ffe9b0',8,2,{glow:.08,rough:.8}),-.2,.04,0);for(let k=0;k<7;k++)h.cone(.02,.08,0xc9b48a,-.48+k*.093,.3,.15,4);
+    h.mbox(.2,.72,.2,fac,.3,.04,0);h.box(.24,.04,.24,0xb9a47a,.3,.76,0);h.mbox(.22,.16,.22,LMM(gold),.3,.8,0);
+    for(let k=0;k<4;k++){const a=k*Math.PI/2;const cx=.3+Math.sin(a)*.112,cz=Math.cos(a)*.112;const f=h.add(new THREE.Mesh(new THREE.CircleGeometry(.07,24),LMM(0xfffbe6,{emissive:0xffefb0,emissiveIntensity:.7})),cx,.88,cz);f.rotation.y=a;
+      const ring=h.add(new THREE.Mesh(new THREE.TorusGeometry(.07,.008,6,24),LMM(LM.gold,{metalness:.7})),cx,.88,cz);ring.rotation.y=a;
+      const hand=h.add(new THREE.Mesh(new THREE.BoxGeometry(.006,.05,.004),LMM(0x111)),cx+Math.sin(a)*.003,.9,cz+Math.cos(a)*.003);hand.rotation.y=a;hand.rotation.z=.6;}
+    h.box(.2,.06,.2,0x9a8a6a,.3,.96,0);h.box(.14,.1,.14,dark,.3,1.02,0);const sp=h.cone(.11,.32,dark,.3,1.12,0,4,{metalness:.3});sp.rotation.y=Math.PI/4;h.ring(4,.09,(x,z)=>h.cone(.015,.1,LM.gold,.3+x,1.08,z,4,{metalness:.7}));h.cyl(.005,.005,.08,LM.gold,.3,1.44,0,4);},
+  // Paris: Eiffel Tower — lattice legs, two platforms, tapering mast, beacon
+  '파리':g=>{const h=lmHelpers2(g);const iron=0x6a5644,im=LMM(iron,{metalness:.5,roughness:.5});
+    h.box(.9,.02,.9,0x6f9a5a);
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{for(let k=0;k<3;k++){const y0=k*.14,r0=.34-k*.07;const leg=new THREE.Mesh(new THREE.CylinderGeometry(.018,.03,.16,6),im);leg.position.set(sx*(r0-.03),y0+.08,sz*(r0-.03));leg.rotation.z=-sx*.42;leg.rotation.x=sz*.42;leg.castShadow=true;g.add(leg);}
+      const brace=new THREE.Mesh(new THREE.BoxGeometry(.008,.18,.008),im);brace.position.set(sx*.22,.12,sz*.22);brace.rotation.z=sx*.6;g.add(brace);});
+    h.arch(.36,.12,.02,iron,0,0,.24,{metalness:.5});h.arch(.36,.12,.02,iron,0,0,-.24,{metalness:.5});
+    h.box(.44,.03,.44,iron,0,.42,0,{metalness:.5});h.ring(12,.2,(x,z)=>h.cyl(.004,.004,.04,0xd9b77a,x,.45,z,4));
+    for(let k=0;k<4;k++){const lg=new THREE.Mesh(new THREE.CylinderGeometry(.012,.022,.36,6),im);const sx=k<2?1:-1,sz=k%2?1:-1;lg.position.set(sx*.11,.62,sz*.11);lg.rotation.z=-sx*.18;lg.rotation.x=sz*.18;g.add(lg);}
+    h.box(.22,.025,.22,iron,0,.8,0,{metalness:.5});h.lathe([[.0,0],[.08,0],[.06,.2],[.035,.42],[.02,.55],[0,.6]],iron,0,.82,0,{metalness:.5});
+    h.box(.06,.04,.06,iron,0,1.3,0);h.cyl(.004,.008,.12,iron,0,1.34,0,4);h.sphere(.022,0xffe0a0,0,1.47,0,{emissive:0xffcc40,emissiveIntensity:2.5});},
+  // New York: Statue of Liberty on its star fort and pedestal
+  '뉴욕':g=>{const h=lmHelpers2(g);const cop=0x6fb6a0,cm=LMM(cop,{metalness:.35,roughness:.5});
+    const star=new THREE.Shape();for(let k=0;k<22;k++){const a=k/22*Math.PI*2,r=k%2?.3:.42;k?star.lineTo(Math.cos(a)*r,Math.sin(a)*r):star.moveTo(Math.cos(a)*r,Math.sin(a)*r);}
+    const fort=h.add(new THREE.Mesh(new THREE.ExtrudeGeometry(star,{depth:.08,bevelEnabled:false}),LMM(0x9a917f)),0,.08,0);fort.rotation.x=-Math.PI/2;
+    h.lathe([[0,0],[.2,0],[.2,.06],[.16,.08],[.15,.3],[.17,.32],[.17,.36],[.12,.38],[0,.38]],0xb8ae9a,0,.08,0);
+    h.add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.11,.42,10),cm),0,.67,0);h.add(new THREE.Mesh(new THREE.ConeGeometry(.13,.2,10,1,true),cm),0,.56,0).rotation.x=Math.PI;
+    h.sphere(.055,cop,0,.93,0,{metalness:.35});h.ring(7,.06,(x,z,a)=>{if(z>.02)return;const sp=h.cone(.01,.07,cop,x,.97,z,4,{metalness:.35});sp.rotation.z=-x*6;sp.rotation.x=z*6;});
+    const arm=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.018,.022,.3,8),cm),.07,1.0,0);arm.rotation.z=-.2;
+    h.cyl(.03,.02,.05,LM.gold,.1,1.15,0,8,{metalness:.7});h.sphere(.04,0xffd050,.1,1.22,0,{emissive:0xffa020,emissiveIntensity:2.5});
+    const tab=h.box(.06,.09,.02,cop,-.07,.74,.05,{metalness:.35});tab.rotation.z=.3;},
+  // Seoul: N Seoul Tower on Namsan with trees and the observatory ring
+  '서울':g=>{const h=lmHelpers2(g);
+    h.lathe([[0,0],[.48,0],[.4,.12],[.26,.24],[.12,.3],[0,.32]],0x4f8f3a,0,0,0);h.ring(9,.32,(x,z)=>h.cone(.05,.14,0x2f6f2a,x,.12,z,6));h.ring(6,.18,(x,z)=>h.cone(.04,.1,0x3f7f3a,x,.24,z,6));
+    h.box(.22,.06,.14,0xe6e0d0,0,.3,0);
+    h.lathe([[0,0],[.06,0],[.05,.3],[.035,.6],[0,.6]],0xf4f4f4,0,.32,0);
+    h.cyl(.12,.07,.06,0xf4f4f4,0,.84,0,20);h.mcyl(.16,.16,.1,lmWin('#5aaad8','#e6f6ff',12,1,{metal:.3,glow:.6}),0,.9,0,24);h.cyl(.17,.14,.04,0xf4f4f4,0,1.0,0,20);
+    h.cyl(.08,.1,.04,0xd8d8d8,0,1.04,0,16);h.cyl(.012,.02,.32,0xd8333c,0,1.08,0,8);for(let k=0;k<4;k++)h.box(.03,.01,.03,0xffffff,0,1.12+k*.07,0);h.sphere(.02,0xff4040,0,1.42,0,{emissive:0xff2020,emissiveIntensity:3});},
 };
 function landmarkMesh(name){const g=new THREE.Group();const f=LANDMARKS[name];if(f)f(g);else{const h=lmHelpers(g);h.box(.4,.9,.4,LM.glass);}return g;}
 /* render a landmark to a small transparent thumbnail canvas (used as the tile's background art) */
