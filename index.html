@@ -1775,7 +1775,7 @@ function frame(now){
     if(i===hover)tl.base.position.y=0.16;else tl.base.position.y=0.11;
   });
   tokens.forEach(tk=>{if(tk.glow.visible)tk.glow.scale.setScalar(1+.15*Math.sin(tms*5));});
-  tokenTick(now);timerTick(now);hubTick(now,dt);pickMarkTick(now);
+  tokenTick(now);timerTick(now);hubTick(now,dt);pickMarkTick(now);pullTick(now);
   if(nukeMarks.length){const k=.5+.35*Math.sin(now/120);nukeMarks.forEach(m=>{if(m.userData.pulse){if(m.isSprite)m.position.y+=Math.sin(now/200)*.002;else m.material.opacity=k;}});}
   meterTick(dt);
   if(sx||sy){camera.position.x+=sx;camera.position.y+=sy;}
@@ -2261,20 +2261,65 @@ async function chargeToll(p,o,i){
   SFX.play('pay');
   const ok=pay(p,o,amt,{why:'통행료'});if(ok&&hasR(o,'leech')){const x=Math.round(amt*.1);if(x>0)gain(o,x,'🩸 흡혈 계약');}renderPlayers();return ok;
 }
+/* pull visuals */
+function magnetMesh(){
+  const g=new THREE.Group();const red=new THREE.MeshStandardMaterial({color:0xe23b3b,roughness:.35,metalness:.3,emissive:0x5a0808,emissiveIntensity:.6}),steel=new THREE.MeshStandardMaterial({color:0xe8edf2,roughness:.25,metalness:.85});
+  const arc=new THREE.Mesh(new THREE.TorusGeometry(.2,.075,12,28,Math.PI),red);g.add(arc); // arch on top
+  [-.2,.2].forEach(x=>{const leg=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.14,14),red);leg.position.set(x,-.07,0);g.add(leg);
+    const tip=new THREE.Mesh(new THREE.CylinderGeometry(.077,.077,.1,14),steel);tip.position.set(x,-.19,0);g.add(tip);});
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;
+}
+const pullFx={marks:[],mag:null,tk:null,t0:0};
+function pullZoneShow(p,i,rng,victims){
+  pullZoneClear();const col=new THREE.Color(p.color);pullFx.t0=performance.now();
+  const add=m=>{scene.add(m);pullFx.marks.push(m);return m;};
+  for(let o=-rng;o<=rng;o++){const j=(i+o+N)%N,r=rect(j);
+    const plate=add(new THREE.Mesh(new THREE.PlaneGeometry(r.w-.08,r.d-.08),new THREE.MeshBasicMaterial({color:o?col:0xffd166,transparent:true,opacity:o?.35:.55,depthWrite:false})));
+    plate.rotation.x=-Math.PI/2;plate.position.set(r.x,.262,r.z);plate.userData.pz={k:'plate',ph:Math.abs(o)};
+    if(o){ // chevron pointing one step toward the building
+      const nb=rect((j+(o>0?-1:1)+N)%N),dx=nb.x-r.x,dz=nb.z-r.z;
+      const cv=document.createElement('canvas');cv.width=cv.height=128;const c=cv.getContext('2d');c.strokeStyle='#fff';c.lineWidth=18;c.lineCap='round';c.lineJoin='round';
+      [[28],[72]].forEach(([y])=>{c.beginPath();c.moveTo(24,y+30);c.lineTo(64,y-6);c.lineTo(104,y+30);c.stroke();});
+      const tx=new THREE.CanvasTexture(cv);const holder=new THREE.Group();holder.position.set(r.x,.27,r.z);holder.rotation.y=Math.atan2(-dx,-dz);
+      const ch=new THREE.Mesh(new THREE.PlaneGeometry(.62,.62),new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false,color:col.clone().lerp(new THREE.Color(0xffffff),.55)}));ch.rotation.x=-Math.PI/2;holder.add(ch);
+      holder.userData.pz={k:'chev',ph:Math.abs(o),base:holder.position.clone(),dir:new THREE.Vector3(dx,0,dz).normalize()};add(holder);}
+  }
+  // range label over the building
+  const r0=rect(i),cv=document.createElement('canvas');cv.width=320;cv.height=96;const c=cv.getContext('2d');c.fillStyle=p.color;c.beginPath();c.roundRect(6,6,308,84,24);c.fill();c.lineWidth=6;c.strokeStyle='#fff';c.stroke();
+  c.fillStyle='#fff';c.font='600 44px "Noto Sans KR","Malgun Gothic",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(`🧲 양옆 ${rng}칸`,160,50);
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;const lab=add(new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false})));lab.scale.set(1.3,.39,1);lab.renderOrder=21;lab.position.set(r0.x,3.05,r0.z);lab.userData.pz={k:'lab'};
+  // red target ring under every player about to be pulled
+  victims.forEach(q=>{const rr=rect(q.pos);const ring=add(new THREE.Mesh(new THREE.RingGeometry(.3,.4,32),new THREE.MeshBasicMaterial({color:0xff2a2a,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide})));ring.rotation.x=-Math.PI/2;ring.position.set(rr.x,.275,rr.z);ring.userData.pz={k:'ring',q};});
+  // the magnet above the puller's head
+  const tk=tokens[p.id],mag=magnetMesh();mag.position.set(0,2.0,0);mag.scale.setScalar(.01);tk.grp.add(mag);pullFx.mag=mag;pullFx.tk=tk;return pullFx.id=(pullFx.id||0)+1;
+}
+function pullZoneClear(){
+  pullFx.marks.forEach(m=>{scene.remove(m);m.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose();}});});pullFx.marks.length=0;
+  if(pullFx.mag){pullFx.tk.grp.remove(pullFx.mag);pullFx.mag.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});pullFx.mag=null;}
+}
+function pullTick(now){
+  if(!pullFx.mag&&!pullFx.marks.length)return;const t=(now-pullFx.t0)/1000;
+  if(pullFx.mag){const m=pullFx.mag;m.scale.setScalar(1.5*Math.min(1,t*4)*(1+.08*Math.sin(t*14)));m.rotation.z=Math.sin(t*9)*.18;m.position.y=2.0+Math.sin(t*5)*.05;}
+  pullFx.marks.forEach(o=>{const d=o.userData.pz;if(!d)return;
+    if(d.k==='plate')o.material.opacity=(d.ph?.22:.4)+.18*Math.max(0,Math.sin(t*6-d.ph*1.1));
+    else if(d.k==='chev'){const u=((t*1.4-d.ph*.25)%1+1)%1;o.position.copy(d.base).addScaledVector(d.dir,(u-.5)*.35);o.children[0].material.opacity=Math.sin(u*Math.PI);}
+    else if(d.k==='ring'){const rr=rect(d.q.pos);o.position.set(rr.x,.275,rr.z);const k=1+.2*Math.sin(t*8);o.scale.set(k,k,1);}
+    else if(d.k==='lab')o.position.y=3.05+Math.sin(t*2.5)*.06;});
+}
 /* feature 2: pull neighbors */
 async function pullNeighbors(p,i){
   const rng=range(S(i).level)+(S(i).level>0&&hasR(p,'magnet')?1:0);if(rng<=0)return;
   const victims=alive().filter(q=>q!==p&&q.island===0&&q.pos!==i&&(Math.min((q.pos-i+N)%N,(i-q.pos+N)%N)<=rng));
   if(!victims.length)return;
-  say(`${nm(p)} ${T(i).name}의 ${LV[S(i).level]}이 양옆 ${rng}칸을 빨아들입니다! 🧲`,p);SFX.play('pull');
-  toast(`🧲 ${nm(p)} ${T(i).name}(${LV[S(i).level]})로 ${victims.map(q=>esc(q.name)).join('·')} 끌어오기!`,'danger');emote(p,'laugh','이리 와!',{silent:true});
-  await sleep(D(400));
-  for(const q of victims){
+  say(`${nm(p)} ${T(i).name}의 ${LV[S(i).level]}이 양옆 ${rng}칸을 빨아들입니다! 🧲`,p);SFX.play('pull');const pzId=pullZoneShow(p,i,rng,victims);
+  toast(`🧲 ${nm(p)} ${T(i).name}(${LV[S(i).level]})로 ${victims.map(q=>esc(q.name)).join('·')} 끌어오기!`,'danger');
+  await sleep(D(1100));
+  try{for(const q of victims){
     if(G.over)return;
     log(`🧲 ${nm(q)} ${T(q.pos).name}에서 ${T(i).name}(으)로 끌려왔습니다.`,q);
-    q.pos=i;q.travel=false;emote(q,'angry','끌려간다!',{silent:true});await hop(q,i,D(600),1.2);
+    q.pos=i;q.travel=false;emote(q,'angry','끌려간다!',{silent:true,cam:false});await hop(q,i,D(600),1.2);
     await chargeToll(q,p,i);renderAll();
-  }
+  }}finally{setTimeout(()=>{if(pullFx.id===pzId)pullZoneClear();},D(500));}
 }
 /* feature 3: nuke */
 /* every owned tile in range, the epicenter included — the bomb does not spare its owner */
@@ -2724,7 +2769,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction,setPickable,pickTravel};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction,setPickable,pickTravel,pullNeighbors};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
