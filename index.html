@@ -149,6 +149,34 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .rank{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
 .rank li{display:flex;justify-content:space-between;gap:8px;border-left:4px solid var(--pc);padding-left:8px;align-items:center}
 .rank li:first-child{font-size:16px;font-weight:800}
+/* chance card reveal */
+.cardfx{position:absolute;inset:0;display:grid;place-items:center;z-index:8;perspective:1200px;background:radial-gradient(ellipse at center,rgba(0,0,0,.35),rgba(0,0,0,.6));cursor:pointer}
+.ccard{position:relative;width:min(240px,42vw);aspect-ratio:5/7;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.8,.2,1);transform:rotateY(180deg) scale(.6);filter:drop-shadow(0 24px 40px rgba(0,0,0,.6))}
+.cardfx.show .ccard{transform:rotateY(0deg) scale(1)}
+.cardfx.out{animation:cardOut .45s ease forwards}
+@keyframes cardOut{to{opacity:0;transform:scale(1.08)}}
+.cface{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;overflow:hidden;border:4px solid #fff7e0;box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
+.cback{transform:rotateY(180deg);background:#1c2a3a;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 10px,transparent 10px 20px),radial-gradient(circle at 50% 50%,#2d4a6a,#0b1a2a)}
+.cback::after{content:"🎴";position:absolute;inset:0;display:grid;place-items:center;font-size:84px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.cfront{display:flex;flex-direction:column;align-items:center;text-align:center;color:#15202b;background:var(--cbg,linear-gradient(160deg,#ffe29a,#ffb347))}
+.cfront .cpat{position:absolute;inset:0;opacity:.22;pointer-events:none}
+.cfront .cpat.rays{background:repeating-conic-gradient(from 0deg at 50% 38%,#fff 0 7deg,transparent 7deg 14deg)}
+.cfront .cpat.dots{background:radial-gradient(#fff 2px,transparent 2.5px) 0 0/14px 14px}
+.cfront .cpat.stripes{background:repeating-linear-gradient(-30deg,#fff 0 8px,transparent 8px 18px)}
+.cfront .cpat.waves{background:repeating-radial-gradient(circle at 50% 120%,#fff 0 6px,transparent 6px 22px)}
+.cfront .cpat.grid{background:linear-gradient(#fff 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,#fff 1px,transparent 1px) 0 0/16px 16px}
+.cfront .ctitle{position:relative;margin-top:10px;font-family:var(--f-fun);font-size:clamp(17px,2.3vw,22px);background:rgba(255,255,255,.85);padding:3px 14px;border-radius:999px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.cfront .cart{position:relative;flex:1;width:100%;display:grid;place-items:center}
+.cfront .cart .big{font-size:clamp(70px,11vw,110px);line-height:1;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3));animation:cartPop .8s cubic-bezier(.2,1.4,.4,1) .5s both}
+.cfront .cart .s1,.cfront .cart .s2{position:absolute;font-size:clamp(26px,4vw,38px);filter:drop-shadow(0 3px 4px rgba(0,0,0,.3));animation:cartFloat 2.2s ease-in-out infinite alternate}
+.cfront .cart .s1{left:14%;top:14%}.cfront .cart .s2{right:14%;bottom:18%;animation-delay:-1.1s}
+@keyframes cartPop{from{transform:scale(.2) rotate(-20deg);opacity:0}}
+@keyframes cartFloat{to{transform:translateY(-8px) rotate(8deg)}}
+.cfront .cdesc{position:relative;margin:0 10px 12px;background:rgba(255,255,255,.9);border-radius:12px;padding:8px 10px;font-size:clamp(12px,1.6vw,14px);font-weight:700;line-height:1.35}
+.cfront.bad .cdesc{color:#8a1c22}
+.cfront .ctag{position:absolute;top:8px;right:10px;font-size:11px;font-weight:800;background:#15202b;color:#fff;padding:1px 8px;border-radius:999px}
+.cfront.bad .ctag{background:#c8343c}
+.cardfx .chint{position:absolute;bottom:10%;color:#fff;font-size:13px;opacity:.8;text-shadow:0 1px 3px #000}
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
 .confetti i{position:absolute;top:-12px;width:10px;height:14px;background:var(--c);animation:fall linear forwards;border-radius:2px}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
@@ -258,6 +286,7 @@ header.top h1{font-size:22px}
     <div class="vignette" id="vignette"></div>
     <div class="bigev" id="bigev"></div>
     <div class="emotes" id="emotes" hidden></div>
+    <div class="cardfx" id="cardfx" hidden></div>
     <div class="tools">
       <button class="tool" id="btn-new" type="button" title="새 게임">🆕</button>
       <button class="tool" id="btn-snd" type="button" title="효과음 켜기/끄기" aria-pressed="true">🔊</button>
@@ -1955,32 +1984,43 @@ async function captainStorm(p){
 
 /* ---------- chance ---------- */
 const CARDS=[
-  {t:'복권 당첨',d:'100만을 받습니다.',f:async p=>gain(p,has(p,'lucky')?200:100)},
-  {t:'장학금',d:'50만을 받습니다.',f:async p=>gain(p,has(p,'lucky')?100:50)},
-  {t:'과속 벌금',d:'30만을 냅니다.',bad:1,f:async p=>{pay(p,null,30);}},
-  {t:'생일 축하',d:'다른 플레이어들에게 20만씩 받습니다.',f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,has(p,'lucky')?40:20);});}},
-  {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',f:async p=>{p.shield++;}},
-  {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',f:async p=>{p.shield++;}},
-  {t:'앞으로 3칸',d:'3칸 앞으로 이동합니다.',f:async p=>{await walk(p,3);await land(p);}},
-  {t:'뒤로 2칸',d:'2칸 뒤로 이동합니다.',bad:1,f:async p=>{await walk(p,-2);await land(p);}},
-  {t:'무인도 표류',d:'무인도로 바로 이동합니다.',bad:1,f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
-  {t:'귀향',d:'출발지로 이동하고 월급을 받습니다.',f:async p=>{await walk(p,(N-p.pos)%N);}},
-  {t:'세계여행 티켓',d:'세계여행 칸으로 이동합니다. 다음 턴에 원하는 곳으로 가요.',f:async p=>{await teleport(p,24);p.travel=true;}},
-  {t:'축제 초대장',d:'내 땅 하나에서 축제를 엽니다.',f:async p=>{await hostFestival(p);}},
-  {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',f:async p=>{
+  {t:'복권 당첨',d:'100만을 받습니다.',art:{big:'🎟️',s1:'💰',s2:'✨',bg:'linear-gradient(160deg,#ffe98a,#ff9f43)',pat:'rays'},f:async p=>gain(p,has(p,'lucky')?200:100)},
+  {t:'장학금',d:'50만을 받습니다.',art:{big:'🎓',s1:'📚',s2:'💵',bg:'linear-gradient(160deg,#c7f0ff,#6fb6ff)',pat:'grid'},f:async p=>gain(p,has(p,'lucky')?100:50)},
+  {t:'과속 벌금',d:'30만을 냅니다.',bad:1,art:{big:'🚓',s1:'🚦',s2:'💸',bg:'linear-gradient(160deg,#ffd1d1,#ff6b6b)',pat:'stripes'},f:async p=>{pay(p,null,30);}},
+  {t:'생일 축하',d:'다른 플레이어들에게 20만씩 받습니다.',art:{big:'🎂',s1:'🎈',s2:'🎁',bg:'linear-gradient(160deg,#ffd6f0,#ff8ad4)',pat:'dots'},f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,has(p,'lucky')?40:20);});}},
+  {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🛡️',s1:'🚧',s2:'🆓',bg:'linear-gradient(160deg,#d8f5e0,#6fd39a)',pat:'grid'},f:async p=>{p.shield++;}},
+  {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🎫',s1:'🛡️',s2:'✅',bg:'linear-gradient(160deg,#dff3ff,#7fc8ff)',pat:'stripes'},f:async p=>{p.shield++;}},
+  {t:'앞으로 3칸',d:'3칸 앞으로 이동합니다.',art:{big:'🏃',s1:'➡️',s2:'💨',bg:'linear-gradient(160deg,#fff3c4,#ffd166)',pat:'stripes'},f:async p=>{await walk(p,3);await land(p);}},
+  {t:'뒤로 2칸',d:'2칸 뒤로 이동합니다.',bad:1,art:{big:'🔙',s1:'🐌',s2:'😵',bg:'linear-gradient(160deg,#e6e0f8,#b39ddb)',pat:'waves'},f:async p=>{await walk(p,-2);await land(p);}},
+  {t:'무인도 표류',d:'무인도로 바로 이동합니다.',bad:1,art:{big:'🏝️',s1:'🌊',s2:'🦜',bg:'linear-gradient(160deg,#bfe9f5,#2a9fd6)',pat:'waves'},f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
+  {t:'귀향',d:'출발지로 이동하고 월급을 받습니다.',art:{big:'🏠',s1:'🚀',s2:'💰',bg:'linear-gradient(160deg,#dff7e3,#8fd99a)',pat:'rays'},f:async p=>{await walk(p,(N-p.pos)%N);}},
+  {t:'세계여행 티켓',d:'세계여행 칸으로 이동합니다. 다음 턴에 원하는 곳으로 가요.',art:{big:'✈️',s1:'🌍',s2:'🧳',bg:'linear-gradient(160deg,#d6ecff,#5aa9ff)',pat:'dots'},f:async p=>{await teleport(p,24);p.travel=true;}},
+  {t:'축제 초대장',d:'내 땅 하나에서 축제를 엽니다.',art:{big:'🎆',s1:'🎪',s2:'🎉',bg:'linear-gradient(160deg,#ffd9ec,#c86dd7)',pat:'rays'},f:async p=>{await hostFestival(p);}},
+  {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',art:{big:'🌪️',s1:'🏚️',s2:'⚡',bg:'linear-gradient(160deg,#cfd8e3,#5a6f8a)',pat:'waves'},f:async p=>{
     const c=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id&&T(i).type==='city'&&S(i).level>=1&&S(i).level<=3);
     if(!c.length){log('태풍이 지나갔지만 피해가 없습니다.',p);return;}
     const i=c[Math.random()*c.length|0];focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍! ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
-  {t:'자선 기부',d:'현금의 10%를 가장 가난한 플레이어에게 줍니다.',bad:1,f:async p=>{
+  {t:'자선 기부',d:'현금의 10%를 가장 가난한 플레이어에게 줍니다.',bad:1,art:{big:'🤲',s1:'💝',s2:'🪙',bg:'linear-gradient(160deg,#ffe4c4,#f0a070)',pat:'dots'},f:async p=>{
     const others=alive().filter(q=>q!==p);if(!others.length)return;
     const poor=others.reduce((a,b)=>assets(b)<assets(a)?b:a),amt=Math.round(p.cash*0.1);
     pay(p,poor,amt);log(`${nm(p)} → ${nm(poor)} ${fmt(amt)} 기부`,p);}},
 ];
+/* the drawn card flips open in the middle of the stage; a tap (or the timer) closes it */
+function showCard(c,p){
+  const host=$('#cardfx');const a=c.art||{big:'🎴',s1:'',s2:'',bg:'linear-gradient(160deg,#ffe29a,#ffb347)',pat:'dots'};
+  host.innerHTML=`<div class="ccard"><div class="cface cback"></div><div class="cface cfront ${c.bad?'bad':''}" style="--cbg:${a.bg}"><div class="cpat ${a.pat}"></div><span class="ctag">${c.bad?'불운':'행운'}</span><div class="ctitle">${c.t}</div><div class="cart"><span class="s1">${a.s1}</span><span class="big">${a.big}</span><span class="s2">${a.s2}</span></div><div class="cdesc">${c.d}</div></div></div><div class="chint">${p.ai?esc(p.name)+'이(가) 뽑은 카드':'탭하면 닫혀요'}</div>`;
+  host.hidden=false;host.classList.remove('show','out');void host.offsetWidth;host.classList.add('show');SFX.play('card');
+  return new Promise(res=>{
+    let done=false;const close=()=>{if(done)return;done=true;timerStop();host.classList.add('out');setTimeout(()=>{host.hidden=true;host.classList.remove('show','out');host.innerHTML='';res();},450);};
+    host.onclick=()=>{if(!p.ai)close();};
+    if(p.ai)setTimeout(close,Math.max(1200,D(2200)));else{setTimeout(close,5000);}
+  });
+}
 async function drawChance(p){
   let c=CARDS[Math.random()*CARDS.length|0];
   if(c.bad&&has(p,'lucky')){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다. 🍀`,p);c=CARDS[Math.random()*CARDS.length|0];}
   SFX.play('card');say(`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
-  await notice(p,`🎴 행운카드 · ${c.t}`,`<p>${c.d}</p>`);SFX.play(c.bad?'bad':'coin');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`🎴 ${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
+  await showCard(c,p);SFX.play(c.bad?'bad':'coin');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`🎴 ${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
   await c.f(p);renderAll();
 }
 
@@ -2105,7 +2145,7 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 </script>
