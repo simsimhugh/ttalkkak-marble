@@ -68,6 +68,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .chip.btn-like{cursor:pointer;border:0;font:inherit;font-weight:600}
 .hud .sp{flex:1}
 .panel{pointer-events:auto;align-self:center;background:rgba(5,20,35,.72);backdrop-filter:blur(6px);color:#fff;border-radius:14px;padding:6px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;width:min(100%,420px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.meter{position:relative;width:100%;height:30px;display:grid;grid-template-columns:repeat(11,1fr);background:rgba(255,255,255,.08);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+.meter span{display:grid;place-items:center;font-weight:600;font-size:13px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;border-right:1px solid rgba(255,255,255,.08)}
+.meter span.on{background:var(--gold);color:#3a2400}
+.meter.idle span.on{background:rgba(255,255,255,.25);color:#fff}
+.meter .ptr{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%)}
+.meter .ptr::after{content:"";position:absolute;left:50%;top:-1px;transform:translateX(-50%);border:6px solid transparent;border-top:7px solid #fff}
 .dicerow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
 .dice{display:flex;gap:8px}
 .die{width:38px;height:38px;background:linear-gradient(145deg,#fff,#dfe6ee);border-radius:22%;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:14%;box-shadow:0 3px 0 #b8c4d0,0 6px 12px rgba(0,0,0,.35)}
@@ -79,7 +85,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 #roll,#skill{padding:8px 16px;font-size:14px}
 .c-msg{font-size:13px;max-width:46ch;min-height:2.4em;text-align:center;text-wrap:balance;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .c-msg b{color:#fff!important;background:var(--pc,#333);padding:0 5px;border-radius:4px}
-@media (max-width:600px){.panel{padding:6px 8px;gap:4px}.die{width:30px;height:30px}.c-msg{font-size:12px;min-height:2.2em}#roll,#skill{padding:7px 12px;font-size:13px}}
+@media (max-width:600px){.panel{padding:6px 8px;gap:4px}.die{width:30px;height:30px}.c-msg{font-size:12px;min-height:2.2em}.meter{height:24px}.meter span{font-size:11px}#roll,#skill{padding:7px 12px;font-size:13px}}
 .side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .pcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr auto;gap:1px 8px;align-items:center;position:relative;overflow:hidden}
 .pcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--pc)}
@@ -201,13 +207,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .bigev.show{animation:bigIn 2.6s ease forwards}
 .bigev.doom{color:#ff6b6b}.bigev.gold{color:#ffd166}
 @keyframes bigIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}18%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%) scale(.95)}}
-.meter{position:relative;width:100%;height:22px;display:grid;grid-template-columns:repeat(11,1fr);background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
-.meter span{display:grid;place-items:center;font-weight:600;font-size:12px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;border-right:1px solid rgba(255,255,255,.08)}
-.meter span.on{background:var(--gold);color:#3a2400}
-.meter .ptr{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%)}
-.aim{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.aim .n{display:inline-block;min-width:1.6em;text-align:center;background:var(--gold);color:#3a2400;border-radius:6px;margin-right:4px}
-.aim .pay,.aim .deadly{color:#ff8a8a}.aim .free{color:#7cf29a}.aim .own{color:#7fc8ff}.aim .card{color:#ffd166}.aim .bad{color:#d0a0ff}.aim .good{color:#ffe08a}
+/* landing hints under the meter */
+.mhint{display:grid;grid-template-columns:repeat(11,1fr);width:100%;gap:1px;min-height:14px}
+.mhint span{font-size:10px;line-height:1.1;text-align:center;font-weight:600;color:rgba(255,255,255,.55);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:1px 0;border-radius:3px}
+.mhint span.pay{color:#ff8a8a}.mhint span.deadly{color:#fff;background:#c8343c}.mhint span.free{color:#7cf29a}.mhint span.own{color:#7fc8ff}.mhint span.card{color:#ffd166}.mhint span.bad{color:#d0a0ff}.mhint span.good{color:#ffe08a}
+@media (max-width:600px){.mhint span{font-size:8px}}
 /* emote picker */
 .emotes{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:5}
 .emotes button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(5,20,35,.7);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:background-color .15s,border-color .15s;padding:0;line-height:1}
@@ -350,11 +354,11 @@ header.top h1{font-size:22px}
       <div class="row bottom">
         <div class="corner" id="pc2"></div>
         <div class="panel">
-          <div class="meter" id="meter" hidden><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><i class="ptr" id="ptr"></i></div>
-          <div class="aim" id="aim" hidden></div>
+          <div class="meter idle" id="meter"><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><i class="ptr" id="ptr"></i></div>
+          <div class="mhint" id="mhint"></div>
           <div class="dicerow">
-            <div class="dice"><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
-            <button class="btn primary" id="roll" type="button" disabled>멈춰</button>
+            <div class="dice" hidden><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
+            <button class="btn primary" id="roll" type="button" disabled hidden>멈춰</button>
             <button class="btn gold" id="skill" type="button" hidden>스킬</button>
           </div>
           <div class="c-msg" id="msg">새 게임을 준비하세요.</div>
@@ -367,7 +371,7 @@ header.top h1{font-size:22px}
 <template id="rules-tpl">
   <ul class="rules-list">
     <li>시작 자금 1,500만, 출발지를 지날 때마다 월급 150만. 넉넉하게 랜드마크까지 지어 보세요.</li>
-    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 지도에는 그 숫자로 갈 때 도착할 칸과 그 칸에서 생기는 일이 표시됩니다. 화면 아무 곳이나 누르면 멈춥니다.</li>
+    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 화면 아무 곳이나 눌러 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 포인터 아래 글씨는 그 숫자로 가면 생기는 일입니다.</li>
     <li><b>턴 제한 시간:</b> 시간이 다 되면 주사위는 자동으로 멈추고, 선택은 ‘넘어가기’로 처리됩니다.</li>
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
     <li>도시에 도착하면 땅을 사고 별장·빌딩·호텔을 한 번에 지을 수 있어요. 호텔이 있는 도시에 다시 오면 랜드마크를 세웁니다.</li>
@@ -1168,26 +1172,10 @@ const marker=new THREE.Group();
 {const cone=new THREE.Mesh(new THREE.ConeGeometry(.16,.34,16),new THREE.MeshStandardMaterial({color:0xffcf3f,emissive:0xffaa00,emissiveIntensity:1.2}));cone.rotation.x=Math.PI;marker.add(cone);
  const ring=new THREE.Mesh(new THREE.TorusGeometry(.42,.035,10,40),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9}));ring.rotation.x=Math.PI/2;ring.position.y=-1.0;marker.add(ring);
  marker.visible=false;scene.add(marker);}
-/* dice pointer target on the board: a gold beam + bouncing arrow + floor ring + number */
-const aimMark=new THREE.Group();
-const AIM_NUM=[];for(let v=2;v<=12;v++){const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');g.fillStyle='#ffd23f';g.beginPath();g.arc(64,64,58,0,7);g.fill();g.lineWidth=8;g.strokeStyle='#3a2400';g.stroke();g.fillStyle='#3a2400';g.font='bold 76px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(v,64,70);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;AIM_NUM[v]=t;}
-{const top={depthTest:false,depthWrite:false,transparent:true,fog:false}; // drawn over buildings so it never hides
- const cone=new THREE.Mesh(new THREE.ConeGeometry(.42,.8,20),new THREE.MeshBasicMaterial({color:0xffd23f,...top}));cone.rotation.x=Math.PI;cone.position.y=1.25;aimMark.add(cone);
- const beam=new THREE.Mesh(new THREE.CylinderGeometry(.3,.45,4,20,1,true),new THREE.MeshBasicMaterial({color:0xffe27a,opacity:.35,side:THREE.DoubleSide,...top}));beam.position.y=2;aimMark.add(beam);
- const ring=new THREE.Mesh(new THREE.TorusGeometry(.62,.1,10,40),new THREE.MeshBasicMaterial({color:0xffd23f,...top}));ring.rotation.x=Math.PI/2;ring.position.y=.3;aimMark.add(ring);
- const num=new THREE.Sprite(new THREE.SpriteMaterial({map:AIM_NUM[7],...top}));num.scale.set(1.1,1.1,1);num.position.y=2.15;aimMark.add(num);
- aimMark.traverse(o=>o.renderOrder=40);aimMark.visible=false;scene.add(aimMark);}
-let panelAI=null;
-function aimTick(now,dt){
-  if(aimTile<0){aimMark.visible=false;}
-  else{const r=rect(aimTile),t=now/1000;
-    aimMark.position.set(r.x,0,r.z);aimMark.visible=true;
-    aimMark.children[0].position.y=1.25+Math.sin(t*8)*.15;aimMark.children[2].scale.setScalar(1+.15*Math.sin(t*8));aimMark.children[3].material.map=AIM_NUM[meter.val]||AIM_NUM[7];}
-  const ai=!!(G&&!G.over&&G.players[G.cur]&&G.players[G.cur].ai); // dice box only on a human's turn
-  if(ai!==panelAI){panelAI=ai;$('.hud .panel').hidden=ai;}
-}
 const spot=new THREE.SpotLight(0xffffff,0,9,0.42,0.6,1);spot.position.set(0,6,0);spot.castShadow=false;scene.add(spot);scene.add(spot.target);
+let panelAI=null;
 function markerTick(now){
+  {const ai=!!(G&&!G.over&&G.players[G.cur]&&G.players[G.cur].ai);if(ai!==panelAI){panelAI=ai;$('.hud .panel').hidden=ai;}} // dice box only on a human's turn
   if(!G||G.over||!tokens.length){marker.visible=false;spot.intensity=0;return;}
   const p=G.players[G.cur],tk=tokens[p.id];if(!tk||p.bankrupt){marker.visible=false;spot.intensity=0;return;}
   marker.visible=!(chase===p&&camMode==='follow'&&!REDUCED_MOTION);const t=now/1000;const pos=tk.grp.position; // hidden while riding behind: it would sit mid-view
@@ -2159,19 +2147,18 @@ function frame(now){
     if(ef.type==='shake'){const a=ef.amount*(1-u);sx+=(Math.random()-.5)*a;sy+=(Math.random()-.5)*a;}
     else if(u>=0)ef.fn(Math.min(1,u));
     if(u>=1){effects.splice(k,1);if(ef.done)ef.done();}}
-  camTick(dt);controls.update();envTick(now,dt);markerTick(now);aimTick(now,dt);
+  camTick(dt);controls.update();envTick(now,dt);markerTick(now);
   const tms=now/1000;
   tiles.forEach((tl,i)=>{
     const pk=pickable&&pickable.has(i),hc=hintTiles&&hintTiles.get(i),th=threatTiles.get(i);
-    if(i===aimTile){tl.rim.visible=true;tl.rim.material.color.set(0xffffff);tl.rim.material.emissive.set(0xffffff).multiplyScalar(1.2);}
-    else if(pk){tl.rim.visible=true;tl.rim.material.color.set(0xffcf3f);tl.rim.material.emissive.set(0xffcf3f).multiplyScalar(.5+.4*Math.sin(tms*6));}
+    if(pk){tl.rim.visible=true;tl.rim.material.color.set(0xffcf3f);tl.rim.material.emissive.set(0xffcf3f).multiplyScalar(.5+.4*Math.sin(tms*6));}
     else if(hc){tl.rim.visible=true;tl.rim.material.color.set(hc);tl.rim.material.emissive.set(hc).multiplyScalar(.45+.35*Math.sin(tms*5));}
     else if(th){tl.rim.visible=true;const on=Math.sin(tms*7)>0;tl.rim.material.color.set(on?0xff2a2a:0xffffff);tl.rim.material.emissive.set(on?0xff2a2a:0xffffff).multiplyScalar(.7);}
     const fm=tl.frame.userData.mat;
     if(pk){tl.frame.visible=true;const c=tl.frameCol||0xffcf3f;fm.color.set(c);fm.emissive.set(c).multiplyScalar(.55+.45*Math.sin(tms*6));tl.frameHot=true;}
     else if(tl.frameHot){tl.frameHot=false;tl.frame.visible=!!tl.frameCol;if(tl.frameCol){fm.color.set(tl.frameCol);fm.emissive.set(tl.frameCol).multiplyScalar(.3);}}
     tl.lab.material.color.setScalar(pickable&&pickDim&&!pk?.38:1);
-    if(i===aimTile)tl.base.position.y=0.24;else if(i===hover)tl.base.position.y=0.16;else tl.base.position.y=0.11;
+    if(i===hover)tl.base.position.y=0.16;else tl.base.position.y=0.11;
   });
   tokens.forEach(tk=>{if(tk.glow.visible)tk.glow.scale.setScalar(1+.15*Math.sin(tms*5));});
   tokenTick(now);timerTick(now);hubTick(now,dt);pickMarkTick(now);pullTick(now);
@@ -2257,13 +2244,13 @@ function landingInfo(p,i){
 }
 const HINT_COL={pay:0xff5a5a,deadly:0xff1a1a,free:0x4ad66d,own:0x3b9dff,card:0xffd166,bad:0xb070ff,good:0xffe08a};
 function showHints(p){
-  hintTiles=new Map();const notes=[];
-  for(let s=2;s<=12;s++){const i=(p.pos+s)%N,info=landingInfo(p,i);hintTiles.set(i,HINT_COL[info.cls]);
+  const box=$('#mhint');box.innerHTML='';hintTiles=new Map();const notes=[];
+  for(let s=2;s<=12;s++){const i=(p.pos+s)%N,info=landingInfo(p,i);const el=document.createElement('span');el.className=info.cls;el.textContent=info.txt;el.title=T(i).name;box.appendChild(el);hintTiles.set(i,HINT_COL[info.cls]);
     if(info.pull&&info.pull.length)notes.push(`🧲 ${s}이면 ${T(i).name}에서 ${info.pull.map(q=>esc(q.name)).join('·')} 끌어오기`);
     if(info.cls==='deadly')notes.push(`☠️ ${s}은 ${T(i).name} ${info.txt}`);}
   if(notes.length)setTimeout(()=>{if(hintTiles)setMsg(notes.join(' · '));},10);
 }
-function clearHints(){hintTiles=null;tiles.forEach(t=>t.key=null);sync();}
+function clearHints(){$('#mhint').innerHTML='';hintTiles=null;tiles.forEach(t=>t.key=null);sync();}
 /* monopoly threats: who is one tile away from a win */
 function computeThreats(){
   const out=[];
@@ -2473,17 +2460,14 @@ function confetti(){
 
 /* ---------- dice meter ---------- */
 const meter={active:false,x:0.45,dir:1,val:7};
-const aimEl=$('#aim'),meterEl=$('#meter'),ptrEl=$('#ptr'),nums=[...meterEl.querySelectorAll('span')];let aimTile=-1; // the sweeping pointer lives on the board: aimTile is lit in frame()
-function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));ptrEl.style.left=(meter.x*100)+'%';if(v===meter.val&&aimTile>=0)return;nums.forEach((n,k)=>n.classList.toggle('on',k+2===v));if(meter.active)SFX.play('meter',v);meter.val=v;
-  const p=G&&G.players[G.cur];if(!meter.active||!p){aimTile=-1;aimEl.hidden=meterEl.hidden=true;return;}meterEl.hidden=false;
-  aimTile=(p.pos+v)%N;const info=landingInfo(p,aimTile);aimEl.hidden=false;aimEl.innerHTML=`<span class="n">${v}</span>${esc(T(aimTile).name)} · <span class="${info.cls}">${info.txt}</span>`;}
-function meterOff(){meter.active=false;aimTile=-1;aimEl.hidden=meterEl.hidden=true;}
+const meterEl=$('#meter'),ptrEl=$('#ptr'),nums=[...meterEl.querySelectorAll('span')];
+function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));if(meter.active&&v!==meter.val)SFX.play('meter',v);meter.val=v;ptrEl.style.left=(meter.x*100)+'%';nums.forEach((n,k)=>n.classList.toggle('on',k+2===meter.val));}
 function meterTick(dt){
   if(!meter.active)return;
   meter.x+=meter.dir*dt*1.5;if(meter.x>=1){meter.x=1;meter.dir=-1;}if(meter.x<=0){meter.x=0;meter.dir=1;}
   meterShow();
 }
-function meterSet(v){meterOff();meter.x=(v-2+0.5)/11;meter.val=v;}
+function meterSet(v){meter.active=false;meter.x=(v-2+0.5)/11;meterShow();}
 const FACES={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 function face(el,n,dbl){el.innerHTML=Array.from({length:9},(_,k)=>`<span class="${FACES[n].includes(k)?'on':''}"></span>`).join('');el.classList.toggle('dbl',!!dbl);}
 function aimedDice(target,rate=AIM_RATE){
@@ -2496,16 +2480,16 @@ async function roll(p,opt={}){
   if(!p.ai){
     while(true){
       const btn=$('#roll');btn.disabled=false;
-      meter.active=true;meter.val=0;showHints(p);meterShow();timerStart(G.turnSec,()=>{if(rollResolver)rollResolver('roll');});
-      setMsg(`${nm(p)}, 포인터를 보고 <b style="background:#b8860b">멈춰</b>를 누르세요. <span style="opacity:.8">(스페이스바)</span>`);
+      meter.active=true;meterEl.classList.remove('idle');showHints(p);timerStart(G.turnSec,()=>{if(rollResolver)rollResolver('roll');});
+      setMsg(`${nm(p)}, 포인터를 보고 <b style="background:#b8860b">화면 아무 곳이나</b> 누르세요. <span style="opacity:.8">(스페이스바)</span>`);
       await new Promise(r=>rollResolver=r);rollResolver=null;btn.disabled=true;
-      timerStop();meterOff();clearHints();SFX.play('stop');
+      timerStop();meter.active=false;clearHints();SFX.play('stop');
       target=meter.val;break;
     }
   }else{
     await sleep(D(450));
     target=bestDiceSum(p)??(2+Math.floor(Math.random()*11));
-    await sleep(D(500));
+    meter.active=true;meterEl.classList.remove('idle');await sleep(D(500));meterSet(target);
   }
   const d1=$('#d1'),d2=$('#d2');d1.classList.add('rolling');d2.classList.add('rolling');SFX.play('dice');
   if(!p.ai)SFX.play('drum');
@@ -2515,6 +2499,7 @@ async function roll(p,opt={}){
   const fixed=!!p.fixDiceUsed;p.fixDiceUsed=false;
   d1.classList.remove('rolling');d2.classList.remove('rolling');face(d1,a,a===b);face(d2,b,a===b);if(a===b)SFX.play('dbl');
   if(target!=null&&!fixed){if(a+b===target){SFX.play('aimHit');if(!p.ai)toast(`포인터 명중. ${target}`,'good',1800);}else if(!p.ai)SFX.play('aimMiss');}
+  meterEl.classList.add('idle');
   log(`${nm(p)} 🎯${target} → 주사위 ${a} + ${b} = ${a+b}${a===b?' (더블)':''}${a+b===target?' ✔':''}`,p);
   await sleep(D(250));return[a,b];
 }
@@ -3074,7 +3059,7 @@ async function bossAction(p){
 }
 function endGame(w,reason){
   if(G.over)return;G.over=true;G.stable=null;timerStop();SFX.setMood(null);setTimeout(updateEmoteBar,6500);
-  $('#roll').disabled=true;$('#skill').hidden=true;meterOff();
+  $('#roll').disabled=true;$('#skill').hidden=true;meter.active=false;
   say(`${nm(w)} 승리. ${reason}`,w);renderAll();confetti();SFX.play('win');bigEvent(`${esc(w.name)} 승리<small>${reason}</small>`,'gold',4000);
   emote(w,'laugh','내가 1등!',{priority:9,ms:6000});alive().filter(q=>q!==w).forEach(q=>emote(q,'cry','졌다…',{priority:8,ms:6000,silent:true}));
   const rank=[...G.players].sort((a,b)=>(a.bankrupt-b.bankrupt)||assets(b)-assets(a));
@@ -3134,13 +3119,13 @@ $('#srows').addEventListener('click',e=>{
   else if(b.dataset.cyc!=null){const k=+b.dataset.cyc,idx=CHARS.findIndex(x=>x.id===setupCfg[k].ch);setupCfg[k].ch=CHARS[(idx+1)%CHARS.length].id;renderSetup();}
 });
 $('#srows').addEventListener('change',e=>{const s=e.target.closest('select[data-ch]');if(!s)return;readNames();setupCfg[+s.dataset.ch].ch=s.value;renderSetup();});
-function showSetup(){SFX.setMood(null);RUN++;timerStop();rollResolver=modalResolver=pickResolver=modalDismiss=null;setPickable(null);meterOff();$('#modal').hidden=true;$('#skill').hidden=true;renderSetup();renderShop();$('#setup').hidden=false;}
+function showSetup(){SFX.setMood(null);RUN++;timerStop();rollResolver=modalResolver=pickResolver=modalDismiss=null;setPickable(null);meter.active=false;$('#modal').hidden=true;$('#skill').hidden=true;renderSetup();renderShop();$('#setup').hidden=false;}
 $('#shop').addEventListener('click',e=>{const b=e.target.closest('button[data-perk]');if(!b||b.disabled)return;const k=b.dataset.perk;if(perkSel.has(k))perkSel.delete(k);else perkSel.add(k);renderShop();});
 $('#btn-new').addEventListener('click',showSetup);
 const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color:PCOLORS[k],ai:c.ai,ch:c.ch,cash:START_CASH,pos:0,island:0,travel:false,shield:0,bankrupt:false,skillUsed:false,boost:false,fixDice:null,anim:false,nukes:NUKES});
 function startGame(g){
   G=g;applySpecials(G.specials);if(env.theme!==(G.theme||'day')){buildEnv(G.theme||'day');tiles.forEach(t=>t.key=null);}tiles.forEach(t=>{t.level=null;t.key=null;});$('#log').innerHTML='';[...G.logs].reverse().forEach(([t,pid])=>{const li=document.createElement('li');li.innerHTML=t;if(pid!=null)li.style.setProperty('--pc',G.players[pid].color);$('#log').prepend(li);});
-  tiles.forEach(t=>t.key=null);buildTokens();face($('#d1'),1);face($('#d2'),1);meterSet(7);updateEmoteBar();$('#toasts').innerHTML='';threatTiles.clear();
+  tiles.forEach(t=>t.key=null);buildTokens();face($('#d1'),1);face($('#d2'),1);meterSet(7);meterEl.classList.add('idle');updateEmoteBar();$('#toasts').innerHTML='';threatTiles.clear();
   renderAll();loop();if(G.run&&G.run.stage===0&&G.round===1)setTimeout(stageBanner,600);
 }
 $('#btn-start').addEventListener('click',()=>{
