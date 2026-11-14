@@ -127,7 +127,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .card .acts.grid .btn{justify-content:center;text-align:center}
 .big-ico{font-size:48px;text-align:center;line-height:1.1;margin-bottom:8px}
 .setup{width:min(560px,100%)}
-.setup h3{font-size:30px;color:var(--ink)}
+.setup h3{font-size:30px;color:var(--ink);margin:0}
+.shead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.shead .btn{font-size:16px;padding:10px 20px}
+.more{margin-top:4px;border-top:1px solid var(--line);padding-top:8px}.more summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600;padding:4px 0}
 .srow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px;background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:8px}
 .srow .av{width:42px;height:42px;border-radius:50%;background:var(--pc);display:grid;place-items:center;font-size:22px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;grid-row:1/3}
 .srow .av:focus-visible{outline:3px solid var(--hi)}
@@ -393,10 +396,11 @@ header.top h1{font-size:22px}
 
 <div class="overlay" id="setup" hidden>
   <div class="card setup">
-    <h3>딸깍 마블</h3>
+    <div class="shead"><h3>딸깍 마블</h3><button class="btn primary" id="btn-start" type="button">게임 시작</button></div>
     <p class="lbl">사람 수 (나머지는 AI가 플레이)</p>
     <div class="seg" id="humans" style="margin-bottom:12px"></div>
     <div id="srows"></div>
+    <details class="more"><summary>게임 설정 · 마일리지</summary>
     <div class="sopts">
       <label for="opt-limit">제한 라운드
         <select id="opt-limit"><option value="20">20라운드</option><option value="30" selected>30라운드</option><option value="0">무제한</option></select>
@@ -418,7 +422,7 @@ header.top h1{font-size:22px}
       </label>
     </div>
     <div id="shop"></div>
-    <button class="btn primary" id="btn-start" type="button" style="width:100%;font-size:16px">게임 시작</button>
+    </details>
   </div>
 </div>
 
@@ -1153,7 +1157,9 @@ function camTick(dt){
     const tp=tokens[chase.id].grp.position;if(!chaseAnchor)chaseAnchor=tp.clone().setY(0);chaseAnchor.lerp(new THREE.Vector3(tp.x,0,tp.z),1-Math.pow(0.08,dt));
     const ah=slotPos((chase.pos+3)%N,chase.id).sub(slotPos(chase.pos,chase.id)).setY(0);if(ah.lengthSq()<1e-6)ah.set(1,0,0);ah.normalize();chaseDir.lerp(ah,1-Math.pow(0.15,dt)).normalize();
     const out=chaseAnchor.clone();if(out.lengthSq()<1e-6)out.set(0,0,1);out.normalize();
-    cp=chaseAnchor.clone().addScaledVector(chaseDir,-3.4).addScaledVector(out,-1.6).setY(5.2);tg=chaseAnchor.clone().addScaledVector(chaseDir,2.6).addScaledVector(out,3.4).setY(.4);k=1-Math.pow(0.05,dt);}
+    // aim past the plaza at the boulevard (~r19) so the landmarks fill the upper frame; pulled back far enough that my piece stays in the lower frame
+    const reach=Math.max(6,STRIP_MID-chaseAnchor.length()-6);
+    cp=chaseAnchor.clone().addScaledVector(chaseDir,-5.5).addScaledVector(out,-1.6).setY(4.6);tg=chaseAnchor.clone().addScaledVector(chaseDir,4).addScaledVector(out,reach).setY(1.2);k=1-Math.pow(0.05,dt);}
   else if(focusOverride&&performance.now()<focusOverride.until){tg=focusOverride.pt;cp=focusOverride.pt.clone().add(FOLLOW_OFF.clone().multiplyScalar(focusOverride.scale||1.3));}
   else if(false){}
   else{tg=TARGET;cp=homePos;chaseAnchor=null;k=1-Math.pow(0.05,dt);} // ease back up slowly too
@@ -3100,7 +3106,7 @@ function renderSetup(){
     <input id="name-${k}" value="${esc(c.name)}" placeholder="${c.ai?AI_NAMES[k]:DEF_NAMES[k]}" maxlength="10" aria-label="${k+1}번 이름">
     <div class="seg"><button type="button" data-k="${k}" data-ai="0" class="${c.ai?'':'on'}">사람</button><button type="button" data-k="${k}" data-ai="1" class="${c.ai?'on':''}">AI</button></div>
     <div class="chsel"><label for="ch-${k}">캐릭터</label><select id="ch-${k}" data-ch="${k}">${CHARS.map(x=>`<option value="${x.id}" ${x.id===c.ch?'selected':''}>${x.emoji} ${x.name} · ${x.skill}</option>`).join('')}</select></div>
-    <div class="chdesc"><b>특성</b> ${ch.passive} <b>스킬</b> ${ch.sdesc}</div></div>`;}).join('');
+    ${c.ai?'':`<div class="chdesc"><b>특성</b> ${ch.passive} <b>스킬</b> ${ch.sdesc}</div>`}</div>`;}).join('');
 }
 function readNames(){setupCfg.forEach((c,k)=>{const el=$('#name-'+k);if(el)c.name=el.value.trim();});}
 $('#humans').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;readNames();const n=+b.dataset.n;setupCfg.forEach((c,k)=>c.ai=k>=n);renderSetup();renderShop();});
