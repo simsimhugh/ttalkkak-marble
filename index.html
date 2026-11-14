@@ -2481,7 +2481,7 @@ async function roll(p,opt={}){
     while(true){
       const btn=$('#roll');btn.disabled=false;
       meter.active=true;meterEl.classList.remove('idle');showHints(p);timerStart(G.turnSec,()=>{if(rollResolver)rollResolver('roll');});
-      setMsg(`${nm(p)}, 포인터를 보고 <b style="background:#b8860b">화면 아무 곳이나</b> 누르세요. <span style="opacity:.8">(스페이스바)</span>`);
+      setMsg('');
       await new Promise(r=>rollResolver=r);rollResolver=null;btn.disabled=true;
       timerStop();meter.active=false;clearHints();SFX.play('stop');
       target=meter.val;break;
