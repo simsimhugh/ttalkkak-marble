@@ -1684,10 +1684,10 @@ function tileProp(t,i){
       // coin stacks on the forecourt
       [[-.36,.29,4],[.33,.3,3],[.39,.22,2]].forEach(([x,z,n])=>{for(let q=0;q<n;q++){const c=put(new THREE.Mesh(new THREE.CylinderGeometry(.034,.034,.014,14),gold),x+(q%2)*.004,base*0+.007+q*.015,z);c.castShadow=false;}});
       break;}
-    case 'casino':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.5,.3),M(0xd8333c,{metalness:.3})),cx,.22+.25,cz);const scr=add(new THREE.Mesh(new THREE.BoxGeometry(.32,.16,.02),M(0xfff0a0,{emissive:0xffcc40,emissiveIntensity:1.2})),cx,.22+.36,cz+.16);
-      ['🍒','7','🍋'].forEach((c,k)=>{});const lever=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.3,6),M(0xcccccc)),cx+.24,.22+.5,cz);add(new THREE.Mesh(new THREE.SphereGeometry(.04,8,8),M(0xd8333c)),cx+.24,.22+.66,cz);hubFx.beacons.push(scr);break;}
+    case 'casino':{add(new THREE.Mesh(new THREE.BoxGeometry(.28,.34,.2),M(0xd8333c,{metalness:.3})),ox,.22+.17,oz);const scr=add(new THREE.Mesh(new THREE.BoxGeometry(.22,.11,.02),M(0xfff0a0,{emissive:0xffcc40,emissiveIntensity:1.2})),ox,.22+.25,oz+.11);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.2,6),M(0xcccccc)),ox+.17,.22+.34,oz);add(new THREE.Mesh(new THREE.SphereGeometry(.03,8,8),M(0xd8333c)),ox+.17,.22+.45,oz);hubFx.beacons.push(scr);break;} // small, on the icon side so the name stays readable
     case 'auction':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.3,.25),M(0x8b5a2b)),cx,.22+.15,cz);const head=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.18,10),M(0x5a3a1a)),cx+.05,.22+.42,cz);head.rotation.z=Math.PI/2;const hd=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.26,6),M(0x8b5a2b)),cx+.05,.22+.33,cz);hd.rotation.x=.4;break;}
-    case 'blackmarket':{const tent=add(new THREE.Mesh(new THREE.ConeGeometry(.36,.45,4),M(0x22262e)),cx,.22+.36,cz);tent.rotation.y=Math.PI/4;add(new THREE.Mesh(new THREE.BoxGeometry(.5,.14,.5),M(0x3a3f46)),cx,.22+.07,cz);const lamp=add(new THREE.Mesh(new THREE.SphereGeometry(.05,8,8),M(0x9a6aff,{emissive:0x7a3aff,emissiveIntensity:2})),cx,.22+.62,cz);hubFx.beacons.push(lamp);break;}
+    case 'blackmarket':{const tent=add(new THREE.Mesh(new THREE.ConeGeometry(.22,.3,4),M(0x22262e)),ox,.22+.24,oz);tent.rotation.y=Math.PI/4;add(new THREE.Mesh(new THREE.BoxGeometry(.3,.1,.3),M(0x3a3f46)),ox,.22+.05,oz);const lamp=add(new THREE.Mesh(new THREE.SphereGeometry(.04,8,8),M(0x9a6aff,{emissive:0x7a3aff,emissiveIntensity:2})),ox,.22+.43,oz);hubFx.beacons.push(lamp);break;}
     default:return null;
   }
   return g;
