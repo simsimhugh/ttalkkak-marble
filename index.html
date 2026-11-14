@@ -201,6 +201,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .bigev.show{animation:bigIn 2.6s ease forwards}
 .bigev.doom{color:#ff6b6b}.bigev.gold{color:#ffd166}
 @keyframes bigIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}18%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%) scale(.95)}}
+.meter{position:relative;width:100%;height:22px;display:grid;grid-template-columns:repeat(11,1fr);background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+.meter span{display:grid;place-items:center;font-weight:600;font-size:12px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;border-right:1px solid rgba(255,255,255,.08)}
+.meter span.on{background:var(--gold);color:#3a2400}
+.meter .ptr{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%)}
 .aim{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .aim .n{display:inline-block;min-width:1.6em;text-align:center;background:var(--gold);color:#3a2400;border-radius:6px;margin-right:4px}
 .aim .pay,.aim .deadly{color:#ff8a8a}.aim .free{color:#7cf29a}.aim .own{color:#7fc8ff}.aim .card{color:#ffd166}.aim .bad{color:#d0a0ff}.aim .good{color:#ffe08a}
@@ -346,6 +350,7 @@ header.top h1{font-size:22px}
       <div class="row bottom">
         <div class="corner" id="pc2"></div>
         <div class="panel">
+          <div class="meter" id="meter" hidden><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><i class="ptr" id="ptr"></i></div>
           <div class="aim" id="aim" hidden></div>
           <div class="dicerow">
             <div class="dice"><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
@@ -362,7 +367,7 @@ header.top h1{font-size:22px}
 <template id="rules-tpl">
   <ul class="rules-list">
     <li>시작 자금 1,500만, 출발지를 지날 때마다 월급 150만. 넉넉하게 랜드마크까지 지어 보세요.</li>
-    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 포인터는 지도 위 칸을 오가며 그 칸에 서면 생기는 일을 보여 줍니다. 화면 아무 곳이나 누르면 멈춥니다.</li>
+    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 지도에는 그 숫자로 갈 때 도착할 칸과 그 칸에서 생기는 일이 표시됩니다. 화면 아무 곳이나 누르면 멈춥니다.</li>
     <li><b>턴 제한 시간:</b> 시간이 다 되면 주사위는 자동으로 멈추고, 선택은 ‘넘어가기’로 처리됩니다.</li>
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
     <li>도시에 도착하면 땅을 사고 별장·빌딩·호텔을 한 번에 지을 수 있어요. 호텔이 있는 도시에 다시 오면 랜드마크를 세웁니다.</li>
@@ -1163,6 +1168,24 @@ const marker=new THREE.Group();
 {const cone=new THREE.Mesh(new THREE.ConeGeometry(.16,.34,16),new THREE.MeshStandardMaterial({color:0xffcf3f,emissive:0xffaa00,emissiveIntensity:1.2}));cone.rotation.x=Math.PI;marker.add(cone);
  const ring=new THREE.Mesh(new THREE.TorusGeometry(.42,.035,10,40),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9}));ring.rotation.x=Math.PI/2;ring.position.y=-1.0;marker.add(ring);
  marker.visible=false;scene.add(marker);}
+/* dice pointer target on the board: a gold beam + bouncing arrow + floor ring + number */
+const aimMark=new THREE.Group();
+const AIM_NUM=[];for(let v=2;v<=12;v++){const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');g.fillStyle='#ffd23f';g.beginPath();g.arc(64,64,58,0,7);g.fill();g.lineWidth=8;g.strokeStyle='#3a2400';g.stroke();g.fillStyle='#3a2400';g.font='bold 76px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(v,64,70);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;AIM_NUM[v]=t;}
+{const top={depthTest:false,depthWrite:false,transparent:true,fog:false}; // drawn over buildings so it never hides
+ const cone=new THREE.Mesh(new THREE.ConeGeometry(.42,.8,20),new THREE.MeshBasicMaterial({color:0xffd23f,...top}));cone.rotation.x=Math.PI;cone.position.y=1.25;aimMark.add(cone);
+ const beam=new THREE.Mesh(new THREE.CylinderGeometry(.3,.45,4,20,1,true),new THREE.MeshBasicMaterial({color:0xffe27a,opacity:.35,side:THREE.DoubleSide,...top}));beam.position.y=2;aimMark.add(beam);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(.62,.1,10,40),new THREE.MeshBasicMaterial({color:0xffd23f,...top}));ring.rotation.x=Math.PI/2;ring.position.y=.3;aimMark.add(ring);
+ const num=new THREE.Sprite(new THREE.SpriteMaterial({map:AIM_NUM[7],...top}));num.scale.set(1.1,1.1,1);num.position.y=2.15;aimMark.add(num);
+ aimMark.traverse(o=>o.renderOrder=40);aimMark.visible=false;scene.add(aimMark);}
+let panelAI=null;
+function aimTick(now,dt){
+  if(aimTile<0){aimMark.visible=false;}
+  else{const r=rect(aimTile),t=now/1000;
+    aimMark.position.set(r.x,0,r.z);aimMark.visible=true;
+    aimMark.children[0].position.y=1.25+Math.sin(t*8)*.15;aimMark.children[2].scale.setScalar(1+.15*Math.sin(t*8));aimMark.children[3].material.map=AIM_NUM[meter.val]||AIM_NUM[7];}
+  const ai=!!(G&&!G.over&&G.players[G.cur]&&G.players[G.cur].ai); // dice box only on a human's turn
+  if(ai!==panelAI){panelAI=ai;$('.hud .panel').hidden=ai;}
+}
 const spot=new THREE.SpotLight(0xffffff,0,9,0.42,0.6,1);spot.position.set(0,6,0);spot.castShadow=false;scene.add(spot);scene.add(spot.target);
 function markerTick(now){
   if(!G||G.over||!tokens.length){marker.visible=false;spot.intensity=0;return;}
@@ -2136,7 +2159,7 @@ function frame(now){
     if(ef.type==='shake'){const a=ef.amount*(1-u);sx+=(Math.random()-.5)*a;sy+=(Math.random()-.5)*a;}
     else if(u>=0)ef.fn(Math.min(1,u));
     if(u>=1){effects.splice(k,1);if(ef.done)ef.done();}}
-  camTick(dt);controls.update();envTick(now,dt);markerTick(now);
+  camTick(dt);controls.update();envTick(now,dt);markerTick(now);aimTick(now,dt);
   const tms=now/1000;
   tiles.forEach((tl,i)=>{
     const pk=pickable&&pickable.has(i),hc=hintTiles&&hintTiles.get(i),th=threatTiles.get(i);
@@ -2450,11 +2473,11 @@ function confetti(){
 
 /* ---------- dice meter ---------- */
 const meter={active:false,x:0.45,dir:1,val:7};
-const aimEl=$('#aim');let aimTile=-1; // the sweeping pointer lives on the board: aimTile is lit in frame()
-function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));if(v===meter.val&&aimTile>=0)return;if(meter.active)SFX.play('meter',v);meter.val=v;
-  const p=G&&G.players[G.cur];if(!meter.active||!p){aimTile=-1;aimEl.hidden=true;return;}
+const aimEl=$('#aim'),meterEl=$('#meter'),ptrEl=$('#ptr'),nums=[...meterEl.querySelectorAll('span')];let aimTile=-1; // the sweeping pointer lives on the board: aimTile is lit in frame()
+function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));ptrEl.style.left=(meter.x*100)+'%';if(v===meter.val&&aimTile>=0)return;nums.forEach((n,k)=>n.classList.toggle('on',k+2===v));if(meter.active)SFX.play('meter',v);meter.val=v;
+  const p=G&&G.players[G.cur];if(!meter.active||!p){aimTile=-1;aimEl.hidden=meterEl.hidden=true;return;}meterEl.hidden=false;
   aimTile=(p.pos+v)%N;const info=landingInfo(p,aimTile);aimEl.hidden=false;aimEl.innerHTML=`<span class="n">${v}</span>${esc(T(aimTile).name)} · <span class="${info.cls}">${info.txt}</span>`;}
-function meterOff(){meter.active=false;aimTile=-1;aimEl.hidden=true;}
+function meterOff(){meter.active=false;aimTile=-1;aimEl.hidden=meterEl.hidden=true;}
 function meterTick(dt){
   if(!meter.active)return;
   meter.x+=meter.dir*dt*1.5;if(meter.x>=1){meter.x=1;meter.dir=-1;}if(meter.x<=0){meter.x=0;meter.dir=1;}
