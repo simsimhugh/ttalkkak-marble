@@ -1363,6 +1363,8 @@ function lmHelpers2(g){
     lathe:(pts,c,x=0,y=0,z=0,o)=>add(new THREE.Mesh(new THREE.LatheGeometry(pts.map(([a,b])=>new THREE.Vector2(a,b)),24),LMM(c,o)),x,y,z),
     torus:(r,t,c,x=0,y=0,z=0,o)=>{const m=add(new THREE.Mesh(new THREE.TorusGeometry(r,t,8,32),LMM(c,o)),x,y,z);m.rotation.x=Math.PI/2;return m;},
     arch:(w,h,d,c,x=0,y=0,z=0,o)=>{const m=add(new THREE.Mesh(new THREE.CylinderGeometry(w/2,w/2,d,16,1,false,0,Math.PI),LMM(c,o)),x,y+h,z);m.rotation.z=Math.PI/2;m.rotation.y=Math.PI/2;return m;},
+    prism:(w,h,d,c,x=0,y=0,z=0,o)=>{const sh=new THREE.Shape([new THREE.Vector2(-w/2,0),new THREE.Vector2(w/2,0),new THREE.Vector2(0,h)]);const geo=new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false});geo.translate(0,0,-d/2);return add(new THREE.Mesh(geo,LMM(c,o)),x,y,z);},
+    beam:(a,b,t,mat)=>{const v=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const m=new THREE.Mesh(new THREE.BoxGeometry(t,v.length(),t),mat);m.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());m.castShadow=true;g.add(m);return m;},
     ring:(n,r,fn)=>{for(let k=0;k<n;k++){const a=k/n*Math.PI*2;fn(Math.cos(a)*r,Math.sin(a)*r,a,k);}},
   });
 }
@@ -1376,7 +1378,7 @@ const LANDMARKS={
   // Manila Cathedral: romanesque façade, rose window, green dome, bell tower
   '마닐라':g=>{const h=lmHelpers2(g);const st=LMM(0xe3d8bf);
     h.box(.72,.05,.5,0xb0a690);h.mbox(.56,.5,.4,st,0,.05,0);h.box(.6,.05,.44,0xcbbf9f,0,.55,0);
-    const ped=h.cone(.32,.16,0xe3d8bf,0,.6,.0,3);ped.rotation.z=0;ped.rotation.y=Math.PI/2;ped.scale.z=.35;ped.position.z=.18;
+    h.prism(.6,.16,.06,0xe3d8bf,0,.6,.17);h.cyl(.012,.012,.08,LM.gold,0,.76,.17,6);h.box(.05,.01,.01,LM.gold,0,.81,.17);
     h.cyl(.07,.07,.02,0x3a6a9a,0,.36,.205,16,{emissive:0x2a5a8a,emissiveIntensity:.6}).rotation.x=Math.PI/2;
     h.box(.12,.2,.02,0x5a3a2a,0,.05,.205);[-.17,.17].forEach(x=>h.box(.06,.12,.02,0x3a5a7a,x,.22,.205));
     h.cyl(.14,.16,.12,0xe3d8bf,0,.55,-.05,16);h.dome(.15,0x4f9a7a,0,.67,-.05,{metalness:.3});h.cyl(.02,.02,.08,LM.gold,0,.82,-.05,6);h.box(.04,.01,.01,LM.gold,0,.88,-.05);
@@ -1398,14 +1400,12 @@ const LANDMARKS={
     h.ring(4,.3,(x,z)=>{h.lathe([[0,0],[.08,0],[.08,.06],[.06,.08],[.055,.2],[.035,.24],[.02,.34],[0,.42]],porc,x,.12,z);h.torus(.05,.008,gold,x,.24,z);});
     h.ring(8,.37,(x,z)=>h.cyl(.012,.012,.08,0xa0522d,x,.12,z,6));},
   // Marina Bay Sands: three curved towers with the SkyPark ship on top
-  '싱가포르':g=>{const h=lmHelpers2(g);const glass=lmWin('#4a6f8a','#d6eeff',3,10,{metal:.4,glow:.3});
-    h.box(.9,.04,.44,0x9aa3ad);
-    [-.27,0,.27].forEach((x,k)=>{const t=h.mbox(.15,.95,.2,glass,x,.04,0);t.rotation.y=.08*(k-1);const lean=h.mbox(.07,.95,.18,glass,x+.09,.04,0);lean.rotation.z=-.06;});
-    const deck=h.add(new THREE.Mesh(new THREE.BoxGeometry(1.02,.06,.24),LMM(0xf4f4f4,{roughness:.4})),.04,1.02,0);
-    h.box(.88,.025,.2,0x3aa6c8,.0,1.05,0,{metalness:.4,roughness:.1,emissive:0x1a5a7a,emissiveIntensity:.4});
-    const prow=h.cone(.12,.18,0xf4f4f4,.56,1.02,0,4);prow.rotation.z=-Math.PI/2;prow.scale.set(1,1,.6);
-    [-.3,-.1,.15,.32].forEach(x=>h.sphere(.03,0x3f8f3a,x,1.09,.06));
-    h.lathe([[0,0],[.12,0],[.16,.06],[.06,.12],[0,.14]],0xf4f4f4,.42,.04,.28);},
+  '싱가포르':g=>{const h=lmHelpers2(g);const glass=lmWin('#4a6f8a','#d6eeff',2,12,{metal:.4,glow:.3});
+    h.box(.96,.04,.5,0x9aa3ad);h.box(.96,.012,.14,0x3f7fa8,0,.04,.2,{metalness:.3,roughness:.1});
+    [-.3,0,.3].forEach(x=>{h.mbox(.07,.98,.16,glass,x-.04,.04,-.04);const lean=h.mbox(.07,.98,.16,glass,x+.06,.04,-.04);lean.rotation.z=.05;});
+    h.box(1.0,.05,.2,0xf4f4f4,.07,1.02,-.04,{roughness:.4});
+    h.box(.62,.02,.12,0x3aa6c8,-.12,1.07,-.04,{metalness:.4,roughness:.1,emissive:0x1a5a7a,emissiveIntensity:.4});
+    [.25,.38,.48].forEach(x=>h.sphere(.03,0x3f8f3a,x,1.09,-.04));},
   // Cairo: Great Pyramid, smaller pyramid, Sphinx in sand
   '카이로':g=>{const h=lmHelpers2(g);const sand=0xdcc08a;
     h.box(.9,.03,.7,0xe6cf98);
@@ -1425,17 +1425,18 @@ const LANDMARKS={
   // Athens: Parthenon on the Acropolis rock — stylobate steps, 8x17 columns read as 8x6, frieze, pediments
   '아테네':g=>{const h=lmHelpers2(g);const m=0xece6d6;
     h.lathe([[0,0],[.5,0],[.48,.08],[.4,.12],[0,.12]],0xb3a58a,0,0,0);
-    [.0,.025,.05].forEach((y,k)=>h.box(.86-k*.04,.025,.5-k*.04,m,0,.12+y,0));
-    for(let k=0;k<8;k++){const x=-.35+k*.1;[.19,-.19].forEach(z=>{h.cyl(.026,.03,.36,m,x,.195,z,12);h.box(.06,.015,.06,m,x,.555,z);});}
-    for(let k=1;k<5;k++)[.35,-.35].forEach(x=>{h.cyl(.026,.03,.36,m,x,.195,-.19+k*.076,12);});
-    h.box(.06,.3,.3,0xd9cfb8,0,.195,0);h.box(.82,.04,.46,m,0,.57,0);h.box(.82,.035,.46,0xd8cfba,0,.61,0);
-    [.23,-.23].forEach(z=>{const p=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.0,.44,.14,3,1),LMM(m)),0,.715,z*1.0);p.rotation.z=Math.PI/2;p.rotation.y=Math.PI/2;p.scale.set(1,1,.08);});
-    const roof=h.add(new THREE.Mesh(new THREE.CylinderGeometry(.0,.24,.82,3,1),LMM(0xcfc6b0)),0,.7,0);roof.rotation.z=Math.PI/2;roof.scale.set(1,.55,1);},
+    [.0,.02,.04].forEach((y,k)=>h.box(.88-k*.03,.02,.52-k*.03,m,0,.12+y,0));
+    const col=(x,z)=>{h.cyl(.019,.024,.34,m,x,.18,z,10);h.box(.05,.014,.05,m,x,.52,z);};
+    for(let k=0;k<13;k++){const x=-.38+k*.0633;col(x,.21);col(x,-.21);}
+    for(let k=1;k<7;k++){const z=-.21+k*.06;col(.38,z);col(-.38,z);}
+    h.box(.82,.035,.48,m,0,.534,0);h.box(.82,.03,.48,0xd8cfba,0,.569,0);
+    [.395,-.395].forEach(x=>{const p=h.prism(.48,.1,.03,m,x,.599,0);p.rotation.y=Math.PI/2;});
+    h.box(.06,.26,.18,0xd9cfb8,0,.18,0);},
   // Copenhagen: Nyhavn — colourful gabled houses on a canal, sailboat and the Little Mermaid
   '코펜하겐':g=>{const h=lmHelpers2(g);
     h.box(.9,.03,.7,0x7a8a94);h.box(.9,.012,.28,0x3f7fa8,0,.03,.2,{metalness:.3,roughness:.1});
     [0xe0613a,0xf2c14e,0x4f8fc0,0xd9534f,0x6fb6a0,0xf4e6c8].forEach((c,k)=>{const x=-.38+k*.152,hh=.36+(k%3)*.08;const win=lmWin('#'+c.toString(16).padStart(6,'0'),'#fff6d6',2,3,{glow:.15,rough:.7});h.mbox(.14,hh,.26,win,x,.03,-.14);
-      const gab=h.add(new THREE.Mesh(new THREE.CylinderGeometry(0,.1,.12,3),LMM(0x8b3a2a)),x,.03+hh+.06,-.14);gab.rotation.x=Math.PI/2;gab.rotation.z=Math.PI/2;gab.scale.set(1,1,2.6);h.box(.03,.06,.03,0x6a5a50,x+.03,.03+hh+.08,-.2);});
+      h.prism(.14,.1,.24,0x8b3a2a,x,.03+hh,-.15);h.prism(.12,.085,.012,c,x,.03+hh,-.02);h.box(.03,.06,.03,0x6a5a50,x+.03,.03+hh+.08,-.2);});
     const boat=h.box(.32,.05,.09,0x8b4a2b,.05,.04,.2);h.cyl(.006,.006,.38,0xdddddd,.05,.09,.2,4);const sail=h.add(new THREE.Mesh(new THREE.PlaneGeometry(.16,.28),LMM(0xffffff,{side:THREE.DoubleSide})),.12,.26,.2);
     h.cyl(.05,.06,.06,0x7a7f86,.38,.03,.28,8);h.add(new THREE.Mesh(new THREE.CapsuleGeometry(.025,.06,4,8),LMM(0x5fa58a,{metalness:.4})),.38,.15,.28);h.sphere(.022,0x5fa58a,.38,.21,.28,{metalness:.4});},
   // Stockholm City Hall: red brick block, slim tower with gilded three crowns, waterfront
@@ -1471,13 +1472,11 @@ const LANDMARKS={
       h.cyl(.03,.03,.01,0x2a2a2a,x,.62,.141,16).rotation.x=Math.PI/2;});
     h.arch(.12,.1,.02,0x5a3a2a,0,.03,.08);},
   // Sydney Opera House: interlocking shell sails on a podium by the harbour
-  '시드니':g=>{const h=lmHelpers2(g);
-    h.box(.96,.02,.7,0x3f7fa8,0,0,0,{metalness:.3,roughness:.1});h.box(.86,.1,.4,0xc9b48a,0,.02,-.04);for(let k=0;k<8;k++)h.box(.08,.012,.02,0xb09a70,-.36+k*.1,.1,.17);
-    const shell=(x,z,r,rot,s)=>{const m=h.add(new THREE.Mesh(new THREE.SphereGeometry(r,20,12,0,Math.PI,0,Math.PI/2),LMM(0xf8f6f0,{roughness:.35,side:THREE.DoubleSide})),x,.12,z);m.rotation.set(0,rot,0);m.scale.set(.55,s,1);
-      const rib=h.add(new THREE.Mesh(new THREE.TorusGeometry(r,.006,4,24,Math.PI),LMM(0xd8d2c4)),x,.12,z);rib.rotation.set(0,rot+Math.PI/2,0);rib.scale.set(1,s,1);return m;};
-    shell(-.26,-.04,.24,-Math.PI/2,1.6);shell(-.1,-.04,.21,-Math.PI/2,1.5);shell(.04,-.04,.16,-Math.PI/2,1.4);
-    shell(.2,.02,.18,-Math.PI/2+.1,1.45);shell(.33,.02,.14,-Math.PI/2+.1,1.35);
-    h.box(.12,.06,.06,0x8fd3ff,-.34,.12,-.04,{emissive:0x3a8ad0,emissiveIntensity:.5});},
+  '시드니':g=>{const h=lmHelpers2(g);const tile=LMM(0xf8f6f0,{roughness:.35,side:THREE.DoubleSide});
+    h.box(.96,.02,.7,0x3f7fa8,0,0,0,{metalness:.3,roughness:.1});h.box(.86,.1,.44,0xc9b48a,0,.02,-.02);for(let k=0;k<8;k++)h.box(.08,.012,.02,0xb09a70,-.36+k*.1,.1,.2);
+    const shell=(x,z,s,dir)=>{const m=h.add(new THREE.Mesh(new THREE.ConeGeometry(.16*s,.52*s,16,1,true,0,Math.PI),tile),x,.12+.24*s,z);m.rotation.set(0,dir>0?-Math.PI/2:Math.PI/2,dir*-.5);
+      const gl=h.add(new THREE.Mesh(new THREE.CircleGeometry(.1*s,12,0,Math.PI),LMM(0x8fd3ff,{emissive:0x3a8ad0,emissiveIntensity:.4,side:THREE.DoubleSide})),x+dir*.06*s,.12,z);gl.rotation.y=Math.PI/2;return m;};
+    [[-.13,1],[.15,.85]].forEach(([z,k])=>{shell(-.3,z,.55*k,-1);shell(-.16,z,.8*k,1);shell(.0,z,1*k,1);shell(.17,z,1.15*k,1);});},
   // São Paulo: Metropolitan Cathedral — neo-gothic spires around a green dome
   '상파울루':g=>{const h=lmHelpers2(g);const stn=lmWin('#a39a8c','#ffe9b0',3,5,{glow:.08,rough:.9});const cop=0x4f7f7a;
     h.box(.9,.04,.7,0x8f8a80);h.mbox(.56,.38,.42,stn,0,.04,-.04);
@@ -1493,15 +1492,17 @@ const LANDMARKS={
       const hand=h.add(new THREE.Mesh(new THREE.BoxGeometry(.006,.05,.004),LMM(0x111)),cx+Math.sin(a)*.003,.9,cz+Math.cos(a)*.003);hand.rotation.y=a;hand.rotation.z=.6;}
     h.box(.2,.06,.2,0x9a8a6a,.3,.96,0);h.box(.14,.1,.14,dark,.3,1.02,0);const sp=h.cone(.11,.32,dark,.3,1.12,0,4,{metalness:.3});sp.rotation.y=Math.PI/4;h.ring(4,.09,(x,z)=>h.cone(.015,.1,LM.gold,.3+x,1.08,z,4,{metalness:.7}));h.cyl(.005,.005,.08,LM.gold,.3,1.44,0,4);},
   // Paris: Eiffel Tower — lattice legs, two platforms, tapering mast, beacon
-  '파리':g=>{const h=lmHelpers2(g);const iron=0x6a5644,im=LMM(iron,{metalness:.5,roughness:.5});
-    h.box(.9,.02,.9,0x6f9a5a);
-    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{for(let k=0;k<3;k++){const y0=k*.14,r0=.34-k*.07;const leg=new THREE.Mesh(new THREE.CylinderGeometry(.018,.03,.16,6),im);leg.position.set(sx*(r0-.03),y0+.08,sz*(r0-.03));leg.rotation.z=-sx*.42;leg.rotation.x=sz*.42;leg.castShadow=true;g.add(leg);}
-      const brace=new THREE.Mesh(new THREE.BoxGeometry(.008,.18,.008),im);brace.position.set(sx*.22,.12,sz*.22);brace.rotation.z=sx*.6;g.add(brace);});
-    h.arch(.36,.12,.02,iron,0,0,.24,{metalness:.5});h.arch(.36,.12,.02,iron,0,0,-.24,{metalness:.5});
-    h.box(.44,.03,.44,iron,0,.42,0,{metalness:.5});h.ring(12,.2,(x,z)=>h.cyl(.004,.004,.04,0xd9b77a,x,.45,z,4));
-    for(let k=0;k<4;k++){const lg=new THREE.Mesh(new THREE.CylinderGeometry(.012,.022,.36,6),im);const sx=k<2?1:-1,sz=k%2?1:-1;lg.position.set(sx*.11,.62,sz*.11);lg.rotation.z=-sx*.18;lg.rotation.x=sz*.18;g.add(lg);}
-    h.box(.22,.025,.22,iron,0,.8,0,{metalness:.5});h.lathe([[.0,0],[.08,0],[.06,.2],[.035,.42],[.02,.55],[0,.6]],iron,0,.82,0,{metalness:.5});
-    h.box(.06,.04,.06,iron,0,1.3,0);h.cyl(.004,.008,.12,iron,0,1.34,0,4);h.sphere(.022,0xffe0a0,0,1.47,0,{emissive:0xffcc40,emissiveIntensity:2.5});},
+  '파리':g=>{const h=lmHelpers2(g);const iron=0x6b4a33,im=LMM(iron,{metalness:.45,roughness:.55});
+    h.box(.9,.02,.9,0x6f9a5a);h.box(.2,.005,.9,0xc9b48a,0,.02,0);h.box(.9,.005,.2,0xc9b48a,0,.02,0);
+    const P=[[.02,.34],[.12,.25],[.25,.17],[.38,.125],[.52,.09],[.75,.06],[1.0,.04],[1.2,.026],[1.32,.014]]; // [y, half-width at the corner]
+    const C=[[1,1],[1,-1],[-1,-1],[-1,1]];
+    for(let k=0;k<P.length-1;k++){const[y0,w0]=P[k],[y1,w1]=P[k+1];const t=y1<=.52?.05-k*.006:.018;
+      C.forEach(([sx,sz])=>h.beam([sx*w0,y0,sz*w0],[sx*w1,y1,sz*w1],t,im));
+      C.forEach(([sx,sz],c)=>{const[nx,nz]=C[(c+1)%4];h.beam([sx*w0,y0,sz*w0],[nx*w1,y1,nz*w1],.006,im);h.beam([nx*w0,y0,nz*w0],[sx*w1,y1,sz*w1],.006,im);});}
+    for(let a=0;a<4;a++){const arc=h.add(new THREE.Mesh(new THREE.TorusGeometry(.2,.012,6,24,Math.PI),im),0,.04,0);arc.rotation.y=a*Math.PI/2;arc.position.set(Math.sin(a*Math.PI/2)*.27,.04,Math.cos(a*Math.PI/2)*.27);arc.scale.set(1,.85,1);}
+    h.box(.44,.035,.44,iron,0,.25,0,{metalness:.45});h.box(.46,.012,.46,0xd9b77a,0,.285,0);
+    h.box(.24,.03,.24,iron,0,.52,0,{metalness:.45});h.box(.25,.01,.25,0xd9b77a,0,.55,0);
+    h.box(.07,.04,.07,iron,0,1.2,0,{metalness:.45});h.cyl(.004,.008,.1,iron,0,1.32,0,4);h.sphere(.018,0xffe0a0,0,1.43,0,{emissive:0xffcc40,emissiveIntensity:2.5});},
   // New York: Statue of Liberty on its star fort and pedestal
   '뉴욕':g=>{const h=lmHelpers2(g);const cop=0x6fb6a0,cm=LMM(cop,{metalness:.35,roughness:.5});
     const star=new THREE.Shape();for(let k=0;k<22;k++){const a=k/22*Math.PI*2,r=k%2?.3:.42;k?star.lineTo(Math.cos(a)*r,Math.sin(a)*r):star.moveTo(Math.cos(a)*r,Math.sin(a)*r);}
