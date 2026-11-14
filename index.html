@@ -518,7 +518,7 @@ const SFX=(()=>{
   try{muted=localStorage.getItem('el-mute')==='1';}catch(e){}
   function ensure(){
     if(ctx)return true;
-    try{ctx=new (window.AudioContext||window.webkitAudioContext)();master=ctx.createGain();master.gain.value=0.5;master.connect(ctx.destination);
+    try{ctx=new (window.AudioContext||window.webkitAudioContext)();master=ctx.createGain();master.gain.value=0.5;master.connect(ctx.destination);loadSamples();
       noiseBuf=ctx.createBuffer(1,ctx.sampleRate*1.5,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return true;}catch(e){return false;}
   }
   function unlock(){if(ensure()&&ctx.state==='suspended')ctx.resume();}
@@ -535,16 +535,22 @@ const SFX=(()=>{
     if(lp){const l=ctx.createBiquadFilter();l.type='lowpass';l.frequency.setValueAtTime(lp,t0);l.Q.value=q;if(slideLp)l.frequency.exponentialRampToValueAtTime(slideLp,t0+dur);node.connect(l);node=l;}
     g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);node.connect(g).connect(master);s.start(t0);s.stop(t0+dur+.05);
   }
+  /* recorded foley (Kenney, CC0) in sfx/: [file, gain, lead-in to skip]. Gains level each take to about -18 dBFS RMS (capped by its peak)
+     and the lead trims the silence before the hit, so a hop sounds on the hop. Missing or undecodable files leave the synth voice. */
+  const SAMP={"dice":[["dice1",1.45,0.028],["dice2",1.51,0.052],["dice3",1.46,0.073],["dice4",1.41,0.118]],"hop":[["hop1",0.76,0],["hop2",0.91,0],["hop3",0.89,0],["hop4",0.99,0]],"land":[["land1",0.87,0],["land2",0.92,0],["land3",0.88,0],["land4",0.88,0]],"coin":[["coin1",1.43,0.077],["coin2",1.48,0.026],["coin3",1.17,0.121],["coin4",1.38,0.042]],"pay":[["pay1",1.4,0.025],["pay2",1.5,0.054],["pay3",1.15,0.049]],"buy":[["buy1",1.4,0.007],["buy2",1.41,0.016],["buy3",1.64,0.032],["buy4",1.6,0.058]],"card":[["card1",1.01,0.131],["card2",0.98,0.011],["card3",1.14,0.132]],"hammer":[["hammer1",0.62,0],["hammer2",0.73,0],["hammer3",0.79,0],["hammer4",0.84,0]],"crash":[["crash1",1.29,0],["crash2",0.79,0],["crash3",1.23,0],["crash4",1.27,0]],"debris":[["debris1",0.93,0],["debris2",1.0,0],["debris3",1.19,0],["debris4",0.87,0]],"click":[["click1",0.9,0],["click2",0.76,0],["click3",0.8,0],["click4",0.58,0]],"tick":[["tick1",0.56,0],["tick2",0.74,0],["tick3",0.65,0.012]],"pop":[["pop1",0.95,0],["pop2",1.02,0]]};const sbuf={};let sLoading=false;
+  function loadSamples(){if(sLoading)return;sLoading=true;Object.values(SAMP).flat().forEach(([n])=>fetch(`sfx/${n}.ogg`).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(a=>ctx.decodeAudioData(a)).then(b=>{sbuf[n]=b;}).catch(()=>{}));}
+  function sample(g,{t=0,vol=1,rate=1}={}){const l=(SAMP[g]||[]).filter(([n])=>sbuf[n]);if(!l.length)return false;const [n,gain,lead]=l[Math.random()*l.length|0];
+    const src=ctx.createBufferSource(),gn=ctx.createGain();src.buffer=sbuf[n];src.playbackRate.value=rate*(.96+Math.random()*.08);gn.gain.value=gain*vol;src.connect(gn).connect(master);src.start(now()+t,lead);return true;}
   const lib={
-    tick(){tone({f:1800,type:'square',dur:.03,vol:.08});},
+    tick(){if(sample('tick',{vol:.35}))return;tone({f:1800,type:'square',dur:.03,vol:.08});},
     stop(){tone({f:900,f2:300,type:'square',dur:.12,vol:.25});},
-    dice(){for(let k=0;k<6;k++)noise({t:k*.06,dur:.05,vol:.35,hp:1800});tone({f:600,f2:900,type:'triangle',t:.38,dur:.18,vol:.4});},
+    dice(){if(sample('dice'))return;for(let k=0;k<6;k++)noise({t:k*.06,dur:.05,vol:.35,hp:1800});tone({f:600,f2:900,type:'triangle',t:.38,dur:.18,vol:.4});},
     dbl(){[0,.09,.18].forEach((t,k)=>tone({f:[660,880,1320][k],type:'square',t,dur:.14,vol:.2}));},
-    hop(){tone({f:420,f2:760,type:'sine',dur:.09,vol:.18});},
-    land(){tone({f:300,f2:120,type:'triangle',dur:.16,vol:.3});noise({dur:.08,vol:.15,lp:800});},
-    coin(){tone({f:1320,type:'sine',dur:.08,vol:.35});tone({f:1760,type:'sine',t:.07,dur:.22,vol:.35});},
-    pay(){tone({f:520,f2:260,type:'sawtooth',dur:.28,vol:.32});noise({dur:.15,vol:.2,lp:1200});},
-    buy(){[0,.08,.16].forEach((t,k)=>tone({f:[523,659,784][k],type:'triangle',t,dur:.22,vol:.22}));},
+    hop(){if(sample('hop',{vol:.45}))return;tone({f:420,f2:760,type:'sine',dur:.09,vol:.18});},
+    land(){if(sample('land',{vol:.7}))return;tone({f:300,f2:120,type:'triangle',dur:.16,vol:.3});noise({dur:.08,vol:.15,lp:800});},
+    coin(){const s=sample('coin',{vol:.8});tone({f:1320,type:'sine',dur:.08,vol:s?.1:.35});tone({f:1760,type:'sine',t:.07,dur:.22,vol:s?.12:.35});},
+    pay(){const s=sample('pay',{vol:.8});tone({f:520,f2:260,type:'sawtooth',dur:.28,vol:s?.1:.32});if(!s)noise({dur:.15,vol:.2,lp:1200});},
+    buy(){sample('buy',{vol:.8});[0,.08,.16].forEach((t,k)=>tone({f:[523,659,784][k],type:'triangle',t,dur:.22,vol:.22}));},
     build(){for(let k=0;k<3;k++){noise({t:k*.11,dur:.06,vol:.3,lp:600});tone({f:200,f2:120,type:'square',t:k*.11,dur:.07,vol:.15});}tone({f:784,f2:1046,type:'triangle',t:.36,dur:.3,vol:.22});},
     landmark(){[0,.1,.2,.3,.45].forEach((t,k)=>tone({f:[523,659,784,1046,1318][k],type:'triangle',t,dur:.4,vol:.22}));noise({t:.45,dur:.6,vol:.1,hp:4000});},
     card(){noise({dur:.12,vol:.2,hp:1500,lp:6000});tone({f:1200,f2:1600,type:'sine',t:.1,dur:.12,vol:.15});},
@@ -558,7 +564,7 @@ const SFX=(()=>{
     festival(){[0,.1,.2,.3].forEach((t,k)=>tone({f:[784,988,1175,1568][k],type:'square',t,dur:.2,vol:.12}));},
     bankrupt(){[0,.25,.5,.75].forEach((t,k)=>tone({f:[392,349,311,262][k],type:'sawtooth',t,dur:.35,vol:.18}));},
     win(){const m=[523,659,784,1046,784,1046,1318];m.forEach((f,k)=>tone({f,type:'triangle',t:k*.13,dur:.3,vol:.22}));tone({f:1568,type:'triangle',t:.95,dur:.9,vol:.25});noise({t:.95,dur:1,vol:.12,hp:4000});},
-    click(){tone({f:700,type:'square',dur:.04,vol:.08});},
+    click(){if(sample('click',{vol:.35}))return;tone({f:700,type:'square',dur:.04,vol:.08});},
     heart(){[0,.18,.75,.93].forEach((t,k)=>tone({f:k%2?55:70,f2:35,type:'sine',t,dur:.22,vol:k%2?.5:.7}));},
     alarm(){[0,.22,.44].forEach(t=>{tone({f:880,type:'square',t,dur:.1,vol:.12});tone({f:660,type:'square',t:t+.11,dur:.1,vol:.12});});},
     drum(){for(let k=0;k<14;k++)noise({t:k*k*.006+k*.03,dur:.04,vol:.3,lp:900});},
@@ -567,12 +573,12 @@ const SFX=(()=>{
     angry(){tone({f:120,f2:90,type:'sawtooth',dur:.35,vol:.25});noise({dur:.3,vol:.15,lp:500});},
     shock(){tone({f:300,f2:1500,type:'square',dur:.18,vol:.15,slide:.18});},
     cool(){tone({f:440,type:'triangle',dur:.15,vol:.15});tone({f:660,type:'triangle',t:.14,dur:.3,vol:.15});},
-    pop(){noise({dur:.08,vol:.35,hp:1200});tone({f:900,f2:200,type:'sine',dur:.25,vol:.2});},
+    pop(){if(sample('pop',{vol:.7}))return;noise({dur:.08,vol:.35,hp:1200});tone({f:900,f2:200,type:'sine',dur:.25,vol:.2});},
     row(){for(let k=0;k<5;k++){noise({t:k*.45,dur:.18,vol:.18,lp:900});}},
     speed(){tone({f:90,f2:260,type:'sawtooth',dur:1.1,vol:.22});noise({dur:1.1,vol:.25,hp:600,lp:3000});},
     motor(){for(let k=0;k<12;k++)tone({f:110+(k%2)*20,type:'square',t:k*.12,dur:.1,vol:.08});noise({dur:1.4,vol:.12,lp:800});},
     rumble(){noise({dur:.9,vol:.35,lp:220});tone({f:45,f2:30,type:'sine',dur:.9,vol:.4});},
-    crash(){noise({dur:.35,vol:.6,lp:1400,slideLp:200});tone({f:120,f2:40,type:'square',dur:.3,vol:.25});},
+    crash(){sample('crash',{vol:.9});sample('debris',{t:.08,vol:.6});noise({dur:.35,vol:.6,lp:1400,slideLp:200});tone({f:120,f2:40,type:'square',dur:.3,vol:.25});},
     monopoly(){[0,.1,.2,.35,.5].forEach((t,k)=>tone({f:[659,784,988,1175,1568][k],type:'square',t,dur:.3,vol:.14}));},
 
     /* ---- v2 event sounds ---- */
@@ -588,7 +594,7 @@ const SFX=(()=>{
       noise({dur:1.1,vol:.16,lp:300,slideLp:4000,q:3});},
     magnetHit(){tone({f:1400,f2:700,type:'square',dur:.06,vol:.22});noise({dur:.1,vol:.45,hp:2500});tone({f:180,f2:90,type:'triangle',t:.02,dur:.18,vol:.5});},
     build(){ // hammer-hammer-ratchet, then a bright "ding"
-      [0,.14,.28].forEach((t,k)=>{noise({t,dur:.05,vol:.35,hp:900,lp:5000});tone({f:[260,300,340][k],f2:120,type:'square',t,dur:.06,vol:.14});});
+      [0,.14,.28].forEach((t,k)=>{if(sample('hammer',{t,vol:.6}))return;noise({t,dur:.05,vol:.35,hp:900,lp:5000});tone({f:[260,300,340][k],f2:120,type:'square',t,dur:.06,vol:.14});});
       for(let k=0;k<6;k++)noise({t:.42+k*.035,dur:.025,vol:.15,hp:3000});
       tone({f:880,type:'triangle',t:.68,dur:.25,vol:.2});tone({f:1319,type:'triangle',t:.76,dur:.4,vol:.2});},
     landmark(){ // brass-like fanfare over a low chord + sparkle
@@ -600,7 +606,7 @@ const SFX=(()=>{
       tone({f:80,f2:30,type:'sine',dur:.9,vol:.45});noise({dur:.6,vol:.4,lp:900,slideLp:120});
       for(let k=0;k<9;k++)tone({f:2400+Math.random()*1800,type:'sine',t:.15+k*.07+Math.random()*.03,dur:.07,vol:.07});
       [[392,.7],[370,1.0],[349,1.3],[330,1.6]].forEach(([f,t],k)=>tone({f,f2:k===3?220:f*.98,type:'sawtooth',t,dur:k===3?.9:.28,vol:.13,slide:k===3?.9:null}));},
-    card(){noise({dur:.09,vol:.22,hp:2000,lp:7000});noise({t:.12,dur:.07,vol:.16,hp:3000});tone({f:700,f2:1400,type:'sine',t:.05,dur:.18,vol:.1});},
+    card(){if(sample('card',{vol:.8}))return;noise({dur:.09,vol:.22,hp:2000,lp:7000});noise({t:.12,dur:.07,vol:.16,hp:3000});tone({f:700,f2:1400,type:'sine',t:.05,dur:.18,vol:.1});},
     cardGood(){[0,.08,.16,.3].forEach((t,k)=>tone({f:[784,988,1175,1568][k],type:'triangle',t,dur:.3,vol:.17}));noise({t:.3,dur:.5,vol:.05,hp:7000});},
     cardBad(){[[311,0],[294,.25],[277,.5]].forEach(([f,t])=>tone({f,type:'sawtooth',t,dur:.25,vol:.12}));tone({f:262,f2:180,type:'sawtooth',t:.75,dur:.8,vol:.12,slide:.8});},
     travel(){ // jet flyover: filtered noise sweeping up and down + engine whine
