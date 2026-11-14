@@ -542,6 +542,7 @@ const SFX=(()=>{
   function sample(g,{t=0,vol=1,rate=1}={}){const l=(SAMP[g]||[]).filter(([n])=>sbuf[n]);if(!l.length)return false;const [n,gain,lead]=l[Math.random()*l.length|0];
     const src=ctx.createBufferSource(),gn=ctx.createGain();src.buffer=sbuf[n];src.playbackRate.value=rate*(.96+Math.random()*.08);gn.gain.value=gain*vol;src.connect(gn).connect(master);src.start(now()+t,lead);return true;}
   const lib={
+    meter(v){const st=[0,2,4,5,7,9,11,12,14,16,17][Math.max(0,Math.min(10,v-2))];tone({f:523*Math.pow(2,st/12),type:'sine',dur:.07,vol:.09,attack:.003});}, // pointer sweep: one clean note per number, rising with it
     tick(){if(sample('tick',{vol:.35}))return;tone({f:1800,type:'square',dur:.03,vol:.08});},
     stop(){tone({f:900,f2:300,type:'square',dur:.12,vol:.25});},
     dice(){if(sample('dice'))return;for(let k=0;k<6;k++)noise({t:k*.06,dur:.05,vol:.35,hp:1800});tone({f:600,f2:900,type:'triangle',t:.38,dur:.18,vol:.4});},
@@ -726,7 +727,7 @@ const SFX=(()=>{
     seq.forEach(([m,t],k)=>mnote(m+12,kind==='up'?'triangle':'sawtooth',t0+t,kind==='up'?.35:(k===seq.length-1?.9:.4),kind==='up'?.07:.045,2000));
   }
   function setMusic(on){music=on;try{localStorage.setItem('el-music',on?'1':'0');}catch(e){}if(on){const w=want;want=null;setMood(w,wantShift);}else musicHalt();}
-  function play(n){if(muted)return;if(!ensure())return;if(ctx.state==='suspended'){ctx.resume();}try{lib[n]&&lib[n]();}catch(e){}}
+  function play(n,...a){if(muted)return;if(!ensure())return;if(ctx.state==='suspended'){ctx.resume();}try{lib[n]&&lib[n](...a);}catch(e){}}
   function setMuted(m){muted=m;try{localStorage.setItem('el-mute',m?'1':'0');}catch(e){}if(m)musicHalt();else{const w=want;want=null;setMood(w,wantShift);}}
   return{play,unlock:()=>{unlock();if(want&&!timer)musicStart();},setMuted,isMuted:()=>muted,setMood,setMusic,sting,isMusic:()=>music,mood:()=>mood,_lib:lib,_ctx:()=>ctx,_master:()=>master,_mgain:()=>mGain,_songs:SONGS};
 })();
@@ -1137,7 +1138,8 @@ function landmark(kind){
 }
 
 /* ---- camera follow ---- */
-let camMode='follow',freeUntil=0,homePos=CAM_HOME.clone(),focusOverride=null,chase=null;
+let camMode='follow',freeUntil=0,homePos=CAM_HOME.clone(),focusOverride=null,chase=null,chaseAnchor=null;const chaseDir=new THREE.Vector3(1,0,0);
+const REDUCED_MOTION=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FOLLOW_OFF=new THREE.Vector3(0,5.2,5.4);
 controls.addEventListener('start',()=>{freeUntil=performance.now()+7000;});
 function camTick(dt){
@@ -1146,13 +1148,15 @@ function camTick(dt){
   let k=1-Math.pow(0.0015,dt);
   if(cinema||focusOverride){const tp=$('#tip');if(tp&&!tp.hidden)tp.hidden=true;}
   if(cinema){tg=cinema.pos.clone();cp=tg.clone().add(cinema.off);k=1-Math.pow(0.00005,dt);}
-  else if(chase&&camMode==='follow'&&tokens[chase.id]){ // my piece walking: ride behind it, looking down the track and out at the boulevard
-    const tp=tokens[chase.id].grp.position,ah=slotPos((chase.pos+2)%N,chase.id).sub(slotPos(chase.pos,chase.id)).setY(0);if(ah.lengthSq()<1e-6)ah.set(1,0,0);ah.normalize();
-    const out=new THREE.Vector3(tp.x,0,tp.z);if(out.lengthSq()<1e-6)out.set(0,0,1);out.normalize();
-    cp=tp.clone().addScaledVector(ah,-2.4).addScaledVector(out,-.9).setY(2.1);tg=tp.clone().addScaledVector(ah,3.2).addScaledVector(out,2.6).setY(.9);}
+  else if(chase&&camMode==='follow'&&tokens[chase.id]&&!REDUCED_MOTION){ // my piece walking: a raised three-quarter view behind it, out toward the boulevard
+    // anti-motion-sickness: follow a smoothed anchor (not each hop), look 3 tiles ahead so corners turn gradually, stay high so the pitch change from the top view is small
+    const tp=tokens[chase.id].grp.position;if(!chaseAnchor)chaseAnchor=tp.clone().setY(0);chaseAnchor.lerp(new THREE.Vector3(tp.x,0,tp.z),1-Math.pow(0.08,dt));
+    const ah=slotPos((chase.pos+3)%N,chase.id).sub(slotPos(chase.pos,chase.id)).setY(0);if(ah.lengthSq()<1e-6)ah.set(1,0,0);ah.normalize();chaseDir.lerp(ah,1-Math.pow(0.15,dt)).normalize();
+    const out=chaseAnchor.clone();if(out.lengthSq()<1e-6)out.set(0,0,1);out.normalize();
+    cp=chaseAnchor.clone().addScaledVector(chaseDir,-3.4).addScaledVector(out,-1.6).setY(5.2);tg=chaseAnchor.clone().addScaledVector(chaseDir,2.6).addScaledVector(out,3.4).setY(.4);k=1-Math.pow(0.05,dt);}
   else if(focusOverride&&performance.now()<focusOverride.until){tg=focusOverride.pt;cp=focusOverride.pt.clone().add(FOLLOW_OFF.clone().multiplyScalar(focusOverride.scale||1.3));}
   else if(false){}
-  else{tg=TARGET;cp=homePos;}
+  else{tg=TARGET;cp=homePos;chaseAnchor=null;k=1-Math.pow(0.05,dt);} // ease back up slowly too
   controls.target.lerp(tg,k);camera.position.lerp(cp,k);
 }
 let lastEmoteCam=0;
@@ -2449,7 +2453,7 @@ function confetti(){
 /* ---------- dice meter ---------- */
 const meter={active:false,x:0.45,dir:1,val:7};
 const meterEl=$('#meter'),ptrEl=$('#ptr'),nums=[...meterEl.querySelectorAll('span')];
-function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));if(meter.active&&v!==meter.val)SFX.play('tick');meter.val=v;ptrEl.style.left=(meter.x*100)+'%';nums.forEach((n,k)=>n.classList.toggle('on',k+2===meter.val));}
+function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));if(meter.active&&v!==meter.val)SFX.play('meter',v);meter.val=v;ptrEl.style.left=(meter.x*100)+'%';nums.forEach((n,k)=>n.classList.toggle('on',k+2===meter.val));}
 function meterTick(dt){
   if(!meter.active)return;
   meter.x+=meter.dir*dt*1.5;if(meter.x>=1){meter.x=1;meter.dir=-1;}if(meter.x<=0){meter.x=0;meter.dir=1;}
