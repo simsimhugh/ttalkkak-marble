@@ -2464,7 +2464,7 @@ const meterEl=$('#meter'),ptrEl=$('#ptr'),nums=[...meterEl.querySelectorAll('spa
 function meterShow(){const v=2+Math.min(10,Math.floor(meter.x*11));if(meter.active&&v!==meter.val)SFX.play('meter',v);meter.val=v;ptrEl.style.left=(meter.x*100)+'%';nums.forEach((n,k)=>n.classList.toggle('on',k+2===meter.val));}
 function meterTick(dt){
   if(!meter.active)return;
-  meter.x+=meter.dir*dt*1.5;if(meter.x>=1){meter.x=1;meter.dir=-1;}if(meter.x<=0){meter.x=0;meter.dir=1;}
+  meter.x+=meter.dir*dt*1.3;if(meter.x>=1){meter.x=1;meter.dir=-1;}if(meter.x<=0){meter.x=0;meter.dir=1;}
   meterShow();
 }
 function meterSet(v){meter.active=false;meter.x=(v-2+0.5)/11;meterShow();}
