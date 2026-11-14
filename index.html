@@ -32,18 +32,18 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;overflow:hidden;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;background-image:radial-gradient(circle at 10% 0%,color-mix(in srgb,var(--hub1) 18%,transparent),transparent 50%),radial-gradient(circle at 95% 100%,color-mix(in srgb,var(--gold) 14%,transparent),transparent 45%)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;}
 .app{padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px));padding-block:0;max-width:none;margin:0;height:100dvh;display:flex;flex-direction:column}
 .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-.top h1{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0;letter-spacing:.02em;background:linear-gradient(90deg,var(--hub1),var(--accent) 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-.top .sub{color:var(--muted);font-size:12.5px}
+.top h1{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0;color:var(--ink)}
+.top .sub{color:var(--muted);font-size:13px}
 .top .sp{flex:1}
-.btn{font:inherit;font-weight:700;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 13px;border-radius:10px;cursor:pointer;transition:transform .1s,box-shadow .15s}
-.btn:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer;transition:background-color .15s,border-color .15s,transform .12s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
+.btn:hover:not(:disabled){border-color:var(--accent)}.btn:active:not(:disabled){transform:scale(.97)}
 .btn:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
-.btn.primary{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));color:var(--accent-ink);border-color:transparent;text-shadow:0 1px 0 rgba(0,0,0,.15)}
-.btn.gold{background:linear-gradient(180deg,#ffd868,#f0a020);color:#3a2400;border-color:transparent}
-.btn.danger{background:linear-gradient(180deg,#ff6b6b,#c62828);color:#fff;border-color:transparent}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}.btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 88%,#000)}
+.btn.gold{background:#f2b33d;color:#3a2400;border-color:transparent}
+.btn.danger{background:#c8343c;color:#fff;border-color:transparent}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start}
 @media (max-width:940px){.layout{grid-template-columns:minmax(0,1fr)}}
@@ -52,29 +52,27 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .stage{--pc:#1c7fb3;box-shadow:0 20px 50px rgba(5,20,40,.4),0 0 0 3px var(--pc);transition:box-shadow .5s}
 .stage canvas{display:block;width:100%!important;height:100%!important;touch-action:none}
 .banner{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;z-index:5;display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--pc) 85%,#000) 15%,color-mix(in srgb,var(--pc) 85%,#000) 85%,transparent);color:#fff;font-family:var(--f-fun);font-size:clamp(20px,4.5vw,36px);padding:10px 60px;white-space:nowrap;text-shadow:0 2px 6px rgba(0,0,0,.5)}
-.banner .bav{width:1.5em;height:1.5em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--pc) 60%);display:grid;place-items:center;font-size:.9em;border:2px solid #fff}
+.banner .bav{width:1.5em;height:1.5em;border-radius:50%;background:var(--pc);display:grid;place-items:center;font-size:.9em;border:2px solid #fff}
 .banner.show{animation:bannerIn 2.2s ease forwards}
 .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6}
 .flash.on{animation:flashIn 1.3s ease-out forwards}
 @keyframes flashIn{0%{opacity:1}30%{opacity:.9}100%{opacity:0}}
 @keyframes bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}12%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}20%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(.9)}}
-.pcard.cur{animation:cardPulse 1.6s ease-in-out infinite}
-@keyframes cardPulse{50%{box-shadow:0 0 0 4px var(--pc),0 8px 26px color-mix(in srgb,var(--pc) 55%,transparent)}}
-#turn{background:var(--pc);box-shadow:0 0 12px var(--pc)}
-.stage .loading{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:700;text-align:center;padding:20px}
+#turn{background:var(--pc)}
+.stage .loading{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:600;text-align:center;padding:20px}
 .hud{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:8px}
 .hud>*{pointer-events:none}
 .hud .row{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
-.chip{pointer-events:auto;background:rgba(5,20,35,.72);color:#fff;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.chip{pointer-events:auto;background:rgba(5,20,35,.78);color:#fff;border-radius:8px;padding:4px 12px;font-size:13px;font-weight:600;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .chip i{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--pc);font-style:normal;font-size:12px;border:2px solid #fff}
-.chip.btn-like{cursor:pointer;border:0;font:inherit;font-weight:700}
+.chip.btn-like{cursor:pointer;border:0;font:inherit;font-weight:600}
 .hud .sp{flex:1}
 .panel{pointer-events:auto;align-self:center;background:rgba(5,20,35,.72);backdrop-filter:blur(6px);color:#fff;border-radius:14px;padding:6px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;width:min(100%,420px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
 .meter{position:relative;width:100%;height:30px;display:grid;grid-template-columns:repeat(11,1fr);background:rgba(255,255,255,.08);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
-.meter span{display:grid;place-items:center;font-weight:800;font-size:13px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;border-right:1px solid rgba(255,255,255,.08)}
+.meter span{display:grid;place-items:center;font-weight:600;font-size:13px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;border-right:1px solid rgba(255,255,255,.08)}
 .meter span.on{background:var(--gold);color:#3a2400}
 .meter.idle span.on{background:rgba(255,255,255,.25);color:#fff}
-.meter .ptr{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;box-shadow:0 0 8px #fff;transform:translateX(-50%)}
+.meter .ptr{position:absolute;top:0;bottom:0;width:3px;background:#fff;left:50%;transform:translateX(-50%)}
 .meter .ptr::after{content:"";position:absolute;left:50%;top:-1px;transform:translateX(-50%);border:6px solid transparent;border-top:7px solid #fff}
 .dicerow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
 .dice{display:flex;gap:8px}
@@ -91,26 +89,29 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .pcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr auto;gap:1px 8px;align-items:center;position:relative;overflow:hidden}
 .pcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--pc)}
-.pcard.cur{border-color:var(--pc);box-shadow:0 0 0 2px var(--pc),0 6px 18px color-mix(in srgb,var(--pc) 35%,transparent)}
+.pcard.cur{border-color:var(--pc);box-shadow:0 0 0 2px var(--pc)}
 .pcard.out{opacity:.45;filter:grayscale(1)}
-.pcard .av{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--pc) 60%);display:grid;place-items:center;font-size:20px;grid-row:1/3;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-.pcard .pn{font-weight:800;display:flex;gap:5px;align-items:center;min-width:0;flex-wrap:wrap;font-size:13px}
-.pcard .pn small{font-weight:600;font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
-.pcard .cash{font-family:var(--f-body);font-weight:700;font-size:19px;text-align:right;font-variant-numeric:tabular-nums}
-.pcard .meta{color:var(--muted);font-size:11.5px;grid-column:2/4;display:flex;flex-wrap:wrap;gap:2px 8px}
+.pcard .av{width:36px;height:36px;border-radius:50%;background:var(--pc);display:grid;place-items:center;font-size:20px;grid-row:1/3;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.pcard .pn{font-weight:600;display:flex;gap:5px;align-items:center;min-width:0;flex-wrap:wrap;font-size:13px}
+.pcard .pn small{font-weight:600;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.pcard .cash{font-family:var(--f-body);font-weight:600;font-size:19px;text-align:right;font-variant-numeric:tabular-nums}
+.pcard .meta{color:var(--muted);font-size:12px;grid-column:2/4;display:flex;flex-wrap:wrap;gap:2px 8px}
 .pcard .st{color:var(--danger);font-weight:600}
-.pcard .ch{font-size:11px;color:var(--accent);font-weight:700}
-.pcard .sk{font-size:10.5px;padding:0 6px;border-radius:999px;background:linear-gradient(180deg,#ffe27a,#f5b400);color:#3a2400;font-weight:800}
-.pcard .sk.used{background:var(--line);color:var(--muted)}
+.pcard .ch{font-size:11px;color:var(--accent);font-weight:600}
+/* signature: passport stamps (rank, skill) */
+.stamp,.pcard .sk,.pcard .rank{display:inline-block;font-family:var(--f-display);font-weight:400;font-size:11px;line-height:1;padding:3px 5px 2px;border:1.5px solid currentColor;border-radius:4px;background:none;transform:rotate(-5deg);white-space:nowrap}
+.pcard .sk{color:var(--accent);transform:rotate(4deg)}
+.pcard .sk.used{color:var(--muted);border-style:dashed;opacity:.7}
+.stamp{color:var(--muted);margin-right:4px}.rank li:first-child .stamp{color:var(--danger)}
 .players{display:grid;grid-template-columns:1fr;gap:8px}
 @media (max-width:940px){.players{grid-template-columns:1fr 1fr}}
 @media (max-width:480px){.pcard{padding:6px 8px}.pcard .av{width:30px;height:30px;font-size:17px}.pcard .cash{font-size:16px}.pcard .meta{display:none}}
-.logbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.logbox h2,.rules summary{font-size:12px;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:800}
-#log{list-style:none;margin:0;padding:0;max-height:240px;overflow:auto;font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.logbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.logbox h2,.rules summary{font-size:12px;color:var(--muted);margin:0 0 8px;font-weight:600}
+#log{list-style:none;margin:0;padding:0;max-height:240px;overflow:auto;font-size:13px;display:flex;flex-direction:column;gap:3px}
 @media (max-width:940px){#log{max-height:150px}}
 #log li{border-left:3px solid var(--pc,var(--line));padding-left:7px}
-.rules{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px}
+.rules{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px}
 .rules summary{cursor:pointer;margin:0}
 .rules ul{padding-left:18px;margin:8px 0 0}
 .overlay{position:fixed;inset:0;background:rgba(5,14,24,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:50;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -124,15 +125,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .card .acts .btn b{font-variant-numeric:tabular-nums;white-space:nowrap}
 .card .acts.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr))}
 .card .acts.grid .btn{justify-content:center;text-align:center}
-.big-ico{font-size:50px;text-align:center;line-height:1.1;margin-bottom:6px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.big-ico{font-size:48px;text-align:center;line-height:1.1;margin-bottom:8px}
 .setup{width:min(560px,100%)}
-.setup h3{font-size:30px;background:linear-gradient(90deg,var(--hub1),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.setup h3{font-size:30px;color:var(--ink)}
 .srow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-bottom:8px;background:var(--tile);border:1px solid var(--line);border-radius:12px;padding:8px}
-.srow .av{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--pc) 60%);display:grid;place-items:center;font-size:22px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;grid-row:1/3}
+.srow .av{width:42px;height:42px;border-radius:50%;background:var(--pc);display:grid;place-items:center;font-size:22px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;grid-row:1/3}
 .srow .av:focus-visible{outline:3px solid var(--hi)}
 .srow input{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);min-width:0;width:100%}
 .srow .chsel{grid-column:2/4;display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);min-width:0}
-.srow .chsel select{font:inherit;font-size:12.5px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);min-width:0;flex:1}
+.srow .chsel select{font:inherit;font-size:13px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);min-width:0;flex:1}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
 .seg button{font:inherit;font-size:13px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:7px 10px;cursor:pointer}
 .seg button.on{background:var(--accent);color:var(--accent-ink)}
@@ -141,14 +142,14 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .sopts label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
 .sopts select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--tile);color:var(--ink)}
 .lbl{font-size:12px;color:var(--muted);font-weight:600;margin:0 0 6px}
-.chdesc{font-size:11.5px;color:var(--muted);grid-column:2/4;line-height:1.35}
+.chdesc{font-size:12px;color:var(--muted);grid-column:2/4;line-height:1.35}
 .chdesc b{color:var(--ink)}
 .toll-table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
 .toll-table td{padding:3px 0;border-bottom:1px solid var(--line)}
 .toll-table td:last-child{text-align:right}
 .rank{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
 .rank li{display:flex;justify-content:space-between;gap:8px;border-left:4px solid var(--pc);padding-left:8px;align-items:center}
-.rank li:first-child{font-size:16px;font-weight:800}
+.rank li:first-child{font-size:16px;font-weight:600}
 /* chance card reveal */
 .cardfx{position:absolute;inset:0;display:grid;place-items:center;z-index:8;perspective:1200px;background:radial-gradient(ellipse at center,rgba(0,0,0,.35),rgba(0,0,0,.6));cursor:pointer}
 .ccard{position:relative;width:min(240px,42vw);aspect-ratio:5/7;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.8,.2,1);transform:rotateY(180deg) scale(.6);filter:drop-shadow(0 24px 40px rgba(0,0,0,.6))}
@@ -184,16 +185,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 /* toasts (event feed) */
 .toasts{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:6px;min-height:0;overflow:hidden}
-.toast{pointer-events:none;background:rgba(5,20,35,.82);color:#fff;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;backdrop-filter:blur(6px);box-shadow:0 6px 18px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);animation:toastIn .35s cubic-bezier(.2,1.4,.4,1);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast{pointer-events:none;background:rgba(5,20,35,.88);color:#fff;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-left:4px solid rgba(255,255,255,.35);animation:toastIn .3s cubic-bezier(.22,1,.36,1);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toast b{color:#fff!important;background:none!important;padding:0!important}
-.toast.money{border-color:#ffd166;background:linear-gradient(90deg,rgba(80,50,0,.9),rgba(5,20,35,.85))}
-.toast.danger{border-color:#ff5a5a;background:linear-gradient(90deg,rgba(120,10,20,.92),rgba(5,20,35,.85));animation:toastIn .35s cubic-bezier(.2,1.4,.4,1),dangerPulse 1s ease-in-out 2}
-.toast.good{border-color:#6ee7a0;background:linear-gradient(90deg,rgba(0,90,50,.9),rgba(5,20,35,.85))}
+.toast.money{border-left-color:#f2b33d}
+.toast.danger{border-left-color:#e5484d}
+.toast.good{border-left-color:#4cc38a}
 .toast.out{animation:toastOut .4s ease forwards}
-@keyframes toastIn{from{opacity:0;transform:translateY(-14px) scale(.9)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(-8px)}}
-@keyframes dangerPulse{50%{box-shadow:0 0 0 4px rgba(255,80,80,.5),0 6px 18px rgba(0,0,0,.35)}}
-@media (max-width:600px){.toast{font-size:11.5px;padding:4px 10px}}
+@media (max-width:600px){.toast{font-size:12px;padding:4px 10px}}
 /* red vignette on danger */
 .vignette{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;--vc:#ff2a2a;background:radial-gradient(ellipse at center,transparent 45%,color-mix(in srgb,var(--vc) 70%,transparent) 100%)}
 .vignette.on{animation:vig 1.4s ease-out forwards}
@@ -206,25 +206,24 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 @keyframes bigIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}18%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%) scale(.95)}}
 /* landing hints under the meter */
 .mhint{display:grid;grid-template-columns:repeat(11,1fr);width:100%;gap:1px;min-height:14px}
-.mhint span{font-size:9.5px;line-height:1.1;text-align:center;font-weight:800;color:rgba(255,255,255,.55);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:1px 0;border-radius:3px}
-.mhint span.pay{color:#ff8a8a}.mhint span.deadly{color:#fff;background:#c8343c;animation:dangerPulse 1s infinite}.mhint span.free{color:#7cf29a}.mhint span.own{color:#7fc8ff}.mhint span.card{color:#ffd166}.mhint span.bad{color:#d0a0ff}.mhint span.good{color:#ffe08a}
+.mhint span{font-size:10px;line-height:1.1;text-align:center;font-weight:600;color:rgba(255,255,255,.55);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:1px 0;border-radius:3px}
+.mhint span.pay{color:#ff8a8a}.mhint span.deadly{color:#fff;background:#c8343c}.mhint span.free{color:#7cf29a}.mhint span.own{color:#7fc8ff}.mhint span.card{color:#ffd166}.mhint span.bad{color:#d0a0ff}.mhint span.good{color:#ffe08a}
 @media (max-width:600px){.mhint span{font-size:8px}}
 /* emote picker */
 .emotes{position:absolute;left:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:5px;z-index:5}
-.emotes button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(5,20,35,.7);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:transform .12s;padding:0;line-height:1}
-.emotes button:hover{transform:scale(1.18)}.emotes button:focus-visible{outline:3px solid var(--hi)}
+.emotes button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(5,20,35,.7);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:background-color .15s,border-color .15s;padding:0;line-height:1}
+.emotes button:hover{background:rgba(5,20,35,.92);border-color:#fff}.emotes button:active{transform:scale(.97)}.emotes button:focus-visible{outline:3px solid var(--hi)}
 @media (max-width:600px){.emotes{left:4px;gap:3px}.emotes button{width:30px;height:30px;font-size:16px}}
 /* player cards: rank, low cash, money flashes */
-.pcard .rank{font-size:10.5px;font-weight:800;padding:0 6px;border-radius:999px;background:var(--line);color:var(--ink)}
-.pcard .rank.r1{background:linear-gradient(180deg,#ffe27a,#f5b400);color:#3a2400}
-.pcard.low .cash{color:var(--danger);animation:lowCash 1s ease-in-out infinite}
+.pcard .rank{color:var(--muted)}
+.pcard .rank.r1{color:var(--danger)}
+.pcard.low .cash{color:var(--danger)}
 @keyframes lowCash{50%{opacity:.45}}
 .pcard.flash-gain{animation:cardGain .9s ease}.pcard.flash-loss{animation:cardLoss .9s ease}
 @keyframes cardGain{20%{background:color-mix(in srgb,#22a06b 35%,var(--panel));transform:scale(1.03)}}
 @keyframes cardLoss{20%{background:color-mix(in srgb,#c8343c 35%,var(--panel));transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}}
-.pcard.out .av::after{content:"💀";position:absolute;font-size:18px;filter:none}
 .pcard .av{position:relative}
-#round.late{background:#c8343c;box-shadow:0 0 12px #ff5a5a;animation:lowCash 1.2s infinite}
+#round.late{background:#c8343c}
 /* ---- stage-first layout ---- */
 header.top{display:none}
 header.top h1{font-size:22px}
@@ -241,16 +240,17 @@ header.top h1{font-size:22px}
 .corner .pcard .av{width:clamp(30px,3vw,46px);height:clamp(30px,3vw,46px);font-size:clamp(16px,1.7vw,26px)}
 .corner .pcard .pn{font-size:clamp(12px,1.25vw,18px);color:#fff;gap:5px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .corner .pcard .pn small,.corner .pcard .ch{display:none}
-.corner .pcard .sk{font-size:clamp(9px,.85vw,12px);padding:0 6px}
+.corner .pcard .sk{font-size:clamp(10px,.85vw,12px)}
 .corner .pcard .rank{font-size:clamp(10px,.95vw,13px)}
-.corner .pcard .cash{font-family:var(--f-body);font-weight:700;letter-spacing:.01em;font-size:clamp(17px,1.9vw,28px);grid-column:2;text-align:left;line-height:1.1;color:#ffe9a8;text-shadow:0 1px 2px rgba(0,0,0,.6)}
-.corner .pcard .meta{grid-column:1/3;color:rgba(255,255,255,.85);font-size:clamp(10.5px,1vw,14px);gap:2px 8px;margin-top:2px}
-.corner .pcard .st{color:#ffb3b3;font-weight:800}
-.tip{position:absolute;z-index:9;pointer-events:none;background:rgba(4,14,26,.92);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:8px 11px;font-size:13px;line-height:1.45;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.tip b{font-size:14px}.tip em{font-style:normal;color:#ffd166;font-weight:800}.tip .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle;border:1px solid #fff}
+.corner .pcard .cash{font-family:var(--f-body);font-weight:600;font-size:clamp(17px,1.9vw,28px);grid-column:2;text-align:left;line-height:1.1;color:#ffe9a8;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.corner .pcard .meta{grid-column:1/3;color:rgba(255,255,255,.85);font-size:clamp(11px,1vw,14px);gap:2px 8px;margin-top:2px}
+.corner .pcard .st{color:#ffb3b3;font-weight:600}
+.tip{position:absolute;z-index:9;pointer-events:none;background:rgba(4,14,26,.92);color:#fff;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font-size:13px;line-height:1.45;max-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.tip b{font-size:14px}.tip em{font-style:normal;color:#ffd166;font-weight:600}.tip .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle;border:1px solid #fff}
 .corner .pcard .st{color:#ffb3b3}
-.corner .pcard .rank{background:rgba(255,255,255,.2);color:#fff}
-.corner .pcard .rank.r1{background:linear-gradient(180deg,#ffe27a,#f5b400);color:#3a2400}
+.corner .pcard .rank{color:rgba(255,255,255,.7)}
+.corner .pcard .rank.r1{color:#ff8a8a}
+.corner .pcard .sk{color:#7fd3ea}.corner .pcard .sk.used{color:rgba(255,255,255,.5)}
 .corner .pcard.low .cash{color:#ff7b7b}
 .corner .pcard.flash-gain{animation:cardGainD .9s ease}.corner .pcard.flash-loss{animation:cardLossD .9s ease}
 @keyframes cardGainD{20%{background:rgba(34,160,107,.75);transform:scale(1.04)}}
@@ -259,26 +259,27 @@ header.top h1{font-size:22px}
 .pcard .relics{letter-spacing:1px;font-size:1.05em}
 .corner .pcard .relics{display:inline-block}
 #shop{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 14px;align-items:center}
-#shop .shop-head{width:100%;font-size:13px;color:var(--ink)}#shop .shop-head b{font-size:16px;color:#c88a00}#shop .shop-head span{color:var(--danger);font-weight:700}#shop .shop-head small{display:block;color:var(--muted);font-size:11.5px}
-#shop .perk{font:inherit;font-size:12.5px;font-weight:700;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 10px;cursor:pointer;display:flex;gap:6px;align-items:center}
-#shop .perk b{background:#ffe9a8;color:#5a3a00;border-radius:999px;padding:0 6px;font-size:11px}
+#shop .shop-head{width:100%;font-size:13px;color:var(--ink)}#shop .shop-head b{font-size:16px;color:#c88a00}#shop .shop-head span{color:var(--danger);font-weight:700}#shop .shop-head small{display:block;color:var(--muted);font-size:12px}
+#shop .perk{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 12px;cursor:pointer;display:flex;gap:6px;align-items:center}
+#shop .perk b{color:#a06c00;font-weight:600;font-size:12px;font-variant-numeric:tabular-nums}
 #shop .perk.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}#shop .perk:disabled{opacity:.45;cursor:not-allowed}
-.pcard.boss{background:linear-gradient(135deg,rgba(60,10,20,.92),rgba(20,4,8,.92))!important;border-color:#ffd166!important}
+.pcard.boss{background:rgba(44,8,16,.92)!important;border-color:#ffd166!important}
 .pcard.boss .pn{color:#ffd166!important}
-.chip.evchip{background:linear-gradient(90deg,#7a1fa2,#d8333c);box-shadow:0 0 12px rgba(216,51,60,.6)}
-.chip.jackchip{background:linear-gradient(90deg,#8a5a00,#f5b400);color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.chip.evchip{background:#9b2c35}
+.chip.jackchip{background:#7a5200;color:#fff}
 .chip.jackchip.bump{animation:jackBump .6s ease}
-@keyframes jackBump{40%{transform:scale(1.25)}}
+@keyframes jackBump{40%{transform:scale(1.08)}}
 .chip.timer{background:#1c7fb3;font-variant-numeric:tabular-nums;min-width:62px;justify-content:center}
 .chip.timer.urgent{background:#c8343c;animation:lowCash .5s infinite}
 .mtimer{position:absolute;right:16px;top:16px}
 .card{position:relative}
 .tools{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:5}
-.tool{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(5,20,35,.7);font-size:17px;cursor:pointer;display:grid;place-items:center;transition:transform .12s;padding:0;line-height:1;color:#fff}
-.tool:hover{transform:scale(1.15)}.tool:focus-visible{outline:3px solid var(--hi)}.tool[aria-pressed="true"]{border-color:var(--hi);box-shadow:0 0 10px var(--hi)}
-.tool.small{width:26px;height:26px;font-size:13px;display:inline-grid;vertical-align:middle;margin-left:8px}
+.tool{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(5,20,35,.78);font-size:17px;cursor:pointer;display:grid;place-items:center;transition:background-color .15s,border-color .15s,opacity .15s;padding:0;line-height:1;color:#fff}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tool:hover{background:rgba(5,20,35,.92);border-color:rgba(255,255,255,.6)}.tool:active{transform:scale(.97)}.tool:focus-visible{outline:3px solid var(--hi)}.tool[aria-pressed="false"]{opacity:.55}
+.tool.small{width:28px;height:28px;font-size:13px;display:inline-grid;vertical-align:middle;margin-left:8px}
 .logpanel{position:absolute;right:52px;top:8%;bottom:8%;width:min(340px,62%);background:rgba(5,20,35,.92);color:#fff;border-radius:12px;padding:10px 12px;z-index:6;display:flex;flex-direction:column;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px)}
-.logpanel h2{font-size:12px;letter-spacing:.08em;color:rgba(255,255,255,.7);margin:0 0 6px;font-weight:800}
+.logpanel h2{font-size:12px;color:rgba(255,255,255,.7);margin:0 0 8px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
 .logpanel #log{flex:1;max-height:none;color:#fff}
 .logpanel #log li b{color:#fff!important}
 .rules-list{padding-left:18px;margin:0;font-size:13px;line-height:1.5}
@@ -292,6 +293,21 @@ header.top h1{font-size:22px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- line icons after lucide (ISC) -->
+  <symbol id="i-new" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+  <symbol id="i-snd" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></symbol>
+  <symbol id="i-bgm" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-fs" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="i-fsx" viewBox="0 0 24 24"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+</svg>
 
 <div id="rot">
 <div class="app">
@@ -309,25 +325,25 @@ header.top h1{font-size:22px}
     <div class="cardfx" id="cardfx" hidden></div>
     <div class="tip" id="tip" hidden></div>
     <div class="tools">
-      <button class="tool" id="btn-new" type="button" title="새 게임">🆕</button>
-      <button class="tool" id="btn-snd" type="button" title="효과음 켜기/끄기" aria-pressed="true">🔊</button>
-      <button class="tool" id="btn-bgm" type="button" title="배경음악 켜기/끄기" aria-pressed="true">🎵</button>
-      <button class="tool" id="btn-cam" type="button" title="카메라: 연출 켬 — 감정·위기 때 잠깐 다가갑니다 (끄려면 클릭)">🎥</button>
-      <button class="tool" id="btn-log" type="button" title="진행 기록" aria-pressed="false">📜</button>
-      <button class="tool" id="btn-rules" type="button" title="규칙">❓</button>
-      <button class="tool" id="btn-home" type="button" title="시점 원래대로">🏠</button>
-      <button class="tool" id="btn-fs" type="button" title="전체화면">⛶</button>
+      <button class="tool" id="btn-new" type="button" title="새 게임" aria-label="새 게임"><svg class="ic"><use href="#i-new"/></svg></button>
+      <button class="tool" id="btn-snd" type="button" title="효과음 켜기/끄기" aria-label="효과음" aria-pressed="true"><svg class="ic"><use href="#i-snd"/></svg></button>
+      <button class="tool" id="btn-bgm" type="button" title="배경음악 켜기/끄기" aria-label="배경음악" aria-pressed="true"><svg class="ic"><use href="#i-bgm"/></svg></button>
+      <button class="tool" id="btn-cam" type="button" title="카메라: 연출 켬 — 내 말이 움직일 때 뒤에서 따라가고, 감정·위기 때 다가갑니다 (끄려면 클릭)" aria-label="카메라"><svg class="ic"><use href="#i-cam"/></svg></button>
+      <button class="tool" id="btn-log" type="button" title="진행 기록" aria-label="진행 기록" aria-pressed="false"><svg class="ic"><use href="#i-log"/></svg></button>
+      <button class="tool" id="btn-rules" type="button" title="규칙" aria-label="규칙"><svg class="ic"><use href="#i-help"/></svg></button>
+      <button class="tool" id="btn-home" type="button" title="시점 원래대로" aria-label="시점 원래대로"><svg class="ic"><use href="#i-home"/></svg></button>
+      <button class="tool" id="btn-fs" type="button" title="전체화면" aria-label="전체화면"><svg class="ic"><use href="#i-fs"/></svg></button>
     </div>
-    <div class="logpanel" id="logpanel" hidden><h2>진행 기록 <button class="tool small" id="btn-log-close" type="button" title="닫기">✕</button></h2><ol id="log"></ol></div>
+    <div class="logpanel" id="logpanel" hidden><h2>진행 기록 <button class="tool small" id="btn-log-close" type="button" title="닫기" aria-label="닫기"><svg class="ic"><use href="#i-x"/></svg></button></h2><ol id="log"></ol></div>
     <div class="hud">
       <div class="row top">
         <div class="corner" id="pc0"></div>
         <div class="mid">
           <span class="chip" id="round">1 라운드</span>
           <span class="chip" id="turn"></span>
-          <span class="chip timer" id="timer" hidden>⏱ 30</span>
+          <span class="chip timer" id="timer" hidden>30초</span>
           <span class="chip evchip" id="evchip" hidden></span>
-          <span class="chip jackchip" id="jackchip" title="세금·벌금·탈출비가 모입니다. 출발 칸에 정확히 서면 전부 가져가요.">💰 잭팟 0만</span>
+          <span class="chip jackchip" id="jackchip" title="세금·벌금·탈출비가 모입니다. 출발 칸에 정확히 서면 전부 가져가요.">잭팟 0만</span>
         </div>
         <div class="corner" id="pc1"></div>
       </div>
@@ -339,8 +355,8 @@ header.top h1{font-size:22px}
           <div class="mhint" id="mhint"></div>
           <div class="dicerow">
             <div class="dice"><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
-            <button class="btn primary" id="roll" type="button" disabled>🎲 멈춰!</button>
-            <button class="btn gold" id="skill" type="button" hidden>✨ 스킬</button>
+            <button class="btn primary" id="roll" type="button" disabled>멈춰</button>
+            <button class="btn gold" id="skill" type="button" hidden>스킬</button>
           </div>
           <div class="c-msg" id="msg">새 게임을 준비하세요.</div>
         </div>
@@ -352,7 +368,7 @@ header.top h1{font-size:22px}
 <template id="rules-tpl">
   <ul class="rules-list">
     <li>시작 자금 1,500만, 출발지를 지날 때마다 월급 150만. 넉넉하게 랜드마크까지 지어 보세요.</li>
-    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰!’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 포인터 아래 글씨는 그 숫자로 가면 생기는 일입니다.</li>
+    <li><b>주사위 포인터:</b> 2~12 사이를 오가는 포인터를 ‘멈춰’로 세우면 그 숫자가 나올 확률이 크게 올라갑니다 (약 65%). 포인터 아래 글씨는 그 숫자로 가면 생기는 일입니다.</li>
     <li><b>턴 제한 시간:</b> 시간이 다 되면 주사위는 자동으로 멈추고, 선택은 ‘넘어가기’로 처리됩니다.</li>
     <li>캐릭터마다 항상 적용되는 특성과 게임 중 한 번 쓰는 스킬이 있어요. 스킬은 미리 누르는 게 아니라 <b>쓸 수 있는 상황이 오면 그 자리에서 물어봅니다</b> (통행료를 낼 때, 무인도에 갇힐 때, 건설할 때, 주사위가 나쁘게 나왔을 때).</li>
     <li>도시에 도착하면 땅을 사고 별장·빌딩·호텔을 한 번에 지을 수 있어요. 호텔이 있는 도시에 다시 오면 랜드마크를 세웁니다.</li>
@@ -366,12 +382,12 @@ header.top h1{font-size:22px}
     <li><b>잭팟:</b> 세금·벌금·무인도 탈출비는 잭팟에 쌓이고, 출발 칸에 정확히 서면 전부 가져갑니다.</li>
     <li><b>유물:</b> 출발을 지날 때마다 유물 3개 중 1개를 골라 이번 판 내내 가집니다(최대 6개). 자석·흡혈·속성 공사·납 주사위·파산 보험·핵 탄두·잭팟 사냥꾼·독점 왕관·연봉 협상·할인 쿠폰.</li>
     <li><b>판마다 바뀌는 칸:</b> 행운카드 칸 2~3곳이 🎰 카지노·🔨 경매장·🕶️ 암시장으로 바뀝니다.</li>
-    <li><b>🌏 세계 일주 런:</b> 아시아 → 유럽 → 아메리카 3스테이지. 사람 플레이어가 이기면 유물을 가지고 다음 스테이지로(새 유물 1개 추가). AI는 스테이지마다 자금·유물이 늘고, 마지막엔 3턴마다 땅을 강제로 사들이는 👑 재벌 회장 보스가 나옵니다.</li>
+    <li><b>세계 일주 런:</b> 아시아 → 유럽 → 아메리카 3스테이지. 사람 플레이어가 이기면 유물을 가지고 다음 스테이지로(새 유물 1개 추가). AI는 스테이지마다 자금·유물이 늘고, 마지막엔 3턴마다 땅을 강제로 사들이는 👑 재벌 회장 보스가 나옵니다.</li>
     <li><b>마일리지:</b> 판이 끝나면 순위·랜드마크·유물 수만큼 쌓이고, 시작 화면에서 시작 자금·시작 유물·핵폭탄·면제권을 삽니다.</li>
     <li><b>꼴찌 구호금:</b> 총자산 꼴찌가 출발을 지나면 월급 2배.</li>
     <li>승리: 색 그룹 3개 독점, 한 변의 도시 전부 독점, 관광지 4곳 독점, 최후의 1인, 또는 제한 라운드 후 총자산 1위.</li>
     <li>무인도에 걸리면 배를 타고 옆 유배 섬으로 호송됩니다. 더블이면 쾌속정, 비용을 내면 요금 보트, 형기가 끝나면 구조선이 데려옵니다.</li>
-    <li>보드는 드래그로 돌리고 휠/핀치로 확대. 칸을 누르면 정보가 보여요. 왼쪽 얼굴 버튼으로 감정 표현! 배경 테마는 시작 화면에서 고릅니다.</li>
+    <li>보드는 드래그로 돌리고 휠/핀치로 확대. 칸을 누르면 정보가 보여요. 왼쪽 얼굴 버튼으로 감정 표현. 배경 테마는 시작 화면에서 고릅니다.</li>
   </ul>
 </template>
 
@@ -402,7 +418,7 @@ header.top h1{font-size:22px}
       </label>
     </div>
     <div id="shop"></div>
-    <button class="btn primary" id="btn-start" type="button" style="width:100%;font-size:16px">🌍 게임 시작</button>
+    <button class="btn primary" id="btn-start" type="button" style="width:100%;font-size:16px">게임 시작</button>
   </div>
 </div>
 
@@ -709,10 +725,10 @@ const SFX=(()=>{
   return{play,unlock:()=>{unlock();if(want&&!timer)musicStart();},setMuted,isMuted:()=>muted,setMood,setMusic,sting,isMusic:()=>music,mood:()=>mood,_lib:lib,_ctx:()=>ctx,_master:()=>master,_mgain:()=>mGain,_songs:SONGS};
 })();
 ['pointerdown','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>SFX.unlock(),{once:false,passive:true}));
-{const b=$('#btn-snd');const show=()=>{b.textContent=SFX.isMuted()?'🔇':'🔊';b.setAttribute('aria-pressed',String(!SFX.isMuted()));};show();
+{const b=$('#btn-snd');const show=()=>{b.innerHTML=`<svg class="ic"><use href="#i-${SFX.isMuted()?'mute':'snd'}"/></svg>`;b.setAttribute('aria-pressed',String(!SFX.isMuted()));};show();
  b.addEventListener('click',()=>{SFX.setMuted(!SFX.isMuted());show();if(!SFX.isMuted())SFX.play('coin');});}
 document.addEventListener('click',e=>{if(e.target.closest('.card .btn'))SFX.play('click');});
-{const b=$('#btn-bgm');const show=()=>{b.style.opacity=SFX.isMusic()?1:.45;b.title=SFX.isMusic()?'배경음악 끄기':'배경음악 켜기';b.setAttribute('aria-pressed',String(SFX.isMusic()));};show();
+{const b=$('#btn-bgm');const show=()=>{b.title=SFX.isMusic()?'배경음악 끄기':'배경음악 켜기';b.setAttribute('aria-pressed',String(SFX.isMusic()));};show();
  b.addEventListener('click',()=>{SFX.setMusic(!SFX.isMusic());show();});}
 /* pick the music for the current game state */
 function nearWin(p){
@@ -743,11 +759,11 @@ stage.appendChild(renderer.domElement);
 const scene=new THREE.Scene();
 scene.fog=new THREE.Fog(0x1a4f73,26,60);
 const camera=new THREE.PerspectiveCamera(42,4/3,0.1,200);
-const CAM_HOME=new THREE.Vector3(0,8.6,12.9), TARGET=new THREE.Vector3(0,1.1,0.3);
+const CAM_HOME=new THREE.Vector3(0,14.6,2.6), TARGET=new THREE.Vector3(0,1.1,0.3);
 camera.position.copy(CAM_HOME);
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.target.copy(TARGET);controls.enableDamping=true;controls.dampingFactor=0.08;controls.enablePan=false;
-controls.minDistance=4.5;controls.maxDistance=26;controls.minPolarAngle=0.25;controls.maxPolarAngle=1.3;
+controls.minDistance=4.5;controls.maxDistance=26;controls.minPolarAngle=0.12;controls.maxPolarAngle=1.45;
 const hemi=new THREE.HemisphereLight(0xcfe8ff,0x2a3a48,0.75);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d0,1.7);sun.position.set(7,13,6);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-9,right:9,top:9,bottom:-9,near:1,far:45});sun.shadow.bias=-0.0006;sun.shadow.radius=3;
@@ -824,12 +840,16 @@ const LOT_SCALE=5.0,LOT_LM=3.8,ARC0=215,ARC1=325,R_FRONT=17.5,R_BACK=21.5,BACK_Y
 /* the lots stand on a lit arc behind the board — a strip of landmarks that grows into the skyline as the game goes on */
 const PROP_IDX=TILES.map((t,i)=>i).filter(i=>TILES[i].type==='city'||TILES[i].type==='tour');
 const FRONT_N=Math.ceil(PROP_IDX.length/2),BACK_N=PROP_IDX.length-FRONT_N;
-/* each property tile gets its own city block around the plaza, picked by the tile's direction from the board centre */
-const BLOCK_P=9.4;let LOT_BLOCK=null;
-function lotBlocks(){if(LOT_BLOCK)return LOT_BLOCK;const cands=[];for(let bx=-3;bx<=3;bx++)for(let bz=-3;bz<=3;bz++){const ring=Math.max(Math.abs(bx),Math.abs(bz));if(ring<2)continue;cands.push({bx,bz,ring,a:Math.atan2(bz,bx),used:false});}
-  const map={};PROP_IDX.map(i=>{const r=rect(i);return{i,a:Math.atan2(r.z,r.x)};}).sort((p,q)=>p.a-q.a).forEach(({i,a})=>{let best=null,bs=1e9;cands.forEach(c=>{if(c.used)return;let d=Math.abs(((c.a-a)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI)+(c.ring-2)*.9;if(d<bs){bs=d;best=c;}});best.used=true;map[i]=best;});return LOT_BLOCK=map;}
-function lotPos(i){const b=lotBlocks()[i];const x=b.bx*BLOCK_P,z=b.bz*BLOCK_P;return{x,z,y:0,rot:Math.atan2(-x,-z)};}
-function lotBlock(bx,bz){return Object.values(lotBlocks()).some(b=>b.bx===bx&&b.bz===bz);}
+/* the lots line a boulevard round the plaza: a rounded square, two staggered rows, fronts square to the street.
+   Slots keep the tiles' order by direction; the row opposite each lot gets a park feature, lamps sit between. */
+const STRIP_N=6,STRIP_ROWS=[17.6,21.0],STRIP_MID=19.3;
+function stripPt(a,h){const c=Math.cos(a),s=Math.sin(a),k=Math.pow(Math.pow(Math.abs(c),STRIP_N)+Math.pow(Math.abs(s),STRIP_N),-1/STRIP_N);
+  const nx=Math.sign(c)*Math.pow(Math.abs(c),STRIP_N-1),nz=Math.sign(s)*Math.pow(Math.abs(s),STRIP_N-1);return{x:c*h*k,z:s*h*k,rot:Math.atan2(-nx,-nz)};}
+let STRIP=null;
+function stripSlots(){if(STRIP)return STRIP;const ord=PROP_IDX.map(i=>{const r=rect(i);return{i,a:Math.atan2(r.z,r.x)};}).sort((p,q)=>p.a-q.a);
+  const n=ord.length,step=Math.PI*2/n;let sx=0,sy=0;ord.forEach((o,k)=>{sx+=Math.cos(o.a-k*step);sy+=Math.sin(o.a-k*step);});const a0=Math.atan2(sy,sx);
+  return STRIP={step,a0,slots:ord.map((o,k)=>({i:o.i,k,a:a0+k*step,row:k%2}))};}
+function lotPos(i){const sl=stripSlots().slots.find(q=>q.i===i);const pt=stripPt(sl.a,STRIP_ROWS[sl.row]);return{x:pt.x,z:pt.z,y:0,rot:pt.rot};}
 function arcBoxes(r,w,h,y,mat,n,a0=ARC0-6,a1=ARC1+6){for(let k=0;k<n;k++){const a=(a0+(a1-a0)*(k+.5)/n)*Math.PI/180;const seg=(a1-a0)/n*Math.PI/180*r+.06;const m=new THREE.Mesh(new THREE.BoxGeometry(seg,h,w),mat);m.position.set(Math.cos(a)*r,y,Math.sin(a)*r);m.rotation.y=-a;m.receiveShadow=true;env.root.add(m);}}
 function palm(x,z,s=1){const g=new THREE.Group();g.position.set(x,-0.42,z);const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.07*s,.12*s,2.6*s,7),M(0x8b6a44));trunk.position.y=1.3*s;trunk.rotation.z=(Math.random()-.5)*.12;trunk.castShadow=true;g.add(trunk);
   for(let q=0;q<7;q++){const l=new THREE.Mesh(new THREE.ConeGeometry(.16*s,1.5*s,4),M([0x2e8b3d,0x3a9a48,0x277a33][q%3]));l.position.set(0,2.55*s,0);l.rotation.set(1.25,q*(Math.PI*2/7)+Math.random()*.3,0);l.castShadow=true;g.add(l);}
@@ -912,17 +932,46 @@ function vacantBlock(cx,cz,T,size,bare){
   env.root.add(g);
   tree(cx+(Math.random()-.5)*size*.6,cz+(Math.random()-.5)*size*.6,.8+Math.random()*.5);
 }
+function roundRectShape(h,r,hole){const sh=hole?new THREE.Path():new THREE.Shape();sh.moveTo(-h+r,-h);sh.lineTo(h-r,-h);sh.absarc(h-r,-h+r,r,-Math.PI/2,0);sh.lineTo(h,h-r);sh.absarc(h-r,h-r,r,0,Math.PI/2);sh.lineTo(-h+r,h);sh.absarc(-h+r,h-r,r,Math.PI/2,Math.PI);sh.lineTo(-h,-h+r);sh.absarc(-h+r,-h+r,r,Math.PI,Math.PI*1.5);return sh;}
+const PARK_COLS=['#d8333c','#1c7fb3','#f5b400','#22a06b'];
+/* one park feature on the boulevard: carousel, fountain, palm bed or a striped kiosk with balloons */
+function parkFeature(k,x,z,rot,T){const g=new THREE.Group();g.position.set(x,-0.4,z);g.rotation.y=rot;env.root.add(g);const col=PARK_COLS[k%4],colHex=new THREE.Color(col).getHex();
+  const bed=new THREE.Mesh(new THREE.CircleGeometry(1.7,28),M(T.night?0x2f4a2a:0x6fa65a,{roughness:1}));bed.rotation.x=-Math.PI/2;bed.position.y=.05;bed.receiveShadow=true;g.add(bed);
+  const kind=(k>>1)%4;
+  if(kind===0){const base=new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.35,.2,24),M(0xe8e2d2));base.position.y=.1;g.add(base);const spin=new THREE.Group();g.add(spin);
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1.7,8),M(0xd9a441,{metalness:.6,roughness:.3}));pole.position.y=1.05;spin.add(pole);
+    const roof=new THREE.Mesh(new THREE.ConeGeometry(1.4,.8,16),new THREE.MeshStandardMaterial({map:stripeTex(col,'#ffffff',16),roughness:.7}));roof.position.y=2.25;roof.castShadow=true;spin.add(roof);
+    for(let q=0;q<6;q++){const a=q*Math.PI/3;const rod=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,1.6,6),M(0xd9a441,{metalness:.6}));rod.position.set(Math.cos(a)*.95,1.05,Math.sin(a)*.95);spin.add(rod);
+      const horse=new THREE.Mesh(new THREE.BoxGeometry(.14,.24,.4),M([0xffffff,0xffd166,0x8fd3ff][q%3],{roughness:.5}));horse.position.set(Math.cos(a)*.95,.55+(q%2)*.25,Math.sin(a)*.95);horse.rotation.y=-a;spin.add(horse);}
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),M(0xffd166,{emissive:0xffd166,emissiveIntensity:T.night?2.2:.8}));bulb.position.y=2.75;spin.add(bulb);hubFx.beacons.push(bulb);
+    hubFx.spinners.push({obj:spin,speed:.45,y:0,phase:k});}
+  else if(kind===1){const basin=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.2,.3,24),M(0xd9d2c0));basin.position.y=.15;g.add(basin);
+    const water=new THREE.Mesh(new THREE.CircleGeometry(.95,24),new THREE.MeshStandardMaterial({color:T.night?0x24436b:0x4aa3d8,roughness:.15,metalness:.4}));water.rotation.x=-Math.PI/2;water.position.y=.31;g.add(water);
+    const jet=new THREE.Mesh(new THREE.ConeGeometry(.12,1.2,8),new THREE.MeshBasicMaterial({color:0xbfe8ff,transparent:true,opacity:.7}));jet.position.y=.9;g.add(jet);}
+  else if(kind===2){const c=Math.cos(rot),s=Math.sin(rot);[[-.7,.2,1],[.6,-.3,.85]].forEach(([u,v,sc])=>palm(x+u*c+v*s,z-u*s+v*c,sc));
+    for(let q=0;q<12;q++){const a=q*Math.PI/6;const f=new THREE.Mesh(new THREE.SphereGeometry(.1,6,6),M([0xff5a8a,0xffd166,0xffffff,0xff8a3a][q%4]));f.position.set(Math.cos(a)*1.35,.15,Math.sin(a)*1.35);g.add(f);}}
+  else{const hut=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.7,12),M(0xfdf6e8));hut.position.y=.35;hut.castShadow=true;g.add(hut);
+    const roof=new THREE.Mesh(new THREE.ConeGeometry(.85,.6,12),new THREE.MeshStandardMaterial({map:stripeTex(col,'#ffffff',12),roughness:.7}));roof.position.y=1.0;roof.castShadow=true;g.add(roof);
+    [[.7,0],[.85,.3],[.6,.35]].forEach(([u,v],q)=>{const b=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),M([0xff5a5a,0xffd166,0x4fc3f7][q],{roughness:.3}));b.position.set(u,1.9+q*.15,v);g.add(b);
+      const str=new THREE.Mesh(new THREE.CylinderGeometry(.006,.006,1.3,4),M(0xffffff));str.position.set(u*.85,1.2+q*.08,v*.85);g.add(str);});}
+}
+/* paved band between the ring road and the outer park blocks, lit by lamps between the lots */
+function buildBoulevard(T){const tex=pavingTex();tex.repeat.set(.5,.5);
+  const sh=roundRectShape(23.2,6);sh.holes.push(roundRectShape(15.4,2,true));const band=new THREE.Mesh(new THREE.ShapeGeometry(sh,24),new THREE.MeshStandardMaterial({map:tex,color:0xf2ece0,roughness:.95}));
+  band.rotation.x=-Math.PI/2;band.position.y=-0.415;band.receiveShadow=true;env.root.add(band);
+  const {slots,step}=stripSlots();
+  slots.forEach(sl=>{const op=stripPt(sl.a,STRIP_ROWS[1-sl.row]);parkFeature(sl.k,op.x,op.z,op.rot,T);const lp=stripPt(sl.a+step/2,STRIP_MID);streetLamp(lp.x,lp.z,T);});
+}
 function buildLots(T){
-  lots.length=0;buildStrip(T);
+  lots.length=0;buildStrip(T);buildBoulevard(T);
   TILES.forEach((t,i)=>{if(t.type!=='city'&&t.type!=='tour')return;const {x,z,y,rot}=lotPos(i);
     const g=new THREE.Group();g.position.set(x,-0.4+y,z);g.rotation.y=rot;env.root.add(g);const fence=new THREE.Group();g.add(fence);
     const col=t.type==='tour'?'#2a8fa0':GCOLORS[t.g];
     // empty site: a soft garden — grass mound, flower ring, a palm and a lamp. No fences, no signs.
-    const lawn=new THREE.Mesh(new THREE.PlaneGeometry(6.4,6.4),M(0x6fa65a,{roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.06;lawn.receiveShadow=true;g.add(lawn);
+    const lawn=new THREE.Mesh(new THREE.CircleGeometry(2.3,32),M(0x6fa65a,{roughness:1}));lawn.rotation.x=-Math.PI/2;lawn.position.y=.06;lawn.receiveShadow=true;g.add(lawn);
     const grass=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.4,.16,32),M(0x7bb565,{roughness:1}));grass.position.y=.08;grass.receiveShadow=true;fence.add(grass);
     for(let q=0;q<14;q++){const a=q*Math.PI/7+i;const f=new THREE.Mesh(new THREE.SphereGeometry(.11,6,6),M([0xff5a8a,0xffd166,0xff8a3a,0xffffff,0xb07cff][(q+i)%5]));f.position.set(Math.cos(a)*1.7,.24,Math.sin(a)*1.7);fence.add(f);}
     const bush=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),M(0x3f8f3a));bush.position.set(-.9,.55,-.6);bush.castShadow=true;fence.add(bush);const bush2=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),M(0x4f9f44));bush2.position.set(1.0,.45,.5);fence.add(bush2);
-    palm(x+2.6,z+2.4,.9);palm(x-2.7,z-2.3,1.0);
     const lp=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,1.3,6),M(0x3a3f46));lp.position.set(.9,.75,-.8);fence.add(lp);const lh=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),new THREE.MeshStandardMaterial({color:0xfff2c0,emissive:0xffe0a0,emissiveIntensity:T.lamps}));lh.position.set(.9,1.45,-.8);fence.add(lh);env.lamps.push(lh.material);
     lots[i]={grp:g,fence,bld:null,level:-1,owner:null,rubble:false,col};});
 }
@@ -975,9 +1024,9 @@ function buildEnv(id){
   // sidewalks + road markings on the block grid
   const P=9.4,RW=2.4;const walkM=M(0xc9c4b6,{roughness:.95}),dashM=new THREE.MeshBasicMaterial({color:0xffe08a}),zebraM=new THREE.MeshBasicMaterial({color:0xffffff});
   for(let bx=-4;bx<=4;bx++)for(let bz=-4;bz<=4;bz++){if(Math.abs(bx)<=1&&Math.abs(bz)<=1)continue;const cx=bx*P,cz=bz*P;const far=Math.max(Math.abs(bx),Math.abs(bz))>=4;
+    if(Math.max(Math.abs(bx),Math.abs(bz))===2)continue; // the boulevard (buildLots) replaces the first ring of blocks
     const sw=new THREE.Mesh(new THREE.BoxGeometry(P-RW+.6,.1,P-RW+.6),walkM);sw.position.set(cx,-0.4,cz);sw.receiveShadow=true;env.root.add(sw);
-    // near blocks are vacant land now; only the far ring keeps its skyline. The strip right behind the board holds the lots.
-    if(!lotBlock(bx,bz))vegasBlock(cx,cz,T,P-RW-.4,Math.max(Math.abs(bx),Math.abs(bz)),bx,bz);
+    vegasBlock(cx,cz,T,P-RW-.4,Math.max(Math.abs(bx),Math.abs(bz)),bx,bz);
   }
   // ring road around the plaza: dashes, crosswalks, lamps
   const R=P*1.5;for(let k=0;k<4;k++){const horiz=k<2,s=k%2?1:-1;for(let u=-R+1;u<R;u+=1.6){const dsh=new THREE.Mesh(new THREE.PlaneGeometry(horiz?.8:.12,horiz?.12:.8),dashM);dsh.rotation.x=-Math.PI/2;dsh.position.set(horiz?u:s*R,-0.418,horiz?s*R:u);env.root.add(dsh);}
@@ -1082,7 +1131,7 @@ function landmark(kind){
 }
 
 /* ---- camera follow ---- */
-let camMode='follow',freeUntil=0,homePos=CAM_HOME.clone(),focusOverride=null;
+let camMode='follow',freeUntil=0,homePos=CAM_HOME.clone(),focusOverride=null,chase=null;
 const FOLLOW_OFF=new THREE.Vector3(0,5.2,5.4);
 controls.addEventListener('start',()=>{freeUntil=performance.now()+7000;});
 function camTick(dt){
@@ -1091,6 +1140,10 @@ function camTick(dt){
   let k=1-Math.pow(0.0015,dt);
   if(cinema||focusOverride){const tp=$('#tip');if(tp&&!tp.hidden)tp.hidden=true;}
   if(cinema){tg=cinema.pos.clone();cp=tg.clone().add(cinema.off);k=1-Math.pow(0.00005,dt);}
+  else if(chase&&camMode==='follow'&&tokens[chase.id]){ // my piece walking: ride behind it, looking down the track and out at the boulevard
+    const tp=tokens[chase.id].grp.position,ah=slotPos((chase.pos+2)%N,chase.id).sub(slotPos(chase.pos,chase.id)).setY(0);if(ah.lengthSq()<1e-6)ah.set(1,0,0);ah.normalize();
+    const out=new THREE.Vector3(tp.x,0,tp.z);if(out.lengthSq()<1e-6)out.set(0,0,1);out.normalize();
+    cp=tp.clone().addScaledVector(ah,-2.4).addScaledVector(out,-.9).setY(2.1);tg=tp.clone().addScaledVector(ah,3.2).addScaledVector(out,2.6).setY(.9);}
   else if(focusOverride&&performance.now()<focusOverride.until){tg=focusOverride.pt;cp=focusOverride.pt.clone().add(FOLLOW_OFF.clone().multiplyScalar(focusOverride.scale||1.3));}
   else if(false){}
   else{tg=TARGET;cp=homePos;}
@@ -1115,7 +1168,7 @@ function markerTick(now){
   spot.color.set(p.color);spot.intensity=14;spot.position.set(pos.x+1.5,pos.y+5.5,pos.z+1.5);spot.target.position.copy(pos);
 }
 function banner(p){
-  const b=$('#banner');b.style.setProperty('--pc',p.color);b.innerHTML=`<span class="bav">${CH(p.ch).emoji}</span><span>${esc(p.name)}의 차례${p.ai?'':' — 당신입니다!'}</span>`;
+  const b=$('#banner');b.style.setProperty('--pc',p.color);b.innerHTML=`<span class="bav">${CH(p.ch).emoji}</span><span>${esc(p.name)}의 차례${p.ai?'':' — 당신입니다'}</span>`;
   b.classList.remove('show');void b.offsetWidth;b.classList.add('show');
   stage.style.setProperty('--pc',p.color);
 }
@@ -1902,7 +1955,7 @@ function nukeCinematic(i,rng,hits){
       // blast zone drawn tile by tile, hit tiles brighter
       const marks=zone.map(j=>{const rr=rect(j);const hit=hits.includes(j)&&tiles[j].bgrp.children.length>0;const m=new THREE.Mesh(new THREE.PlaneGeometry(rr.w-.06,rr.d-.06),new THREE.MeshBasicMaterial({color:hit?0xff3020:0xff7a3a,transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(rr.x,0.236,rr.z);scene.add(m);return{m,hit};});
       const edge=new THREE.Mesh(new THREE.RingGeometry(.3,.45,48),new THREE.MeshBasicMaterial({color:0xff3020,transparent:true,opacity:.9,side:THREE.DoubleSide,depthWrite:false}));edge.rotation.x=-Math.PI/2;edge.position.copy(target).setY(.24);scene.add(edge);
-      setTimeout(()=>{SFX.play('alarm');toast(`☢️ 폭발 범위 ${rng}칸 — 건물 ${hits.filter(j=>tiles[j].bgrp.children.length).length}곳이 동시에 무너집니다`,'danger',4000);},300);
+      setTimeout(()=>{SFX.play('alarm');toast(`폭발 범위 ${rng}칸 — 건물 ${hits.filter(j=>tiles[j].bgrp.children.length).length}곳이 동시에 무너집니다`,'danger',4000);},300);
       // everything inside falls at the same moment
       const victims=hits.filter(j=>tiles[j].bgrp.children.length);const HOLD=1400,FALLALL=3600,OUT=2000;
       victims.forEach(j=>collapseFx(j,HOLD));
@@ -2015,12 +2068,12 @@ async function sail(p,from,to,kind,ms,dest){
   cinema=null;sync();
 }
 async function sailToIsland(p){
-  if(p.island<=0)return;toast(`🚣 ${nm(p)} 무인도로 호송됩니다 (${p.island}턴)`,'danger',4000);SFX.play('exile');
+  if(p.island<=0)return;toast(`${nm(p)} 무인도로 호송됩니다 (${p.island}턴)`,'danger',4000);SFX.play('exile');
   await sail(p,env.shore.clone(),env.islandEdge.clone(),'row',D(2400),islandSlot(p.id));
   emote(p,'cry','여기서 어떻게 나가…',{silent:true});
 }
 async function sailBack(p,kind){
-  const label=kind==='speed'?'🚤 더블! 쾌속정으로 탈출':kind==='taxi'?'🛥️ 요금 보트로 탈출':'🚢 구조선이 데리러 왔어요';
+  const label=kind==='speed'?'더블. 쾌속정으로 탈출':kind==='taxi'?'요금 보트로 탈출':'구조선이 데리러 왔어요';
   toast(`${label} — ${nm(p)}`,'good',4000);
   if(kind==='taxi'){coinFly(islandSlot(p.id),env.islandEdge.clone().add(new THREE.Vector3(0,.3,0)),5);await sleep(D(500));}
   if(kind==='speed'){flash();SFX.play('dbl');}else if(kind==='rescue'){SFX.play('horn');await sleep(D(600));}
@@ -2062,7 +2115,7 @@ function fitCamera(){
   const dir=CAM_HOME.clone().sub(TARGET).normalize();homePos=TARGET.clone().addScaledVector(dir,THREE.MathUtils.clamp(need,controls.minDistance,controls.maxDistance));
   if(camMode!=='follow'){camera.position.copy(homePos);}
 }
-function homeCamera(){camMode=camMode==='follow'?'overview':'follow';freeUntil=0;focusOverride=null;$('#btn-cam').textContent=camMode==='follow'?'🎥':'🗺️';$('#btn-cam').title=camMode==='follow'?'카메라: 연출 켬 — 감정·위기 때 잠깐 다가갑니다 (끄려면 클릭)':'카메라: 고정 — 항상 맵 전체 (연출을 켜려면 클릭)';toast(camMode==='follow'?'🎥 연출 카메라 켬':'🗺️ 카메라 고정 (맵 전체)','info',2500);}
+function homeCamera(){camMode=camMode==='follow'?'overview':'follow';freeUntil=0;focusOverride=null;$('#btn-cam').innerHTML=`<svg class="ic"><use href="#i-${camMode==='follow'?'cam':'map'}"/></svg>`;$('#btn-cam').title=camMode==='follow'?'카메라: 연출 켬 — 내 말이 움직일 때 뒤에서 따라가고, 감정·위기 때 다가갑니다 (끄려면 클릭)':'카메라: 고정 — 항상 위에서 맵 전체 (연출을 켜려면 클릭)';toast(camMode==='follow'?'연출 카메라 켬':'카메라 고정 (맵 전체)','info',2500);}
 new ResizeObserver(()=>fitCamera()).observe(stage);
 $('#btn-cam').addEventListener('click',homeCamera);
 /* render loop */
@@ -2150,12 +2203,12 @@ function moneyFx(p,to,amt,before,opt){
   const pp=tokenPos(p);floatText(pp,'-'+fmt(amt),'#ff6b6b');flashCard(p,'loss');
   if(!opt.quiet)emote(p,amt>=before*0.5?'cry':'sad',undefined,{silent:true});
   if(to){const tp=tokenPos(to);coinFly(pp,tp);setTimeout(()=>floatText(tp,'+'+fmt(amt),'#7cf29a'),550);flashCard(to,'gain');if(!opt.quiet)emote(to,amt>=120?'laugh':'happy',undefined,{silent:true});
-    toast(`💸 ${nm(p)} → ${nm(to)} <b>${fmt(amt)}</b>${opt.why?' · '+opt.why:''}`,'money');}
-  else toast(`💸 ${nm(p)} <b>-${fmt(amt)}</b>${opt.why?' · '+opt.why:''}`,'money');
+    toast(`${nm(p)} → ${nm(to)} <b>${fmt(amt)}</b>${opt.why?' · '+opt.why:''}`,'money');}
+  else toast(`${nm(p)} <b>-${fmt(amt)}</b>${opt.why?' · '+opt.why:''}`,'money');
 }
 function bankruptFx(p){
-  bigEvent(`💀 ${esc(p.name)} 파산!<small>남은 플레이어 ${alive().length}명</small>`,'doom',3200);vignette('#111');shake(.3,700);
-  emote(p,'cry','망했다…',{priority:9,ms:4000});toast(`💀 ${nm(p)} 파산! 모든 땅이 매물로 돌아갑니다.`,'danger',5000);
+  bigEvent(`${esc(p.name)} 파산<small>남은 플레이어 ${alive().length}명</small>`,'doom',3200);vignette('#111');shake(.3,700);
+  emote(p,'cry','망했다…',{priority:9,ms:4000});toast(`${nm(p)} 파산. 모든 땅이 매물로 돌아갑니다.`,'danger',5000);
 }
 /* landing outlook for the human's dice meter */
 let hintTiles=null;const threatTiles=new Map();
@@ -2193,12 +2246,12 @@ function computeThreats(){
 }
 function updateThreats(){
   const th=computeThreats();threatTiles.clear();G.seen=G.seen||{};
-  th.forEach(t=>{threatTiles.set(t.tile,t.p.color);if(!G.seen[t.key]){G.seen[t.key]=1;toast(`⚠️ ${nm(t.p)} ${t.label}!`,'danger',5200);SFX.play('alarm');}});
+  th.forEach(t=>{threatTiles.set(t.tile,t.p.color);if(!G.seen[t.key]){G.seen[t.key]=1;toast(`${nm(t.p)} ${t.label}`,'danger',5200);SFX.play('alarm');}});
   if(!th.length)return;
 }
 function monopolyFx(p,i){
   const t=T(i);if(t.type!=='city')return;
-  if(ownsGroup(p.id,t.g)&&groupIdx(t.g).length>1){groupIdx(t.g).forEach(j=>{const rr=rect(j);landDust(new THREE.Vector3(rr.x,.25,rr.z),8,1.2);});toast(`🏆 ${nm(p)} ${GNAMES[t.g]} 그룹 독점! 통행료 2배`,'good',4500);SFX.play('monopoly');emote(p,'cool','독점이다!',{priority:5});}
+  if(ownsGroup(p.id,t.g)&&groupIdx(t.g).length>1){groupIdx(t.g).forEach(j=>{const rr=rect(j);landDust(new THREE.Vector3(rr.x,.25,rr.z),8,1.2);});toast(`${nm(p)} ${GNAMES[t.g]} 그룹 독점. 통행료 2배`,'good',4500);SFX.play('monopoly');emote(p,'cool','독점이다!',{priority:5});}
 }
 function rankOf(p){const al=alive().sort((a,b)=>assets(b)-assets(a));const k=al.indexOf(p);return k<0?4:k+1;}
 
@@ -2208,8 +2261,8 @@ function timerStart(sec,cb){if(!sec||!G||G.over)return;timer.until=performance.n
 function timerStop(){timer.until=0;timer.cb=null;$('#timer').hidden=true;$('#m-timer').hidden=true;$('#timer').classList.remove('urgent');$('#m-timer').classList.remove('urgent');}
 function timerTick(now){
   if(!timer.until)return;const left=Math.max(0,(timer.until-now)/1000),sec=Math.ceil(left);
-  if(sec!==timer.lastSec){timer.lastSec=sec;const t='⏱ '+sec;$('#timer').textContent=t;$('#m-timer').textContent=t;const urg=sec<=5;$('#timer').classList.toggle('urgent',urg);$('#m-timer').classList.toggle('urgent',urg);if(urg&&sec>0)SFX.play('tick');}
-  if(left<=0){const cb=timer.cb;timerStop();if(cb){toast('⏱ 시간 초과! 자동으로 진행합니다.','danger',3000);cb();}}
+  if(sec!==timer.lastSec){timer.lastSec=sec;const t=sec+'초';$('#timer').textContent=t;$('#m-timer').textContent=t;const urg=sec<=5;$('#timer').classList.toggle('urgent',urg);$('#m-timer').classList.toggle('urgent',urg);if(urg&&sec>0)SFX.play('tick');}
+  if(left<=0){const cb=timer.cb;timerStop();if(cb){toast('⏱ 시간 초과. 자동으로 진행합니다.','danger',3000);cb();}}
 }
 /* ---- orientation: keep phones in landscape ---- */
 const isTouchNow=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;const isTouch=isTouchNow();
@@ -2230,10 +2283,10 @@ document.addEventListener('pointerup',()=>{tryLandscapeLock();},{passive:true});
 /* ---- log panel / rules ---- */
 $('#btn-log').addEventListener('click',()=>{const lp=$('#logpanel');lp.hidden=!lp.hidden;$('#btn-log').setAttribute('aria-pressed',String(!lp.hidden));});
 $('#btn-log-close').addEventListener('click',()=>{$('#logpanel').hidden=true;$('#btn-log').setAttribute('aria-pressed','false');});
-$('#btn-home').addEventListener('click',()=>{freeUntil=0;focusOverride=null;if(!cinema){camera.position.copy(homePos);controls.target.copy(TARGET);}toast('🏠 시점을 원래대로','info',1500);});
+$('#btn-home').addEventListener('click',()=>{freeUntil=0;focusOverride=null;if(!cinema){camera.position.copy(homePos);controls.target.copy(TARGET);}toast('시점을 원래대로','info',1500);});
 $('#btn-fs').addEventListener('click',()=>{const el=document.documentElement;if(document.fullscreenElement){document.exitFullscreen?.();}else{el.requestFullscreen?.({navigationUI:'hide'}).catch(()=>{});}});
-document.addEventListener('fullscreenchange',()=>{$('#btn-fs').textContent=document.fullscreenElement?'🗗':'⛶';setTimeout(fitCamera,60);});
-$('#btn-rules').addEventListener('click',()=>{if(!$('#modal').hidden)return;modal({title:'📖 규칙',html:$('#rules-tpl').innerHTML,options:[{label:'닫기',value:0,primary:true}],noTimer:true});});
+document.addEventListener('fullscreenchange',()=>{$('#btn-fs').innerHTML=`<svg class="ic"><use href="#i-${document.fullscreenElement?'fsx':'fs'}"/></svg>`;setTimeout(fitCamera,60);});
+$('#btn-rules').addEventListener('click',()=>{if(!$('#modal').hidden)return;modal({title:'규칙',html:$('#rules-tpl').innerHTML,options:[{label:'닫기',value:0,primary:true}],noTimer:true});});
 
 /* =================== ROGUELIKE LAYER: relics, special tiles, mileage =================== */
 const RELICS={
@@ -2264,7 +2317,7 @@ function grantRelic(p,id,why){
 async function relicDraft(p,why='한 바퀴 보상'){
   if(G.over||p.bankrupt)return;p.relics=p.relics||[];if(p.relics.length>=MAX_RELICS)return;
   const ch=relicChoices(p);if(!ch.length)return;
-  const pick=await decide(p,{title:`🎁 유물 고르기 · ${why}`,html:`<p>하나를 골라 이번 판 내내 가지고 갑니다. (보유 ${p.relics.length}/${MAX_RELICS})</p>`,
+  const pick=await decide(p,{title:`유물 고르기 · ${why}`,html:`<p>하나를 골라 이번 판 내내 가지고 갑니다. (보유 ${p.relics.length}/${MAX_RELICS})</p>`,
     options:ch.map(id=>({label:`${RELICS[id].ico} <b>${RELICS[id].name}</b> — ${RELICS[id].desc}`,value:id})).concat([{label:'건너뛰기',value:-1}])},
     ()=>ch.reduce((a,b)=>aiRelicScore(p,b)>aiRelicScore(p,a)?b:a));
   if(pick===-1||pick==null)return;grantRelic(p,pick,why);
@@ -2292,35 +2345,35 @@ function refreshTileLook(i){
 }
 async function landCasino(p){
   const half=Math.floor(p.cash/2/10)*10;const opts=[100,300].filter(v=>v<=p.cash).map(v=>({label:`🎲 ${fmt(v)} 걸기`,value:v}));if(half>300)opts.push({label:`🔥 절반 ${fmt(half)} 걸기`,value:half,danger:true});opts.push({label:'구경만 한다',value:0,primary:true});
-  const bet=await decide(p,{title:'🎰 카지노',html:'<p>홀짝 한 판! 이기면 건 돈만큼 더 받고, 지면 건 돈은 잭팟에 쌓입니다.</p>',options:opts},()=>p.cash>900&&Math.random()<.7?(p.cash>2000&&Math.random()<.3?half:300):p.cash>500?100:0);
+  const bet=await decide(p,{title:'카지노',html:'<p>홀짝 한 판. 이기면 건 돈만큼 더 받고, 지면 건 돈은 잭팟에 쌓입니다.</p>',options:opts},()=>p.cash>900&&Math.random()<.7?(p.cash>2000&&Math.random()<.3?half:300):p.cash>500?100:0);
   if(!bet){log(`${nm(p)} 카지노 구경만 했습니다.`,p);return;}
-  bigEvent(`🎰 ${fmt(bet)} 베팅!<small>${esc(p.name)}</small>`,'gold',1400);SFX.play('slot');await sleep(D(1400));
-  if(Math.random()<.5){gain(p,bet,'카지노 승리');bigEvent(`🎉 카지노 승리!<small>+${fmt(bet)}</small>`,'gold',1800);SFX.play('casinoWin');emote(p,'laugh','대박!',{priority:5});}
-  else{pay(p,null,bet,{why:'카지노 → 잭팟',pool:true});bigEvent(`💸 카지노 패배<small>-${fmt(bet)}</small>`,'doom',1800);SFX.play('casinoLose');emote(p,'cry','털렸다…',{priority:5,silent:true});}
+  bigEvent(`${fmt(bet)} 베팅<small>${esc(p.name)}</small>`,'gold',1400);SFX.play('slot');await sleep(D(1400));
+  if(Math.random()<.5){gain(p,bet,'카지노 승리');bigEvent(`카지노 승리<small>+${fmt(bet)}</small>`,'gold',1800);SFX.play('casinoWin');emote(p,'laugh','대박!',{priority:5});}
+  else{pay(p,null,bet,{why:'카지노 → 잭팟',pool:true});bigEvent(`카지노 패배<small>-${fmt(bet)}</small>`,'doom',1800);SFX.play('casinoLose');emote(p,'cry','털렸다…',{priority:5,silent:true});}
   renderAll();
 }
 async function landAuction(p){
   const free=TILES.map((t,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner==null);
-  if(!free.length){log('🔨 경매에 나올 빈 땅이 없습니다.',p);toast('🔨 경매할 빈 땅이 없어요','info',2500);return;}
+  if(!free.length){log('경매에 나올 빈 땅이 없습니다.',p);toast('경매할 빈 땅이 없어요','info',2500);return;}
   const i=free[Math.random()*free.length|0],t=T(i),base=t.price;
-  bigEvent(`🔨 경매 시작!<small>${t.name} · 시작가 ${fmt(base)}</small>`,'gold',2000);SFX.play('gavel');focusOn(i,2400,1.1);await sleep(D(900));
+  bigEvent(`경매 시작<small>${t.name} · 시작가 ${fmt(base)}</small>`,'gold',2000);SFX.play('gavel');focusOn(i,2400,1.1);await sleep(D(900));
   const bids=[];
   for(const q of alive()){
     const mults=[1,1.3,1.6,2].map(m=>Math.round(base*m)).filter(v=>v<=q.cash);
-    const v=await decide(q,{title:`🔨 ${t.name} 경매 — ${esc(q.name)}`,html:`<p>비공개 입찰입니다. 가장 높게 부른 사람이 땅을 가져가요. 현재 자금 ${fmt(q.cash)}</p>`,options:mults.map((b,k)=>({label:`${['시작가','+30%','+60%','2배'][k]} 입찰`,value:b,cost:b})).concat([{label:'포기',value:0,primary:true}])},
+    const v=await decide(q,{title:`${t.name} 경매 — ${esc(q.name)}`,html:`<p>비공개 입찰입니다. 가장 높게 부른 사람이 땅을 가져가요. 현재 자금 ${fmt(q.cash)}</p>`,options:mults.map((b,k)=>({label:`${['시작가','+30%','+60%','2배'][k]} 입찰`,value:b,cost:b})).concat([{label:'포기',value:0,primary:true}])},
       ()=>{const want=wouldComplete(q,i)?1.9:1.2+Math.random()*.4;const cap=q.cash-200;const b=mults.filter(x=>x<=base*want&&x<=cap).pop();return b||0;});
     if(v>0)bids.push({q,v});
   }
-  if(!bids.length){log(`🔨 ${t.name} 경매 유찰`);toast('🔨 아무도 입찰하지 않아 유찰','info',2500);return;}
+  if(!bids.length){log(`${t.name} 경매 유찰`);toast('아무도 입찰하지 않아 유찰','info',2500);return;}
   bids.sort((a,b)=>b.v-a.v||Math.random()-.5);const w=bids[0];
   pay(w.q,null,w.v,{quiet:true,why:t.name+' 낙찰'});S(i).owner=w.q.id;S(i).level=0;
-  SFX.play('gavel');setTimeout(()=>SFX.play('cash'),600);bigEvent(`🔨 낙찰!<small>${esc(w.q.name)} · ${t.name} ${fmt(w.v)}</small>`,'gold',2200);emote(w.q,'cool','낙찰!',{priority:5});
-  log(`🔨 ${nm(w.q)} ${t.name} 낙찰 (${fmt(w.v)}) — 입찰: ${bids.map(b=>esc(b.q.name)+' '+fmt(b.v)).join(', ')}`,w.q);renderAll();checkWin(w.q);monopolyFx(w.q,i);
+  SFX.play('gavel');setTimeout(()=>SFX.play('cash'),600);bigEvent(`낙찰<small>${esc(w.q.name)} · ${t.name} ${fmt(w.v)}</small>`,'gold',2200);emote(w.q,'cool','낙찰!',{priority:5});
+  log(`${nm(w.q)} ${t.name} 낙찰 (${fmt(w.v)}) — 입찰: ${bids.map(b=>esc(b.q.name)+' '+fmt(b.v)).join(', ')}`,w.q);renderAll();checkWin(w.q);monopolyFx(w.q,i);
 }
 async function landBlackMarket(p){
   SFX.play('shady');const PRICE=300;const ch=relicChoices(p,3);
   if(!ch.length||(p.relics||[]).length>=MAX_RELICS){log(`${nm(p)} 암시장에 살 게 없습니다.`,p);return;}
-  const pick=await decide(p,{title:'🕶️ 암시장',html:`<p>유물 하나를 ${fmt(PRICE)}에 살 수 있어요. 현재 자금 ${fmt(p.cash)}</p>`,
+  const pick=await decide(p,{title:'암시장',html:`<p>유물 하나를 ${fmt(PRICE)}에 살 수 있어요. 현재 자금 ${fmt(p.cash)}</p>`,
     options:ch.map(id=>({label:`${RELICS[id].ico} <b>${RELICS[id].name}</b> — ${RELICS[id].desc}`,value:id,cost:PRICE,disabled:p.cash<PRICE})).concat([{label:'안 산다',value:-1,primary:true}])},
     ()=>p.cash>900?ch.reduce((a,b)=>aiRelicScore(p,b)>aiRelicScore(p,a)?b:a):-1);
   if(pick===-1||pick==null)return;pay(p,null,PRICE,{quiet:true,why:'암시장'});SFX.play('cash');grantRelic(p,pick,'암시장');
@@ -2337,7 +2390,7 @@ function saveMeta(m){try{localStorage.setItem('ttm-meta',JSON.stringify(m));}cat
 let perkSel=new Set();
 function renderShop(){
   const m=loadMeta();const spent=[...perkSel].reduce((a,k)=>a+PERKS[k].cost,0);const humans=setupCfg.some(c=>!c.ai);
-  $('#shop').innerHTML=`<div class="shop-head">✈️ 마일리지 <b>${m.miles.toLocaleString('ko-KR')}</b>${spent?` <span>(사용 예정 -${spent})</span>`:''}<small>${humans?'사람 플레이어 모두에게 적용 · 시작할 때 차감':'관전 모드에서는 사용할 수 없어요'}</small></div>`+
+  $('#shop').innerHTML=`<div class="shop-head">마일리지 <b>${m.miles.toLocaleString('ko-KR')}</b>${spent?` <span>(사용 예정 -${spent})</span>`:''}<small>${humans?'사람 플레이어 모두에게 적용 · 시작할 때 차감':'관전 모드에서는 사용할 수 없어요'}</small></div>`+
     Object.entries(PERKS).map(([k,v])=>{const on=perkSel.has(k);const can=humans&&(on||m.miles-spent>=v.cost);return `<button type="button" class="perk ${on?'on':''}" data-perk="${k}" ${can?'':'disabled'}>${v.ico} ${v.name}<b>${v.cost}</b></button>`;}).join('');
 }
 function awardMiles(){
@@ -2360,7 +2413,7 @@ function renderPlayers(){
     const nk=p.nukes==null?NUKES:p.nukes;
     const rk=p.bankrupt?0:rankOf(p),fl=p.flash&&Date.now()<p.flash.until?p.flash.cls:'';
     return `<div class="pcard ${p.boss?'boss':''} ${k===G.cur&&!G.over?'cur':''} ${p.bankrupt?'out':''} ${!p.bankrupt&&p.cash<250?'low':''} ${fl}" style="--pc:${p.color}">
-      <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${p.skillUsed?'used':''}" title="${c.sdesc}">${p.skillUsed?'스킬 사용함':'✨ '+c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
+      <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${p.skillUsed?'used':''}" title="${c.sdesc}">${p.skillUsed?c.skill+' 사용':c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
       <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span><span title="남은 핵폭탄">☢️${nk}</span>${(p.relics||[]).length?`<span class="relics" title="${p.relics.map(id=>RELICS[id].name+': '+RELICS[id].desc).join('\n')}">${p.relics.map(id=>RELICS[id].ico).join('')}</span>`:''}${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
   });
   cards.forEach((h,k)=>{$('#pc'+k).innerHTML=h;});
@@ -2369,7 +2422,7 @@ function renderAll(){
   sync();renderPlayers();updateMusic();
   const p=G.players[G.cur];
   const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=(G.run?`${RUN_STAGES[G.run.stage].ico} ${G.run.stage+1}/${RUN_STAGES.length} · `:'')+`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
-  {const jc=$('#jackchip');const jt='💰 잭팟 '+fmt(G.jackpot||0);if(jc.textContent!==jt){jc.textContent=jt;jc.classList.remove('bump');void jc.offsetWidth;jc.classList.add('bump');}const ec=$('#evchip');if(G.event){ec.hidden=false;ec.textContent=WEVENTS[G.event.id].short(G.event)+' · '+(G.event.until-G.round+1)+'R';}else ec.hidden=true;}
+  {const jc=$('#jackchip');const jt='잭팟 '+fmt(G.jackpot||0);if(jc.textContent!==jt){jc.textContent=jt;jc.classList.remove('bump');void jc.offsetWidth;jc.classList.add('bump');}const ec=$('#evchip');if(G.event){ec.hidden=false;ec.textContent=WEVENTS[G.event.id].short(G.event)+' · '+(G.event.until-G.round+1)+'R';}else ec.hidden=true;}
   $('#turn').innerHTML=`<i style="--pc:${p.color}">${CH(p.ch).emoji}</i>${esc(p.name)}의 차례`;$('#turn').style.setProperty('--pc',p.color);stage.style.setProperty('--pc',p.color);
 }
 function setMsg(t){$('#msg').innerHTML=t;}
@@ -2410,7 +2463,7 @@ async function roll(p,opt={}){
     while(true){
       const btn=$('#roll');btn.disabled=false;
       meter.active=true;meterEl.classList.remove('idle');showHints(p);timerStart(G.turnSec,()=>{if(rollResolver)rollResolver('roll');});
-      setMsg(`${nm(p)}, 포인터를 보고 <b style="background:#b8860b">멈춰!</b>를 누르세요. <span style="opacity:.8">(스페이스바)</span>`);
+      setMsg(`${nm(p)}, 포인터를 보고 <b style="background:#b8860b">멈춰</b>를 누르세요. <span style="opacity:.8">(스페이스바)</span>`);
       await new Promise(r=>rollResolver=r);rollResolver=null;btn.disabled=true;
       timerStop();meter.active=false;clearHints();SFX.play('stop');
       target=meter.val;break;
@@ -2427,7 +2480,7 @@ async function roll(p,opt={}){
   if(p.fixDice){[a,b]=p.fixDice;p.fixDice=null;p.fixDiceUsed=true;}
   const fixed=!!p.fixDiceUsed;p.fixDiceUsed=false;
   d1.classList.remove('rolling');d2.classList.remove('rolling');face(d1,a,a===b);face(d2,b,a===b);if(a===b)SFX.play('dbl');
-  if(target!=null&&!fixed){if(a+b===target){SFX.play('aimHit');if(!p.ai)toast(`🎯 포인터 명중! ${target}`,'good',1800);}else if(!p.ai)SFX.play('aimMiss');}
+  if(target!=null&&!fixed){if(a+b===target){SFX.play('aimHit');if(!p.ai)toast(`포인터 명중. ${target}`,'good',1800);}else if(!p.ai)SFX.play('aimMiss');}
   meterEl.classList.add('idle');
   log(`${nm(p)} 🎯${target} → 주사위 ${a} + ${b} = ${a+b}${a===b?' (더블)':''}${a+b===target?' ✔':''}`,p);
   await sleep(D(250));return[a,b];
@@ -2492,14 +2545,14 @@ function pay(p,to,amt,opt={}){
   const before=p.cash;
   if(p.cash<amt)liquidate(p,amt);
   if(p.cash>=amt){p.cash-=amt;if(to)to.cash+=amt;else if(opt.pool)G.jackpot=(G.jackpot||0)+amt;moneyFx(p,to,amt,before,opt);return true;}
-  if(hasR(p,'insurance')&&!p.insUsed){p.insUsed=true;const rest0=p.cash;p.cash=500;if(to)to.cash+=amt;moneyFx(p,to,amt,before,{...opt,quiet:true});bigEvent(`🛡️ 파산 보험 발동!<small>${esc(p.name)} 빚 ${fmt(amt-rest0)} 탕감</small>`,'gold',2400);log(`${nm(p)} 파산 보험으로 살아남았습니다 (빚 ${fmt(amt-rest0)} 탕감).`,p);emote(p,'shock','살았다…',{priority:7});renderAll();return true;}
+  if(hasR(p,'insurance')&&!p.insUsed){p.insUsed=true;const rest0=p.cash;p.cash=500;if(to)to.cash+=amt;moneyFx(p,to,amt,before,{...opt,quiet:true});bigEvent(`파산 보험 발동<small>${esc(p.name)} 빚 ${fmt(amt-rest0)} 탕감</small>`,'gold',2400);log(`${nm(p)} 파산 보험으로 살아남았습니다 (빚 ${fmt(amt-rest0)} 탕감).`,p);emote(p,'shock','살았다…',{priority:7});renderAll();return true;}
   const rest=p.cash;p.cash=0;if(to){to.cash+=amt;if(amt>rest)log(`${nm(to)} 파산한 ${nm(p)} 대신 은행이 부족분 ${fmt(amt-rest)}을 채워 ${fmt(amt)} 전액을 받습니다.`,to);}moneyFx(p,to,amt,before,{...opt,quiet:true});
   p.bankrupt=true;SFX.play('bankrupt');owned(p).forEach(i=>{S(i).owner=null;S(i).level=0;if(G.festival===i)G.festival=null;});
-  say(`${nm(p)} 파산했습니다. 💸`,p);bankruptFx(p);renderAll();
+  say(`${nm(p)} 파산했습니다.`,p);bankruptFx(p);renderAll();
   const al=alive();if(al.length===1)endGame(al[0],'다른 모든 플레이어가 파산했습니다.');
   return false;
 }
-function gain(p,n,why){p.cash+=n;floatText(tokenPos(p),'+'+fmt(n),'#7cf29a');flashCard(p,'gain');if(why)toast(`💰 ${nm(p)} <b>+${fmt(n)}</b> · ${why}`,'good',2600);}
+function gain(p,n,why){p.cash+=n;floatText(tokenPos(p),'+'+fmt(n),'#7cf29a');flashCard(p,'gain');if(why)toast(`${nm(p)} <b>+${fmt(n)}</b> · ${why}`,'good',2600);}
 function checkWin(p){
   if(G.over)return;
   let groups=0;for(let g=0;g<8;g++)if(ownsGroup(p.id,g))groups++;
@@ -2510,14 +2563,16 @@ function checkWin(p){
 
 /* ---------- movement ---------- */
 async function walk(p,n){
+  if(!p.ai){chase=p;freeUntil=0;}try{
   const dir=n>0?1:-1;
   for(let k=0;k<Math.abs(n);k++){
     p.pos=(p.pos+dir+N)%N;
-    if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0)+(hasR(p,'salary')?100:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금! 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();
-      if(hasR(p,'jackhunter')&&k<Math.abs(n)-1&&(G.jackpot||0)>1){const half=Math.floor(G.jackpot/2);G.jackpot-=half;gain(p,half,'🎟️ 잭팟 사냥꾼');}
+    if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0)+(hasR(p,'salary')?100:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금. 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();
+      if(hasR(p,'jackhunter')&&k<Math.abs(n)-1&&(G.jackpot||0)>1){const half=Math.floor(G.jackpot/2);G.jackpot-=half;gain(p,half,'잭팟 사냥꾼');}
       await hop(p,0,Math.max(110,D(230)),0.4);await sleep(D(150));await relicDraft(p);continue;}
     await hop(p,p.pos,Math.max(110,D(230)),0.4);
   }
+  }finally{if(chase===p)setTimeout(()=>{if(chase===p)chase=null;},D(900));} // linger so the street view registers before swinging back up
 }
 async function teleport(p,i){p.pos=i;await hop(p,i,D(650),1.6);}
 function jail(p){p.island=has(p,'captain')?1:3;}
@@ -2528,12 +2583,12 @@ async function land(p){
   const i=p.pos,t=T(i);renderAll();SFX.play('land');
   switch(t.type){
     case 'start':say(`${nm(p)} 출발지에 도착했습니다.`,p);
-      if((G.jackpot||0)>0){const jp=G.jackpot;G.jackpot=0;bigEvent(`💰 잭팟!<small>${esc(p.name)} +${fmt(jp)}</small>`,'gold',2600);SFX.play('win');confetti();gain(p,jp,'잭팟');emote(p,'laugh','잭팟이다!',{priority:6});log(`${nm(p)} 출발 칸에 정확히 도착해 잭팟 ${fmt(jp)} 획득!`,p);renderAll();await sleep(D(1200));}
+      if((G.jackpot||0)>0){const jp=G.jackpot;G.jackpot=0;bigEvent(`잭팟<small>${esc(p.name)} +${fmt(jp)}</small>`,'gold',2600);SFX.play('win');confetti();gain(p,jp,'잭팟');emote(p,'laugh','잭팟이다!',{priority:6});log(`${nm(p)} 출발 칸에 정확히 도착해 잭팟 ${fmt(jp)} 획득`,p);renderAll();await sleep(D(1200));}
       await offerNuke(p);break;
     case 'island':if(await captainStorm(p))break;jail(p);SFX.play('island');emote(p,'shock','갇혔다!');say(`${nm(p)} 무인도에 갇혔습니다. ${p.island}턴 동안 쉬어요.${has(p,'captain')?' (선장은 금방 빠져나와요)':''}`,p);await sailToIsland(p);break;
     case 'travel':
-      if(has(p,'explorer')){say(`${nm(p)} 모험가의 세계여행! 바로 이동합니다.`,p);const tg=await pickTravel(p);await walk(p,(tg-p.pos+N)%N);await land(p);}
-      else{p.travel=true;SFX.play('chime');say(`${nm(p)} 세계여행! 다음 턴에 원하는 칸으로 이동합니다.`,p);}
+      if(has(p,'explorer')){say(`${nm(p)} 모험가의 세계여행. 바로 이동합니다.`,p);const tg=await pickTravel(p);await walk(p,(tg-p.pos+N)%N);await land(p);}
+      else{p.travel=true;SFX.play('chime');say(`${nm(p)} 세계여행. 다음 턴에 원하는 칸으로 이동합니다.`,p);}
       break;
     case 'festival':await hostFestival(p);break;
     case 'tax':{
@@ -2563,21 +2618,21 @@ async function landProperty(p,i){
 async function chargeToll(p,o,i){
   const t=T(i);let amt=toll(i);
   if(has(p,'negotiator'))amt=Math.round(amt*0.7);if(hasR(p,'coupon'))amt=Math.round(amt*0.85);
-  if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다. ⚓`,p);emote(p,'cool');return true;}
-  if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`🛡️ ${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
+  if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다.`,p);emote(p,'cool');return true;}
+  if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
-  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착! 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
+  if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착. 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
   say(`${nm(p)} ${nm(o)}의 ${t.name}에서 통행료 ${fmt(amt)}을 냅니다.`,p);
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
   // ⚓ payer's reactive skill: blow the owner to the island, skip the toll
-  if(has(p,'captain')&&!p.skillUsed&&amt>=120&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환!',no:'그냥 낸다'},()=>amt>=Math.max(160,p.cash*0.35))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로! ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});await sailToIsland(o);renderAll();return true;}
+  if(has(p,'captain')&&!p.skillUsed&&amt>=120&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환',no:'그냥 낸다'},()=>amt>=Math.max(160,p.cash*0.35))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로. ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});await sailToIsland(o);renderAll();return true;}
   // 🧭 payer's reactive skill: teleport away instead of paying
-  if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}! 절반(${fmt(Math.round(amt/2))})만 내고 원하는 칸으로 도망갈까요?</p>`,yes:'절반 내고 도망',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 절반(${fmt(Math.round(amt/2))})만 내고 도망`);emote(p,'cool','슝~',{priority:5});if(!pay(p,o,Math.round(amt/2),{why:'통행료 절반'}))return false;const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
+  if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 절반(${fmt(Math.round(amt/2))})만 내고 원하는 칸으로 도망갈까요?</p>`,yes:'절반 내고 도망',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 절반(${fmt(Math.round(amt/2))})만 내고 도망`);emote(p,'cool','슝~',{priority:5});if(!pay(p,o,Math.round(amt/2),{why:'통행료 절반'}))return false;const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
   const danger=amt>=400||amt>=p.cash*0.45;
-  if(danger){vignette('#ff2a2a');SFX.play('heart');toast(`😱 ${nm(p)} 위기! ${t.name} 통행료 <b>${fmt(amt)}</b>${amt>=p.cash?' — 파산 위험':''}`,'danger',4500);focusOn(i,1600,1.0);emote(p,'shock',undefined,{silent:true});await sleep(D(1300));}
+  if(danger){vignette('#ff2a2a');SFX.play('heart');toast(`${nm(p)} 위기. ${t.name} 통행료 <b>${fmt(amt)}</b>${amt>=p.cash?' — 파산 위험':''}`,'danger',4500);focusOn(i,1600,1.0);emote(p,'shock',undefined,{silent:true});await sleep(D(1300));}
   SFX.play('pay');
-  const ok=pay(p,o,amt,{why:'통행료'});if(ok&&hasR(o,'leech')){const x=Math.round(amt*.1);if(x>0)gain(o,x,'🩸 흡혈 계약');}renderPlayers();return ok;
+  const ok=pay(p,o,amt,{why:'통행료'});if(ok&&hasR(o,'leech')){const x=Math.round(amt*.1);if(x>0)gain(o,x,'흡혈 계약');}renderPlayers();return ok;
 }
 /* pull visuals */
 function magnetMesh(){
@@ -2629,12 +2684,12 @@ async function pullNeighbors(p,i){
   const rng=range(S(i).level)+(S(i).level>0&&hasR(p,'magnet')?1:0);if(rng<=0)return;
   const victims=alive().filter(q=>q!==p&&q.island===0&&q.pos!==i&&(Math.min((q.pos-i+N)%N,(i-q.pos+N)%N)<=rng));
   if(!victims.length)return;
-  say(`${nm(p)} ${T(i).name}의 ${LV[S(i).level]}이 양옆 ${rng}칸을 빨아들입니다! 🧲`,p);SFX.play('pull');const pzId=pullZoneShow(p,i,rng,victims);
-  toast(`🧲 ${nm(p)} ${T(i).name}(${LV[S(i).level]})로 ${victims.map(q=>esc(q.name)).join('·')} 끌어오기!`,'danger');
+  say(`${nm(p)} ${T(i).name}의 ${LV[S(i).level]}이 양옆 ${rng}칸을 빨아들입니다.`,p);SFX.play('pull');const pzId=pullZoneShow(p,i,rng,victims);
+  toast(`${nm(p)} ${T(i).name}(${LV[S(i).level]})로 ${victims.map(q=>esc(q.name)).join('·')} 끌어오기`,'danger');
   await sleep(D(1100));
   try{for(const q of victims){
     if(G.over)return;
-    log(`🧲 ${nm(q)} ${T(q.pos).name}에서 ${T(i).name}(으)로 끌려왔습니다.`,q);
+    log(`${nm(q)} ${T(q.pos).name}에서 ${T(i).name}(으)로 끌려왔습니다.`,q);
     q.pos=i;q.travel=false;emote(q,'angry','끌려간다!',{silent:true,cam:false});await hop(q,i,D(600),1.2);SFX.play('magnetHit');
     await chargeToll(q,p,i);renderAll();
   }}finally{setTimeout(()=>{if(pullFx.id===pzId)pullZoneClear();},D(500));}
@@ -2663,7 +2718,7 @@ function nukePreview(p,i){
 }
 let nukePick=null;
 function pickNukeTarget(p,cands){
-  setMsg(`${nm(p)}, 핵폭탄을 쏠 <b>내 건물</b>을 보드에서 고르세요. 붉은 칸이 무너집니다.`);toast('☢️ 내 건물 칸을 누르면 붕괴 예상 범위가 보여요','danger',4500);
+  setMsg(`${nm(p)}, 핵폭탄을 쏠 <b>내 건물</b>을 보드에서 고르세요. 붉은 칸이 무너집니다.`);toast('내 건물 칸을 누르면 붕괴 예상 범위가 보여요','danger',4500);
   setPickable(new Set(cands),p,true);nukePick={p};
   return new Promise(res=>{pickResolver=i=>{nukePick=null;setPickable(null);nukePreview(p,i);res(i);};
     timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;nukePick=null;setPickable(null);res(-1);}});
@@ -2672,42 +2727,42 @@ function pickNukeTarget(p,cands){
 async function offerNuke(p){
   if(G.nukesOn===false)return;
   if(p.nukes==null)p.nukes=NUKES;
-  if(p.nukes<=0){log(`${nm(p)} 핵폭탄을 모두 썼습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 소진 — 1인당 ${NUKES}발까지만 쏠 수 있어요`,'danger',5000);SFX.play('alarm');return;}
+  if(p.nukes<=0){log(`${nm(p)} 핵폭탄을 모두 썼습니다.`,p);toast(`${nm(p)} 핵폭탄 소진 — 1인당 ${NUKES}발까지만 쏠 수 있어요`,'danger',5000);SFX.play('alarm');return;}
   const cands=owned(p).filter(i=>T(i).type==='city'&&S(i).level>=1);
-  if(!cands.length){log(`${nm(p)} 핵폭탄을 쏠 건물이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 건물(별장 이상)이 있는 내 도시가 없어요`,'danger',5000);SFX.play('alarm');return;}
-  if(cands.every(i=>enemyTargets(p,i).length===0)){log(`${nm(p)} 핵폭탄 사정거리 안에 남의 땅이 없습니다.`,p);toast(`☢️ ${nm(p)} 핵폭탄 불가 — 사정거리 안에 남의 땅이 없어요 (건물을 키우면 사정거리 증가)`,'danger',5000);SFX.play('alarm');return;}
+  if(!cands.length){log(`${nm(p)} 핵폭탄을 쏠 건물이 없습니다.`,p);toast(`${nm(p)} 핵폭탄 불가 — 건물(별장 이상)이 있는 내 도시가 없어요`,'danger',5000);SFX.play('alarm');return;}
+  if(cands.every(i=>enemyTargets(p,i).length===0)){log(`${nm(p)} 핵폭탄 사정거리 안에 남의 땅이 없습니다.`,p);toast(`${nm(p)} 핵폭탄 불가 — 사정거리 안에 남의 땅이 없어요 (건물을 키우면 사정거리 증가)`,'danger',5000);SFX.play('alarm');return;}
   const aiBest=()=>{const best=cands.reduce((a,b)=>blastValue(p,b)>blastValue(p,a)?b:a);return blastValue(p,best)>40?best:-1;};
   let i;
   if(p.ai){await sleep(D(500));i=aiBest();if(i>=0){nukePreview(p,i);await sleep(D(1400));nukePreviewClear();}}
   else{
-    const go=await modal({title:'☢️ 핵폭탄을 쓸까요?',html:`<p>출발 칸에 도착했어요. 핵폭탄은 게임에 <b>단 한 번</b>만 쓸 수 있어요.</p><p class="muted">쓰면 보드에서 내 건물을 고르고, 무너질 범위를 미리 본 뒤 발사합니다. 범위 안의 <b>내 건물도 함께 무너져요</b>.</p>`,
+    const go=await modal({title:'핵폭탄을 쓸까요?',html:`<p>출발 칸에 도착했어요. 핵폭탄은 게임에 <b>단 한 번</b>만 쓸 수 있어요.</p><p class="muted">쓰면 보드에서 내 건물을 고르고, 무너질 범위를 미리 본 뒤 발사합니다. 범위 안의 <b>내 건물도 함께 무너져요</b>.</p>`,
       options:[{label:'☢️ 쓴다 — 위치 고르기',value:1,danger:true},{label:'이번엔 아껴 둔다',value:0,primary:true}]});
     i=-1;
     while(go){
       const pick=await pickNukeTarget(p,cands);if(pick<0)break;
       const en=enemyTargets(p,pick),own=ownTargets(p,pick).filter(j=>S(j).level>0);
       const loss=v=>v.reduce((a,j)=>a+tileLoss(j),0);
-      const ok=await modal({title:`☢️ ${T(pick).name}에서 발사?`,html:`<p>반경 <b>${nukeRange(p,pick)}칸</b> · 붉게 표시된 칸이 무너집니다.</p><p>상대 피해 <b>${en.length}곳</b> (${fmt(loss(en))})${en.length?': '+[...new Set(en.map(j=>G.players[S(j).owner].name))].map(esc).join(', '):''}</p><p class="muted">내 건물 희생 ${own.length}곳 (${fmt(own.reduce((a,j)=>a+cum(j,1,S(j).level),0))})</p>`,
-        options:[{label:'☢️ 발사!',value:1,danger:true},{label:'다른 곳 고르기',value:2},{label:'취소',value:0,primary:true}],clear:true});
+      const ok=await modal({title:`${T(pick).name}에서 발사?`,html:`<p>반경 <b>${nukeRange(p,pick)}칸</b> · 붉게 표시된 칸이 무너집니다.</p><p>상대 피해 <b>${en.length}곳</b> (${fmt(loss(en))})${en.length?': '+[...new Set(en.map(j=>G.players[S(j).owner].name))].map(esc).join(', '):''}</p><p class="muted">내 건물 희생 ${own.length}곳 (${fmt(own.reduce((a,j)=>a+cum(j,1,S(j).level),0))})</p>`,
+        options:[{label:'☢️ 발사',value:1,danger:true},{label:'다른 곳 고르기',value:2},{label:'취소',value:0,primary:true}],clear:true});
       if(ok===1){i=pick;nukePreviewClear();break;}
       nukePreviewClear();if(ok===0)break;
     }
   }
   if(i<0){log(`${nm(p)} 핵폭탄을 쏘지 않았습니다.`,p);return;}
   const rng=nukeRange(p,i),hits=blastTargets(p,i);p.nukes--;
-  say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사! ☢️💥 (남은 핵폭탄 ${p.nukes}발)`,p);bigEvent(`☢️ 핵폭탄 발사!<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);SFX.sting('drama');emote(p,'cool','받아라!',{priority:5});
+  say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사. (남은 핵폭탄 ${p.nukes}발)`,p);bigEvent(`핵폭탄 발사<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);SFX.sting('drama');emote(p,'cool','받아라!',{priority:5});
   await nukeCinematic(i,rng,hits);
   const enemies=hits.filter(j=>S(j).owner!==p.id);
   const victims=[...new Set(enemies.map(j=>S(j).owner))].map(id=>G.players[id]);victims.forEach(v=>emote(v,'angry','내 건물!!',{priority:6,silent:true}));if(victims.length)SFX.play('angry');
   const ownLost=hits.filter(j=>S(j).owner===p.id&&S(j).level>0).length;
-  toast(`💥 ${victims.length?victims.map(v=>nm(v)).join(', ')+' 건물 '+enemies.length+'곳 피해':'상대 피해 없음'}${ownLost?` · ${nm(p)} 내 건물 ${ownLost}곳 희생`:''}`,'danger',5000);
+  toast(`${victims.length?victims.map(v=>nm(v)).join(', ')+' 건물 '+enemies.length+'곳 피해':'상대 피해 없음'}${ownLost?` · ${nm(p)} 내 건물 ${ownLost}곳 희생`:''}`,'danger',5000);
   for(const j of hits){
     const o=G.players[S(j).owner];
-    if(o===p){if(S(j).level>0){log(`💥 ${nm(p)}의 ${T(j).name} ${LV[S(j).level]}이(가) 폭발에 휩쓸려 무너졌습니다 (땅은 유지).`,p);S(j).level=0;S(j).rubble=true;}continue;}
-    if(T(j).type==='city'&&S(j).level>0){log(`💥 ${nm(o)}의 ${T(j).name} ${LV[S(j).level]}이(가) 무너졌습니다.`,p);S(j).level=0;S(j).rubble=true;}
-    else{log(`💥 ${nm(o)}의 ${T(j).name}이(가) 폐허가 되어 주인을 잃었습니다.`,p);S(j).owner=null;S(j).level=0;S(j).rubble=true;if(G.festival===j)G.festival=null;}
+    if(o===p){if(S(j).level>0){log(`${nm(p)}의 ${T(j).name} ${LV[S(j).level]}이(가) 폭발에 휩쓸려 무너졌습니다 (땅은 유지).`,p);S(j).level=0;S(j).rubble=true;}continue;}
+    if(T(j).type==='city'&&S(j).level>0){log(`${nm(o)}의 ${T(j).name} ${LV[S(j).level]}이(가) 무너졌습니다.`,p);S(j).level=0;S(j).rubble=true;}
+    else{log(`${nm(o)}의 ${T(j).name}이(가) 폐허가 되어 주인을 잃었습니다.`,p);S(j).owner=null;S(j).level=0;S(j).rubble=true;if(G.festival===j)G.festival=null;}
   }
-  if(!enemies.length)log('💥 폭발했지만 상대가 입은 피해는 없습니다.',p);
+  if(!enemies.length)log('폭발했지만 상대가 입은 피해는 없습니다.',p);
   renderAll();await sleep(D(500));
 }
 function wouldComplete(p,i){
@@ -2728,14 +2783,14 @@ async function offerBuy(p,i){
   const opts=[0,1,2,3].map(l=>({label:l===0?'📍 땅만 구매':`${BICON[l]} 땅 + ${LV.slice(1,l+1).join(' + ')}`,value:l,cost:disc(p,cum(i,0,l)),disabled:p.cash<disc(p,cum(i,0,l))}));
   const best=opts.filter(o=>!o.disabled).pop();if(best)best.primary=true;
   const freeOK=has(p,'architect')&&!p.skillUsed,landC=disc(p,cum(i,0,0));
-  if(freeOK)opts.push({label:'✨ 땅 구매 + 긴급 공사 (별장+빌딩 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
+  if(freeOK)opts.push({label:'땅 구매 + 긴급 공사 (별장+빌딩 무료)',value:'free1',cost:landC,disabled:p.cash<landC});
   opts.push({label:'넘어가기',value:-1});
   const res=wouldComplete(p,i)?40:100;
   let l=await decide(p,{title:`${t.ico} ${t.name} 구매`,html:`<p>현재 자금 ${fmt(p.cash)}.${has(p,'architect')?' 건축가 할인 35% 적용.':''} 지은 단계에 따라 통행료가 올라갑니다.</p><p class="muted">통행료: ${LV.slice(0,4).map((n,k)=>`${n} ${fmt(Math.round(t.price*MULT[k]))}`).join(' · ')}</p>`,options:opts},
     ()=>{for(let k=3;k>=0;k--)if(p.cash-disc(p,cum(i,0,k))>=res){if(k===0&&freeOK&&p.cash-landC>=30)return 'free1';return k;}return p.cash-landC>=30?(freeOK?'free1':0):-1;});
   let freeUp=false;if(l==='free1'){l=0;freeUp=true;}
   if(l<0){say(`${nm(p)} ${t.name}을(를) 사지 않았습니다.`,p);return;}
-  const c=disc(p,cum(i,0,l));pay(p,null,c,{quiet:true,why:T(i).name+' 구매'});S(i).owner=p.id;S(i).level=l;if(l===0&&hasR(p,'autobuild')){S(i).level=1;toast(`🏗️ ${nm(p)} 속성 공사 — 별장 무료`,'good',2500);}SFX.play(l>0?'build':'buy');emote(p,'happy',l>=3?'호텔이다!':'내 거야~');monopolyFx(p,i);
+  const c=disc(p,cum(i,0,l));pay(p,null,c,{quiet:true,why:T(i).name+' 구매'});S(i).owner=p.id;S(i).level=l;if(l===0&&hasR(p,'autobuild')){S(i).level=1;toast(`${nm(p)} 속성 공사 — 별장 무료`,'good',2500);}SFX.play(l>0?'build':'buy');emote(p,'happy',l>=3?'호텔이다!':'내 거야~');monopolyFx(p,i);
   say(`${nm(p)} ${t.name}에 ${LV[l]}까지 ${fmt(c)} 투자했습니다.`,p);
   if(freeUp){S(i).level=2;skillBurn(p,'긴급 공사',`${t.name}에 무료로 빌딩까지 지었습니다`);SFX.play('build');}
   renderAll();checkWin(p);
@@ -2748,15 +2803,15 @@ async function offerBuild(p,i){
   else{opts=[];for(let l=s.level+1;l<=4;l++){const c=disc(p,cum(i,s.level+1,l));opts.push({label:l===4?`🏰 랜드마크까지 (${LV.slice(s.level+1,5).join(' + ')})`:`${BICON[l]} ${LV.slice(s.level+1,l+1).join(' + ')} 건설`,value:l,cost:c,disabled:p.cash<c});}
     const best=opts.filter(o=>!o.disabled).pop();if(best)best.primary=true;}
   const freeOK=has(p,'architect')&&!p.skillUsed&&s.level<3;
-  if(freeOK)opts.push({label:`✨ 긴급 공사 — ${LV[Math.min(3,s.level+2)]}까지 무료`,value:'free',cost:0});
+  if(freeOK)opts.push({label:`긴급 공사 — ${LV[Math.min(3,s.level+2)]}까지 무료`,value:'free',cost:0});
   if(opts.every(o=>o.disabled)){say(`${nm(p)} ${t.name}에 지을 돈이 부족합니다.`,p);return;}
   opts.push({label:'짓지 않기',value:-1});
-  const l=await decide(p,{title:`${t.ico} ${t.name} 건설`,html:`<p>지금: ${LV[s.level]} · 통행료 ${fmt(toll(i))}. 현재 자금 ${fmt(p.cash)}</p>${s.level===3?'<p class="muted">랜드마크는 다른 사람이 인수할 수 없어요.</p>':''}${freeOK?'<p class="muted">✨ 긴급 공사는 게임에 한 번만 쓸 수 있어요.</p>':''}`,options:opts},
+  const l=await decide(p,{title:`${t.ico} ${t.name} 건설`,html:`<p>지금: ${LV[s.level]} · 통행료 ${fmt(toll(i))}. 현재 자금 ${fmt(p.cash)}</p>${s.level===3?'<p class="muted">랜드마크는 다른 사람이 인수할 수 없어요.</p>':''}${freeOK?'<p class="muted">긴급 공사는 게임에 한 번만 쓸 수 있어요.</p>':''}`,options:opts},
     ()=>{for(let k=opts.length-2;k>=0;k--){const o=opts[k];if(o.value==='free')continue;if(!o.disabled&&p.cash-o.cost>=(o.value===4?80:110))return o.value;}return freeOK&&(G.round>=4||p.cash<150)?'free':-1;});
   if(l==='free'){s.level=Math.min(3,s.level+2);skillBurn(p,'긴급 공사',`${t.name}이(가) 무료로 ${LV[s.level]}이 되었습니다`);SFX.play('build');emote(p,'happy','공짜!');renderAll();return;}
   if(l<0){say(`${nm(p)} ${t.name}에 건물을 짓지 않았습니다.`,p);return;}
-  const c=disc(p,cum(i,s.level+1,l));pay(p,null,c,{quiet:true,why:LV[l]+' 건설'});s.level=l;SFX.play(l===4?'landmark':'build');if(l===4)SFX.sting('up');emote(p,l===4?'cool':'happy',l===4?'랜드마크!':undefined);if(l===4)bigEvent(`🏰 랜드마크!<small>${esc(p.name)} · ${t.name}</small>`,'gold',2200);
-  say(`${nm(p)} ${t.name}에 ${LV[l]}${l===4?'를 세웠습니다! 🏰':'까지 지었습니다.'} (${fmt(c)})`,p);renderAll();
+  const c=disc(p,cum(i,s.level+1,l));pay(p,null,c,{quiet:true,why:LV[l]+' 건설'});s.level=l;SFX.play(l===4?'landmark':'build');if(l===4)SFX.sting('up');emote(p,l===4?'cool':'happy',l===4?'랜드마크!':undefined);if(l===4)bigEvent(`랜드마크<small>${esc(p.name)} · ${t.name}</small>`,'gold',2200);
+  say(`${nm(p)} ${t.name}에 ${LV[l]}${l===4?'를 세웠습니다.':'까지 지었습니다.'} (${fmt(c)})`,p);renderAll();
 }
 async function offerTakeover(p,i){
   const t=T(i),s=S(i),o=G.players[s.owner],rate=1.5,price=Math.round(invested(i)*rate);
@@ -2765,19 +2820,19 @@ async function offerTakeover(p,i){
     options:[{label:'인수하기',value:1,cost:price,primary:true},{label:'넘어가기',value:0}]},
     ()=>(p.cash-price>=160||(wouldComplete(p,i)&&p.cash-price>=60))?1:0);
   if(!c)return;
-  pay(p,o,price,{quiet:true,why:'인수'});s.owner=p.id;SFX.play('buy');emote(p,'laugh','내 거다!',{priority:4});emote(o,'angry','빼앗겼어!',{priority:4,silent:true});bigEvent(`🤝 인수!<small>${esc(p.name)}이(가) ${esc(o.name)}의 ${t.name} 인수</small>`,'gold',2200);monopolyFx(p,i);
-  say(`${nm(p)} ${nm(o)}에게서 ${t.name}을(를) ${fmt(price)}에 인수했습니다!`,p);renderAll();checkWin(p);
+  pay(p,o,price,{quiet:true,why:'인수'});s.owner=p.id;SFX.play('buy');emote(p,'laugh','내 거다!',{priority:4});emote(o,'angry','빼앗겼어!',{priority:4,silent:true});bigEvent(`인수<small>${esc(p.name)}이(가) ${esc(o.name)}의 ${t.name} 인수</small>`,'gold',2200);monopolyFx(p,i);
+  say(`${nm(p)} ${nm(o)}에게서 ${t.name}을(를) ${fmt(price)}에 인수했습니다.`,p);renderAll();checkWin(p);
   if(!G.over)await offerBuild(p,i);
 }
 async function hostFestival(p){
   const c=owned(p);
   if(!c.length){say(`${nm(p)} 축제를 열 땅이 없습니다.`,p);return;}
   const withF=i=>{const f=G.festival;G.festival=i;const v=toll(i);G.festival=f;return v;};
-  const i=await decide(p,{title:'🎆 축제 개최',html:'<p>축제를 열 곳을 고르세요. 그곳의 통행료가 2배가 됩니다. 축제는 보드에 한 곳만 열려요.</p>',
+  const i=await decide(p,{title:'축제 개최',html:'<p>축제를 열 곳을 고르세요. 그곳의 통행료가 2배가 됩니다. 축제는 보드에 한 곳만 열려요.</p>',
     options:c.map(i=>({label:`${T(i).ico} ${T(i).name}`,value:i,cost:withF(i)})).concat([{label:'열지 않기',value:-1}])},
     ()=>c.reduce((a,b)=>withF(b)>withF(a)?b:a));
   if(i<0)return;
-  G.festival=i;SFX.play('festival');say(`${nm(p)} ${T(i).name}에서 축제를 엽니다! 🎉 통행료 2배.`,p);renderAll();bigEvent(`🎉 축제 개막!<small>${T(i).name} 통행료 2배</small>`,'gold',2400);focusOn(i,2200,1.1);for(let k=0;k<4;k++)setTimeout(()=>{const rr=rect(i);firework(new THREE.Vector3(rr.x,.3,rr.z),true);},k*350);emote(p,'happy','축제다!',{silent:true});
+  G.festival=i;SFX.play('festival');say(`${nm(p)} ${T(i).name}에서 축제를 엽니다. 통행료 2배.`,p);renderAll();bigEvent(`축제 개막<small>${T(i).name} 통행료 2배</small>`,'gold',2400);focusOn(i,2200,1.1);for(let k=0;k<4;k++)setTimeout(()=>{const rr=rect(i);firework(new THREE.Vector3(rr.x,.3,rr.z),true);},k*350);emote(p,'happy','축제다!',{silent:true});
 }
 function aiTravelTarget(p){
   const free=TILES.map((t,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner==null&&disc(p,T(i).price)<=p.cash-60).sort((a,b)=>T(b).price-T(a).price);
@@ -2788,7 +2843,7 @@ function aiTravelTarget(p){
 }
 async function pickTravel(p){
   if(p.ai){await sleep(D(600));return aiTravelTarget(p);}
-  setMsg(`${nm(p)}, 보드에서 이동할 칸을 누르세요. 빛기둥이 서 있는 곳이 <b>내 땅</b>이에요.`);toast(`✈️ 보드에서 갈 칸을 누르세요 · 빛기둥 = 내 땅 ${owned(p).length}곳`,'good',4500);
+  setMsg(`${nm(p)}, 보드에서 이동할 칸을 누르세요. 빛기둥이 서 있는 곳이 <b>내 땅</b>이에요.`);toast(`보드에서 갈 칸을 누르세요 · 빛기둥 = 내 땅 ${owned(p).length}곳`,'good',4500);
   setPickable(new Set(TILES.map((t,i)=>i).filter(i=>i!==24)),p,false);
   timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;r(aiTravelTarget(p));}});
   const i=await new Promise(r=>pickResolver=r);timerStop();
@@ -2817,17 +2872,17 @@ const split=s=>{const a=Math.min(6,s-1);return[a,s-a];};
 /* ---------- reactive skills: offered at the moment they matter ---------- */
 async function skillYes(p,{title,html,yes,no},aiYes){
   if(p.ai)await sleep(D(300));
-  const v=await decide(p,{title:`✨ ${title}`,html:html+'<p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>',options:[{label:yes,value:1,primary:true},{label:no,value:0}]},()=>aiYes()?1:0);
+  const v=await decide(p,{title:`${title}`,html:html+'<p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>',options:[{label:yes,value:1,primary:true},{label:no,value:0}]},()=>aiYes()?1:0);
   return v===1;
 }
-function skillBurn(p,name,desc){p.skillUsed=true;SFX.play('skill');say(`${nm(p)} 스킬 <b>${name}</b>! ${desc}`,p);toast(`✨ ${nm(p)} ${name} — ${desc}`,'good',4500);bigEvent(`✨ ${name}<small>${esc(p.name)}</small>`,'gold',1600);renderPlayers();}
+function skillBurn(p,name,desc){p.skillUsed=true;SFX.play('skill');say(`${nm(p)} 스킬 <b>${name}</b>. ${desc}`,p);toast(`${nm(p)} ${name} — ${desc}`,'good',4500);bigEvent(`${name}<small>${esc(p.name)}</small>`,'gold',1600);renderPlayers();}
 /* 🍀 lucky: bad landing → pick the sum and throw again */
 async function luckyReroll(p,d){
   if(!has(p,'lucky')||p.skillUsed)return d;
   const sum=d[0]+d[1],i=(p.pos+sum)%N,info=landingInfo(p,i),t=T(i);
   const bad=info.cls==='pay'||info.cls==='deadly'||info.cls==='bad'||t.type==='tax';
   if(!bad)return d;
-  const sel=await decide(p,{title:'✨ 🍀 운명의 주사위',html:`<p>주사위 ${sum} → <b>${t.name}</b> (${info.txt}). 숫자를 골라 다시 던질까요?</p><p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>`,grid:true,
+  const sel=await decide(p,{title:'🍀 운명의 주사위',html:`<p>주사위 ${sum} → <b>${t.name}</b> (${info.txt}). 숫자를 골라 다시 던질까요?</p><p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>`,grid:true,
     options:Array.from({length:11},(_,k)=>({label:String(k+2),value:k+2})).concat([{label:'그냥 간다',value:-1}])},
     ()=>{const b=bestDiceSum(p);return(info.cls==='deadly'||t.type==='island'||(info.cls==='pay'&&toll(i)>=80))&&b!=null?b:-1;});
   if(sel<0)return d;
@@ -2838,11 +2893,11 @@ async function luckyReroll(p,d){
 async function captainStorm(p){
   if(!has(p,'captain')||p.skillUsed)return false;
   const o=alive().filter(q=>q!==p&&q.island===0);if(!o.length)return false;
-  const tid=await decide(p,{title:'✨ ⚓ 폭풍 소환',html:'<p>무인도에 갇히기 직전! 대신 보낼 플레이어를 고르면 나는 자유롭게 빠져나갑니다.</p><p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>',
+  const tid=await decide(p,{title:'⚓ 폭풍 소환',html:'<p>무인도에 갇히기 직전. 대신 보낼 플레이어를 고르면 나는 자유롭게 빠져나갑니다.</p><p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>',
     options:o.map(q=>({label:`${CH(q.ch).emoji} ${q.name} (총자산 ${fmt(assets(q))})`,value:q.id,primary:false})).concat([{label:'그냥 갇힌다',value:-1}])},
     ()=>o.reduce((a,b)=>assets(b)>assets(a)?b:a).id);
   if(tid<0)return false;
-  const q=G.players[tid];skillBurn(p,'폭풍 소환',`🌪️ ${q.name}이(가) 대신 무인도로!`);emote(p,'laugh','대신 가라!',{priority:5});
+  const q=G.players[tid];skillBurn(p,'폭풍 소환',`${q.name}이(가) 대신 무인도로`);emote(p,'laugh','대신 가라!',{priority:5});
   await teleport(q,8);jail(q);q.travel=false;emote(q,'angry','왜 나야!!',{priority:5,silent:true});await sailToIsland(q);renderAll();return true;
 }
 
@@ -2863,7 +2918,7 @@ const CARDS=[
   {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',art:{big:'🌪️',s1:'🏚️',s2:'⚡',bg:'linear-gradient(160deg,#cfd8e3,#5a6f8a)',pat:'waves'},f:async p=>{
     const c=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id&&T(i).type==='city'&&S(i).level>=1&&S(i).level<=3);
     if(!c.length){log('태풍이 지나갔지만 피해가 없습니다.',p);return;}
-    const i=c[Math.random()*c.length|0];focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍! ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
+    const i=c[Math.random()*c.length|0];focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍. ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
   {t:'자선 기부',d:'현금의 10%를 가장 가난한 플레이어에게 줍니다.',bad:1,art:{big:'🤲',s1:'💝',s2:'🪙',bg:'linear-gradient(160deg,#ffe4c4,#f0a070)',pat:'dots'},f:async p=>{
     const others=alive().filter(q=>q!==p);if(!others.length)return;
     const poor=others.reduce((a,b)=>assets(b)<assets(a)?b:a),amt=Math.round(p.cash*0.1);
@@ -2882,9 +2937,9 @@ function showCard(c,p){
 }
 async function drawChance(p){
   let c=CARDS[Math.random()*CARDS.length|0];
-  if(c.bad&&has(p,'lucky')){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다. 🍀`,p);c=CARDS[Math.random()*CARDS.length|0];}
+  if(c.bad&&has(p,'lucky')){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다.`,p);c=CARDS[Math.random()*CARDS.length|0];}
   say(`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
-  await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`🎴 ${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
+  await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
   await c.f(p);renderAll();
 }
 
@@ -2900,21 +2955,21 @@ const WEVENTS={
 };
 async function worldEvent(){
   const ids=Object.keys(WEVENTS);const id=ids[Math.random()*ids.length|0];const W=WEVENTS[id];const ev={id,until:G.round+W.dur-1};if(W.setup)W.setup(ev);
-  bigEvent(`${W.name}<small>${W.desc(ev)}${W.dur?` · ${W.dur}라운드`:''}</small>`,'gold',3200);SFX.play('news');toast(`🌍 세계 이벤트 — ${W.name}: ${W.desc(ev)}`,'good',5000);log(`🌍 세계 이벤트: ${W.name} — ${W.desc(ev)}`);
+  bigEvent(`${W.name}<small>${W.desc(ev)}${W.dur?` · ${W.dur}라운드`:''}</small>`,'gold',3200);SFX.play('news');toast(`세계 이벤트 — ${W.name}: ${W.desc(ev)}`,'good',5000);log(`세계 이벤트: ${W.name} — ${W.desc(ev)}`);
   if(id==='quake'){const c=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).level>=1&&S(i).level<=3);const hit=[];for(let k=0;k<2&&c.length;k++)hit.push(c.splice(Math.random()*c.length|0,1)[0]);
     hit.forEach((i,k)=>collapseFx(i,k*400));shake(.4,1600);await sleep(D(2800));
-    hit.forEach(i=>{S(i).level--;S(i).rubble=S(i).level===0;log(`🌋 ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`);});if(!hit.length)log('🌋 지진이 왔지만 무너질 건물이 없었습니다.');renderAll();}
+    hit.forEach(i=>{S(i).level--;S(i).rubble=S(i).level===0;log(`${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`);});if(!hit.length)log('지진이 왔지만 무너질 건물이 없었습니다.');renderAll();}
   else if(id==='dividend'){alive().forEach(q=>{const n=owned(q).filter(i=>S(i).level===4).length;if(n)gain(q,n*150,'랜드마크 배당');});renderAll();}
   else G.event=ev;
   await sleep(D(1800));renderAll();
 }
 async function playTurn(p){
   if(p.boss&&!p.bankrupt&&!G.over){await bossAction(p);if(G.over)return;}
-  if(G.event&&G.round>G.event.until){toast(`🌍 ${WEVENTS[G.event.id].name} 종료`,'info',2500);G.event=null;renderAll();}
+  if(G.event&&G.round>G.event.until){toast(`${WEVENTS[G.event.id].name} 종료`,'info',2500);G.event=null;renderAll();}
   if(G.pendingEvent){G.pendingEvent=false;await worldEvent();if(G.over)return;}
-  if(p.startDraft){p.startDraft=false;await relicDraft(p,'✈️ 시작 유물');}
+  if(p.startDraft){p.startDraft=false;await relicDraft(p,'시작 유물');}
   p.boost=false;renderAll();banner(p);SFX.play(p.ai?'click':'skill');updateThreats();
-  if(G.limit&&G.limit-G.round===2&&!G.lateWarned){G.lateWarned=1;const lead=alive().reduce((a,b)=>assets(b)>assets(a)?b:a);toast(`⏰ 3라운드 남음! 현재 1위 ${nm(lead)} (${fmt(assets(lead))})`,'danger',6000);SFX.play('alarm');}
+  if(G.limit&&G.limit-G.round===2&&!G.lateWarned){G.lateWarned=1;const lead=alive().reduce((a,b)=>assets(b)>assets(a)?b:a);toast(`⏰ 3라운드 남음. 현재 1위 ${nm(lead)} (${fmt(assets(lead))})`,'danger',6000);SFX.play('alarm');}
   await sleep(D(700));
   if(p.travel){
     p.travel=false;
@@ -2923,23 +2978,23 @@ async function playTurn(p){
     await teleport(p,target);await land(p);return;
   }
   if(p.island>0){
-    const ch=await decide(p,{title:'🦜 무인도',html:`<p>남은 ${p.island}턴. 더블이 나오면 바로 탈출해요.</p>`,
+    const ch=await decide(p,{title:'무인도',html:`<p>남은 ${p.island}턴. 더블이 나오면 바로 탈출해요.</p>`,
       options:[{label:'주사위로 탈출 시도',value:'roll',primary:true},{label:'탈출 비용 내기',value:'pay',cost:ISLAND_FEE,disabled:p.cash<ISLAND_FEE}]},
       ()=>p.cash>700&&p.island>1?'pay':'roll');
     if(ch==='pay'){pay(p,null,ISLAND_FEE,{quiet:true,why:'탈출 비용 → 잭팟',pool:true});p.island=0;say(`${nm(p)} ${fmt(ISLAND_FEE)}을 내고 무인도를 탈출했습니다.`,p);await sailBack(p,'taxi');renderAll();}
     else{
       const d=await roll(p,{noSkill:true});if(!d)return;const[a,b]=d;
-      if(a===b){p.island=0;say(`${nm(p)} 더블! 무인도를 탈출합니다.`,p);await sailBack(p,'speed');await walk(p,a+b);await land(p);return;}
+      if(a===b){p.island=0;say(`${nm(p)} 더블. 무인도를 탈출합니다.`,p);await sailBack(p,'speed');await walk(p,a+b);await land(p);return;}
       p.island--;say(`${nm(p)} 탈출 실패.${p.island?` 남은 ${p.island}턴.`:' 형기가 끝나 구조선이 옵니다.'}`,p);if(p.island===0)await sailBack(p,'rescue');return;
     }
   }
   let dbl=0;
   while(true){
     let d=await roll(p);if(!d)return;d=await luckyReroll(p,d);const[a,b]=d;
-    if(a===b&&++dbl===3){say(`${nm(p)} 더블 세 번! 무인도로 직행합니다.`,p);await teleport(p,8);if(!await captainStorm(p)){jail(p);await sailToIsland(p);}return;}
+    if(a===b&&++dbl===3){say(`${nm(p)} 더블 세 번. 무인도로 직행합니다.`,p);await teleport(p,8);if(!await captainStorm(p)){jail(p);await sailToIsland(p);}return;}
     await walk(p,a+b);await land(p);
     if(G.over||p.bankrupt)return;
-    if(a===b&&p.island===0&&!p.travel){say(`${nm(p)} 더블! 한 번 더 굴립니다.`,p);continue;}
+    if(a===b&&p.island===0&&!p.travel){say(`${nm(p)} 더블. 한 번 더 굴립니다.`,p);continue;}
     return;
   }
 }
@@ -2959,7 +3014,7 @@ const RUN_STAGES=[
   {name:'유럽',ico:'🏰',theme:'sunset',limit:20,aiCash:400,aiRelics:1},
   {name:'아메리카',ico:'🗽',theme:'night',limit:22,aiCash:800,aiRelics:2,boss:true},
 ];
-function stageBanner(){const st=RUN_STAGES[G.run.stage];bigEvent(`${st.ico} 스테이지 ${G.run.stage+1} · ${st.name}${st.boss?'<small>👑 보스: 재벌 회장 등장</small>':`<small>${G.run.stage?'AI가 더 강해졌어요':'세 지역을 정복하세요'}</small>`}`,'gold',3200);}
+function stageBanner(){const st=RUN_STAGES[G.run.stage];bigEvent(`${st.ico} 스테이지 ${G.run.stage+1} · ${st.name}${st.boss?'<small>보스: 재벌 회장 등장</small>':`<small>${G.run.stage?'AI가 더 강해졌어요':'세 지역을 정복하세요'}</small>`}`,'gold',3200);}
 function nextStage(){
   const prev=G;const run={...prev.run,stage:prev.run.stage+1};const st=RUN_STAGES[run.stage];
   const players=prev.players.map(p=>{const q=newPlayer(p.id,{name:p.name,ai:p.ai,ch:p.ch});q.name=p.name.replace(/^👑 /,'');
@@ -2979,30 +3034,30 @@ async function bossAction(p){
   if(targets.length){i=targets.reduce((a,b)=>invested(b)>invested(a)?b:a);price=Math.round(invested(i)*1.2);from=G.players[S(i).owner];}
   else{const free=G.ts.map((s,k)=>k).filter(k=>T(k).type==='city'&&S(k).owner==null);if(!free.length)return;i=free.reduce((a,b)=>T(b).price>T(a).price?b:a);price=T(i).price;}
   if(p.cash<price+200)return;
-  bigEvent(`🏢 재벌의 기업 인수!<small>${T(i).name} · ${fmt(price)}${from?' → '+esc(from.name):''}</small>`,'doom',2600);SFX.play('stamp');focusOn(i,2400,1.1);await sleep(D(1400));
+  bigEvent(`재벌의 기업 인수<small>${T(i).name} · ${fmt(price)}${from?' → '+esc(from.name):''}</small>`,'doom',2600);SFX.play('stamp');focusOn(i,2400,1.1);await sleep(D(1400));
   pay(p,from,price,{quiet:true,why:'기업 인수'});S(i).owner=p.id;emote(p,'cool','이것도 내 거.',{priority:6});if(from)emote(from,'angry','강제 인수라니!',{priority:6,silent:true});
-  log(`🏢 ${nm(p)} 기업 인수: ${T(i).name} (${fmt(price)})${from?' ← '+nm(from):''}`,p);renderAll();checkWin(p);
+  log(`${nm(p)} 기업 인수: ${T(i).name} (${fmt(price)})${from?' ← '+nm(from):''}`,p);renderAll();checkWin(p);
 }
 function endGame(w,reason){
   if(G.over)return;G.over=true;G.stable=null;timerStop();SFX.setMood(null);setTimeout(updateEmoteBar,6500);
   $('#roll').disabled=true;$('#skill').hidden=true;meter.active=false;
-  say(`${nm(w)} 승리! 🏆 ${reason}`,w);renderAll();confetti();SFX.play('win');bigEvent(`🏆 ${esc(w.name)} 승리!<small>${reason}</small>`,'gold',4000);
+  say(`${nm(w)} 승리. ${reason}`,w);renderAll();confetti();SFX.play('win');bigEvent(`${esc(w.name)} 승리<small>${reason}</small>`,'gold',4000);
   emote(w,'laugh','내가 1등!',{priority:9,ms:6000});alive().filter(q=>q!==w).forEach(q=>emote(q,'cry','졌다…',{priority:8,ms:6000,silent:true}));
   const rank=[...G.players].sort((a,b)=>(a.bankrupt-b.bankrupt)||assets(b)-assets(a));
   if(G.run){
     const st=RUN_STAGES[G.run.stage];const humanWon=!w.ai;const last=G.run.stage===RUN_STAGES.length-1;
     if(humanWon){G.run.cleared=G.run.stage+1;}
     if(humanWon&&!last){const bonus=150*(G.run.stage+1);const m=loadMeta();m.miles+=bonus;saveMeta(m);
-      setTimeout(()=>modal({title:`${st.ico} 스테이지 ${G.run.stage+1} 클리어!`,html:`<div class="big-ico">🎉</div><p><b>${esc(w.name)}</b>이(가) ${st.name} 지역을 정복했어요. ${reason}</p><p>✈️ 클리어 보너스 <b>+${bonus}</b> 마일리지</p><p class="muted">다음: ${RUN_STAGES[G.run.stage+1].ico} ${RUN_STAGES[G.run.stage+1].name} — 사람 플레이어는 유물을 가지고 가고 새 유물을 하나 더 고릅니다. AI는 자금과 유물을 더 들고 시작해요.${RUN_STAGES[G.run.stage+1].boss?' <b>👑 보스 재벌 회장이 등장합니다.</b>':''}</p>`,
+      setTimeout(()=>modal({title:`${st.ico} 스테이지 ${G.run.stage+1} 클리어`,html:`<div class="big-ico">🎉</div><p><b>${esc(w.name)}</b>이(가) ${st.name} 지역을 정복했어요. ${reason}</p><p>클리어 보너스 <b>+${bonus}</b> 마일리지</p><p class="muted">다음: ${RUN_STAGES[G.run.stage+1].ico} ${RUN_STAGES[G.run.stage+1].name} — 사람 플레이어는 유물을 가지고 가고 새 유물을 하나 더 고릅니다. AI는 자금과 유물을 더 들고 시작해요.${RUN_STAGES[G.run.stage+1].boss?' <b>보스 재벌 회장이 등장합니다.</b>':''}</p>`,
         options:[{label:`${RUN_STAGES[G.run.stage+1].ico} 다음 스테이지로`,value:1,primary:true},{label:'런 포기',value:0}],noTimer:true}).then(v=>{if(v)nextStage();else showSetup();}),900);
       return;}
     const miles=awardMiles()+(humanWon?600:G.run.cleared*100);if(humanWon||G.run.cleared){const m=loadMeta();m.miles+=humanWon?600:G.run.cleared*100;saveMeta(m);}const mtot=loadMeta().miles;
-    setTimeout(()=>modal({title:humanWon?'🌏 세계 일주 완주!':`💀 런 종료 — ${st.name}에서 패배`,html:`<div class="big-ico">${humanWon?'🏆':'🧳'}</div><p>${humanWon?'세 지역을 모두 정복했어요!':`${esc(w.name)}이(가) 이겼어요. ${reason}`}</p><p>클리어한 스테이지 <b>${G.run.cleared}/${RUN_STAGES.length}</b></p><p><b>✈️ 마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')})</p>`,
+    setTimeout(()=>modal({title:humanWon?'세계 일주 완주':`런 종료 — ${st.name}에서 패배`,html:`<div class="big-ico">${humanWon?'🏆':'🧳'}</div><p>${humanWon?'세 지역을 모두 정복했어요.':`${esc(w.name)}이(가) 이겼어요. ${reason}`}</p><p>클리어한 스테이지 <b>${G.run.cleared}/${RUN_STAGES.length}</b></p><p><b>마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')})</p>`,
       options:[{label:'새 게임',value:1,primary:true},{label:'보드 보기',value:0}],noTimer:true}).then(v=>{if(v)showSetup();}),900);
     return;
   }
   const miles=awardMiles();const mtot=loadMeta().miles;
-  setTimeout(()=>modal({title:`🏆 ${w.name} 승리!`,html:`<div class="big-ico">${CH(w.ch).emoji}</div><p>${reason}</p>${miles?`<p><b>✈️ 마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')}) — 다음 판 시작 화면에서 보너스를 사세요.</p>`:''}<ol class="rank">${rank.map((p,k)=>`<li style="--pc:${p.color}"><span>${['🥇','🥈','🥉','4위'][k]} ${CH(p.ch).emoji} ${esc(p.name)}${p.bankrupt?' (파산)':''}</span><b>${fmt(assets(p))}</b></li>`).join('')}</ol>`,
+  setTimeout(()=>modal({title:`${w.name} 승리`,html:`<div class="big-ico">${CH(w.ch).emoji}</div><p>${reason}</p>${miles?`<p><b>마일리지 +${miles}</b> (보유 ${mtot.toLocaleString('ko-KR')}) — 다음 판 시작 화면에서 보너스를 사세요.</p>`:''}<ol class="rank">${rank.map((p,k)=>`<li style="--pc:${p.color}"><span><span class="stamp">${k+1}위</span> ${CH(p.ch).emoji} ${esc(p.name)}${p.bankrupt?' (파산)':''}</span><b>${fmt(assets(p))}</b></li>`).join('')}</ol>`,
     options:[{label:'새 게임',value:1,primary:true},{label:'보드 보기',value:0}]}).then(v=>{if(v)showSetup();}),400);
 }
 const snap=()=>{const c={...G,players:G.players.map(p=>({...p,anim:false}))};delete c.stable;return JSON.stringify(c);};
@@ -3057,12 +3112,12 @@ function startGame(g){
 $('#btn-start').addEventListener('click',()=>{
   readNames();saveSetup();RUN++;
   const g={players:setupCfg.map((c,k)=>newPlayer(k,c)),
-    ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 1,500만으로 출발! 🌍',null]],
+    ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 1,500만으로 출발',null]],
     limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:$('#opt-nuke').value==='1',stable:null};
   g.specials=rollSpecials();g.jackpot=0;
-  if($('#opt-mode').value==='run'){g.run={stage:0,cleared:0};const st=RUN_STAGES[0];g.theme=st.theme;g.limit=st.limit;g.logs.unshift([`🌏 세계 일주 런 시작 — 스테이지 1: ${st.name}`,null]);}
+  if($('#opt-mode').value==='run'){g.run={stage:0,cleared:0};const st=RUN_STAGES[0];g.theme=st.theme;g.limit=st.limit;g.logs.unshift([`세계 일주 런 시작 — 스테이지 1: ${st.name}`,null]);}
   const m=loadMeta();const humansP=g.players.filter(p=>!p.ai);let spent=0;
-  if(humansP.length)perkSel.forEach(k=>{if(m.miles-spent>=PERKS[k].cost){spent+=PERKS[k].cost;humansP.forEach(p=>{if(k==='cash')p.cash+=500;if(k==='relic')p.startDraft=true;if(k==='nuke')p.nukes=(p.nukes??NUKES)+1;if(k==='shield')p.shield+=2;});g.logs.unshift([`✈️ 마일리지 보너스: ${PERKS[k].ico} ${PERKS[k].name}`,null]);}});
+  if(humansP.length)perkSel.forEach(k=>{if(m.miles-spent>=PERKS[k].cost){spent+=PERKS[k].cost;humansP.forEach(p=>{if(k==='cash')p.cash+=500;if(k==='relic')p.startDraft=true;if(k==='nuke')p.nukes=(p.nukes??NUKES)+1;if(k==='shield')p.shield+=2;});g.logs.unshift([`마일리지 보너스: ${PERKS[k].ico} ${PERKS[k].name}`,null]);}});
   if(spent){m.miles-=spent;saveMeta(m);}perkSel.clear();
   $('#setup').hidden=true;startGame(g);
 });

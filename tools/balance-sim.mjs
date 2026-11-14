@@ -70,9 +70,9 @@ for (let g = 0; g < GAMES; g++) {
   const alive = G.players.filter(p => !p.bankrupt);
   const w = alive.reduce((a, b) => sim.assets(b) > sim.assets(a) ? b : a);
   // winner = the one endGame picked: last log line mentions 승리
-  const winLine = G.logs.find(l => l[0].includes('승리!'));
+  const winLine = G.logs.find(l => l[0].includes('승리.'));
   const winner = winLine && winLine[1] != null ? G.players[winLine[1]] : w;
-  const reason = winLine ? winLine[0].replace(/<[^>]+>/g, '').split('🏆')[1]?.trim().slice(0, 30) : '?';
+  const reason = winLine ? winLine[0].replace(/<[^>]+>/g, '').split('승리.')[1]?.trim().slice(0, 30) : '?';
   reasons[reason] = (reasons[reason] || 0) + 1;
   done++; roundsTotal += G.round; const lmOwners = new Set(); G.ts.forEach(t => { if (t.level === 4) { lmTotal++; lmOwners.add(t.owner); } }); lmPlayers += lmOwners.size; G.players.forEach(p => { (p.relics||[]).forEach(r => { relicCount[r] = relicCount[r] || {n:0,w:0}; relicCount[r].n++; if (p === winner) relicCount[r].w++; }); });
   G.players.forEach((p, k) => { const s = stat[p.ch]; s.games++; s.assets += sim.assets(p); if (p.bankrupt) s.bankrupt++; if (p === winner) s.wins++; if (k === 0) s.first++; });
