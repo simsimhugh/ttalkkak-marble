@@ -38,7 +38,7 @@ async function walk(p,n){
     p.pos=(p.pos+dir+N)%N;
     if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0)+(hasR(p,'salary')?100:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금. 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();
       if(hasR(p,'jackhunter')&&k<Math.abs(n)-1&&(G.jackpot||0)>1){const half=Math.floor(G.jackpot/2);G.jackpot-=half;gain(p,half,'잭팟 사냥꾼');}
-      await hop(p,0,Math.max(110,D(230)),0.4);await sleep(D(150));await relicDraft(p);continue;}
+      await hop(p,0,Math.max(110,D(230)),0.4);await sleep(D(150));await relicDraft(p);await bonusCard(p,'출발 통과');continue;}
     await hop(p,p.pos,Math.max(110,D(230)),0.4);
   }
   }finally{if(chase===p)setTimeout(()=>{if(chase===p)chase=null;},D(900));} // linger so the street view registers before swinging back up
@@ -96,7 +96,9 @@ async function chargeToll(p,o,i){
   const danger=amt>=400||amt>=p.cash*0.45;
   if(danger){vignette('#ff2a2a');SFX.play('heart');toast(`${nm(p)} 위기. ${t.name} 통행료 <b>${fmt(amt)}</b>${amt>=p.cash?' — 파산 위험':''}`,'danger',4500);focusOn(i,1600,1.0);emote(p,'shock',undefined,{silent:true});await sleep(D(1300));}
   SFX.play('pay');
-  const ok=pay(p,o,amt,{why:'통행료'});if(ok&&hasR(o,'leech')){const x=Math.round(amt*.1);if(x>0)gain(o,x,'흡혈 계약');}renderPlayers();return ok;
+  const ok=pay(p,o,amt,{why:'통행료'});if(ok&&hasR(o,'leech')){const x=Math.round(amt*.1);if(x>0)gain(o,x,'흡혈 계약');}renderPlayers();
+  if(ok&&amt>=150)await bonusCard(p,'큰 통행료 위로');
+  return ok;
 }
 /* pull visuals */
 function magnetMesh(){
@@ -382,17 +384,17 @@ async function captainStorm(p){
 
 /* ---------- chance ---------- */
 const CARDS=[
-  {t:'복권 당첨',d:'250만을 받습니다.',art:{big:'🎟️',s1:'💰',s2:'✨',bg:'linear-gradient(160deg,#ffe98a,#ff9f43)',pat:'rays'},f:async p=>gain(p,has(p,'lucky')?500:250)},
-  {t:'장학금',d:'120만을 받습니다.',art:{big:'🎓',s1:'📚',s2:'💵',bg:'linear-gradient(160deg,#c7f0ff,#6fb6ff)',pat:'grid'},f:async p=>gain(p,has(p,'lucky')?240:120)},
+  {t:'복권 당첨',d:'250만을 받습니다.',art:{big:'🎟️',s1:'💰',s2:'✨',bg:'linear-gradient(160deg,#ffe98a,#ff9f43)',pat:'rays'},f:async p=>gain(p,luckyX(p)?500:250)},
+  {t:'장학금',d:'120만을 받습니다.',art:{big:'🎓',s1:'📚',s2:'💵',bg:'linear-gradient(160deg,#c7f0ff,#6fb6ff)',pat:'grid'},f:async p=>gain(p,luckyX(p)?240:120)},
   {t:'과속 벌금',d:'80만을 냅니다.',bad:1,art:{big:'🚓',s1:'🚦',s2:'💸',bg:'linear-gradient(160deg,#ffd1d1,#ff6b6b)',pat:'stripes'},f:async p=>{pay(p,null,80,{why:'벌금 → 잭팟',pool:true});}},
-  {t:'생일 축하',d:'다른 플레이어들에게 50만씩 받습니다.',art:{big:'🎂',s1:'🎈',s2:'🎁',bg:'linear-gradient(160deg,#ffd6f0,#ff8ad4)',pat:'dots'},f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,has(p,'lucky')?100:50);});}},
+  {t:'생일 축하',d:'다른 플레이어들에게 50만씩 받습니다.',art:{big:'🎂',s1:'🎈',s2:'🎁',bg:'linear-gradient(160deg,#ffd6f0,#ff8ad4)',pat:'dots'},f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,luckyX(p)?100:50);});}},
   {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🛡️',s1:'🚧',s2:'🆓',bg:'linear-gradient(160deg,#d8f5e0,#6fd39a)',pat:'grid'},f:async p=>{p.shield++;}},
   {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🎫',s1:'🛡️',s2:'✅',bg:'linear-gradient(160deg,#dff3ff,#7fc8ff)',pat:'stripes'},f:async p=>{p.shield++;}},
-  {t:'앞으로 3칸',d:'3칸 앞으로 이동합니다.',art:{big:'🏃',s1:'➡️',s2:'💨',bg:'linear-gradient(160deg,#fff3c4,#ffd166)',pat:'stripes'},f:async p=>{await walk(p,3);await land(p);}},
-  {t:'뒤로 2칸',d:'2칸 뒤로 이동합니다.',bad:1,art:{big:'🔙',s1:'🐌',s2:'😵',bg:'linear-gradient(160deg,#e6e0f8,#b39ddb)',pat:'waves'},f:async p=>{await walk(p,-2);await land(p);}},
-  {t:'무인도 표류',d:'무인도로 바로 이동합니다.',bad:1,art:{big:'🏝️',s1:'🌊',s2:'🦜',bg:'linear-gradient(160deg,#bfe9f5,#2a9fd6)',pat:'waves'},f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
-  {t:'귀향',d:'출발지로 이동하고 월급을 받습니다.',art:{big:'🏠',s1:'🚀',s2:'💰',bg:'linear-gradient(160deg,#dff7e3,#8fd99a)',pat:'rays'},f:async p=>{await walk(p,(N-p.pos)%N);}},
-  {t:'세계여행 티켓',d:'세계여행 칸으로 이동합니다. 다음 턴에 원하는 곳으로 가요.',art:{big:'✈️',s1:'🌍',s2:'🧳',bg:'linear-gradient(160deg,#d6ecff,#5aa9ff)',pat:'dots'},f:async p=>{await teleport(p,24);p.travel=true;}},
+  {t:'앞으로 3칸',mv:1,d:'3칸 앞으로 이동합니다.',art:{big:'🏃',s1:'➡️',s2:'💨',bg:'linear-gradient(160deg,#fff3c4,#ffd166)',pat:'stripes'},f:async p=>{await walk(p,3);await land(p);}},
+  {t:'뒤로 2칸',mv:1,d:'2칸 뒤로 이동합니다.',bad:1,art:{big:'🔙',s1:'🐌',s2:'😵',bg:'linear-gradient(160deg,#e6e0f8,#b39ddb)',pat:'waves'},f:async p=>{await walk(p,-2);await land(p);}},
+  {t:'무인도 표류',mv:1,d:'무인도로 바로 이동합니다.',bad:1,art:{big:'🏝️',s1:'🌊',s2:'🦜',bg:'linear-gradient(160deg,#bfe9f5,#2a9fd6)',pat:'waves'},f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
+  {t:'귀향',mv:1,d:'출발지로 이동하고 월급을 받습니다.',art:{big:'🏠',s1:'🚀',s2:'💰',bg:'linear-gradient(160deg,#dff7e3,#8fd99a)',pat:'rays'},f:async p=>{await walk(p,(N-p.pos)%N);}},
+  {t:'세계여행 티켓',mv:1,d:'세계여행 칸으로 이동합니다. 다음 턴에 원하는 곳으로 가요.',art:{big:'✈️',s1:'🌍',s2:'🧳',bg:'linear-gradient(160deg,#d6ecff,#5aa9ff)',pat:'dots'},f:async p=>{await teleport(p,24);p.travel=true;}},
   {t:'축제 초대장',d:'내 땅 하나에서 축제를 엽니다.',art:{big:'🎆',s1:'🎪',s2:'🎉',bg:'linear-gradient(160deg,#ffd9ec,#c86dd7)',pat:'rays'},f:async p=>{await hostFestival(p);}},
   {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',art:{big:'🌪️',s1:'🏚️',s2:'⚡',bg:'linear-gradient(160deg,#cfd8e3,#5a6f8a)',pat:'waves'},f:async p=>{
     const c=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id&&T(i).type==='city'&&S(i).level>=1&&S(i).level<=3);
@@ -435,6 +437,13 @@ async function cardForceSell(p){
   focusOn(i,2000,1.1);SFX.play('stamp');emote(p,'sad','헐값에…',{silent:true});gain(p,v,`${T(i).name} 강제 매각`);
   say(`${nm(p)} ${T(i).name}을(를) ${fmt(v)}에 강제 매각했습니다.`,p);renderAll();
 }
+/* extra card draws outside the card tiles: big toll paid, island escape, passing start */
+let bonusDraw=false;
+const luckyX=p=>has(p,'lucky')&&!bonusDraw; // 🍀 double card money only from card tiles, or bonus cards snowball the lucky
+async function bonusCard(p,why){
+  if(G.over||p.bankrupt)return;
+  toast(`🎴 ${nm(p)} ${why} — 행운카드 1장`,'good',2500);bonusDraw=true;try{await drawChance(p,true);}finally{bonusDraw=false;}
+}
 /* the drawn card flips open in the middle of the stage; a tap (or the timer) closes it */
 function showCard(c,p){
   const host=$('#cardfx');const a=c.art||{big:'🎴',s1:'',s2:'',bg:'linear-gradient(160deg,#ffe29a,#ffb347)',pat:'dots'};
@@ -446,9 +455,11 @@ function showCard(c,p){
     if(p.ai)setTimeout(close,Math.max(1200,D(2200)));else{setTimeout(close,5000);}
   });
 }
-async function drawChance(p){
-  let c=CARDS[Math.random()*CARDS.length|0];
-  if(c.bad&&has(p,'lucky')){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다.`,p);c=CARDS[Math.random()*CARDS.length|0];}
+// still: bonus cards drawn mid-move or mid-toll come from the cards that don't move the piece
+async function drawChance(p,still=false){
+  const pool=still?CARDS.filter(c=>!c.mv):CARDS,draw=()=>pool[Math.random()*pool.length|0];
+  let c=draw();
+  if(c.bad&&luckyX(p)){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다.`,p);c=draw();}
   say(`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
   await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
   await c.f(p);renderAll();
@@ -492,11 +503,11 @@ async function playTurn(p){
     const ch=await decide(p,{title:'무인도',html:`<p>남은 ${p.island}턴. 더블이 나오면 바로 탈출해요.</p>`,
       options:[{label:'주사위로 탈출 시도',value:'roll',primary:true},{label:'탈출 비용 내기',value:'pay',cost:ISLAND_FEE,disabled:p.cash<ISLAND_FEE}]},
       ()=>p.cash>700&&p.island>1?'pay':'roll');
-    if(ch==='pay'){pay(p,null,ISLAND_FEE,{quiet:true,why:'탈출 비용 → 잭팟',pool:true});p.island=0;say(`${nm(p)} ${fmt(ISLAND_FEE)}을 내고 무인도를 탈출했습니다.`,p);await sailBack(p,'taxi');renderAll();}
+    if(ch==='pay'){pay(p,null,ISLAND_FEE,{quiet:true,why:'탈출 비용 → 잭팟',pool:true});p.island=0;say(`${nm(p)} ${fmt(ISLAND_FEE)}을 내고 무인도를 탈출했습니다.`,p);await sailBack(p,'taxi');await bonusCard(p,'무인도 탈출');renderAll();}
     else{
       const d=await roll(p,{noSkill:true});if(!d)return;const[a,b]=d;
-      if(a===b){p.island=0;say(`${nm(p)} 더블. 무인도를 탈출합니다.`,p);await sailBack(p,'speed');await walk(p,a+b);await land(p);return;}
-      p.island--;say(`${nm(p)} 탈출 실패.${p.island?` 남은 ${p.island}턴.`:' 형기가 끝나 구조선이 옵니다.'}`,p);if(p.island===0)await sailBack(p,'rescue');return;
+      if(a===b){p.island=0;say(`${nm(p)} 더블. 무인도를 탈출합니다.`,p);await sailBack(p,'speed');await bonusCard(p,'무인도 탈출');await walk(p,a+b);await land(p);return;}
+      p.island--;say(`${nm(p)} 탈출 실패.${p.island?` 남은 ${p.island}턴.`:' 형기가 끝나 구조선이 옵니다.'}`,p);if(p.island===0){await sailBack(p,'rescue');await bonusCard(p,'무인도 탈출');}return;
     }
   }
   let dbl=0;
