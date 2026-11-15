@@ -114,7 +114,8 @@
 
 <div class="overlay" id="setup" hidden>
   <div class="card setup">
-    <div class="shead"><h3>딸깍 마블</h3><button class="btn primary" id="btn-start" type="button">게임 시작</button></div>
+    <div class="shead"><h3>딸깍 마블</h3><button class="btn" id="btn-rank" type="button">🏆 랭킹</button><button class="btn primary" id="btn-start" type="button">게임 시작</button></div>
+    <div class="acct" id="acct"></div>
     <p class="lbl">사람 수 (나머지는 AI가 플레이)</p>
     <div class="seg" id="humans" style="margin-bottom:12px"></div>
     <div id="srows"></div>
@@ -168,6 +169,7 @@
 <script defer src="js/pieces.js"></script>
 <script defer src="js/ui.js"></script>
 <script defer src="js/game.js"></script>
+<script type="module" src="js/online.mjs"></script>
 <script>
 setTimeout(()=>{const l=document.getElementById('loading');if(l&&!l.hidden)l.textContent='3D 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.';},15000);
 </script>

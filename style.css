@@ -279,3 +279,10 @@ header.top h1{font-size:22px}
 #rot.rotated header.top{display:none}
 #rot.rotated .stage{height:100%;width:100%;max-height:none;aspect-ratio:auto;min-height:0;border-radius:8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* account row + ranking */
+.shead h3{margin-right:auto}
+.acct{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-4px 0 12px;font-size:14px}
+.acct input{width:7.5em;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--tile);color:var(--ink);font:inherit}
+.acct .btn{padding:6px 12px;font-size:14px}
+.acct .muted{flex-basis:100%;font-size:12px}
+.rank li{--pc:var(--muted)}.rank li.me{--pc:#2f7fe0;background:rgba(47,127,224,.1);border-radius:4px}

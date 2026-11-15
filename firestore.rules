@@ -1,0 +1,23 @@
+rules_version = '2';
+// players/{uid}: one account's game totals. Anyone can read (rankings); only the owner writes,
+// and each write may add exactly one game — so totals can't be bumped arbitrarily.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function shape(d) {
+      return d.keys().hasOnly(['id', 'games', 'wins', 'winRate', 'bestAssets', 'landmarks', 'bestRun', 'runClears', 'updatedAt'])
+        && d.id is string && d.id.size() >= 2 && d.id.size() <= 10
+        && d.wins <= d.games && d.bestAssets is number && d.bestAssets < 1000000 && d.bestRun <= 3;
+    }
+    match /players/{uid} {
+      allow read: if true;
+      allow create: if request.auth != null && request.auth.uid == uid && shape(request.resource.data)
+        && request.resource.data.games == 0 && request.resource.data.wins == 0;
+      allow update: if request.auth != null && request.auth.uid == uid && shape(request.resource.data)
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.games == resource.data.games + 1
+        && request.resource.data.wins - resource.data.wins in [0, 1]
+        && request.resource.data.landmarks - resource.data.landmarks <= 24
+        && request.resource.data.runClears - resource.data.runClears in [0, 1];
+    }
+  }
+}

@@ -555,6 +555,8 @@ function endGame(w,reason){
   say(`${nm(w)} 승리. ${reason}`,w);renderAll();confetti();SFX.play('win');bigEvent(`${esc(w.name)} 승리<small>${reason}</small>`,'gold',4000);
   emote(w,'laugh','내가 1등!',{priority:9,ms:6000});alive().filter(q=>q!==w).forEach(q=>emote(q,'cry','졌다…',{priority:8,ms:6000,silent:true}));
   const rank=[...G.players].sort((a,b)=>(a.bankrupt-b.bankrupt)||assets(b)-assets(a));
+  const hp=G.players.find(q=>!q.ai); // the logged-in account plays the first human seat
+  if(hp&&window.Online)Online.record({win:w===hp,assets:assets(hp),landmarks:owned(hp).filter(j=>S(j).level===4).length,run:G.run?(w===hp?G.run.stage+1:G.run.cleared):null});
   if(G.run){
     const st=RUN_STAGES[G.run.stage];const humanWon=!w.ai;const last=G.run.stage===RUN_STAGES.length-1;
     if(humanWon){G.run.cleared=G.run.stage+1;}
