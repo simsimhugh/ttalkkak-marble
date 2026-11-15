@@ -610,7 +610,7 @@ const DEF_NAMES=['플레이어 1','플레이어 2','플레이어 3','플레이�
 const AI_NAMES=['AI 바람','AI 파도','AI 구름','AI 노을'];
 let setupCfg=[0,1,2,3].map(k=>({name:'',ai:k>=2,ch:CHARS[k].id}));
 /* remember the setup screen choices in this browser */
-const OPT_IDS=['opt-limit','opt-timer','opt-nuke','opt-theme','opt-speed','opt-mode'];
+const OPT_IDS=['opt-timer','opt-theme','opt-speed','opt-mode'];
 function saveSetup(){try{const o={};OPT_IDS.forEach(id=>{const el=$('#'+id);if(el)o[id]=el.value;});localStorage.setItem('ttm-setup',JSON.stringify({players:setupCfg,opts:o}));}catch(e){}}
 function loadSetup(){try{const d=JSON.parse(localStorage.getItem('ttm-setup')||'null');if(!d)return;
   if(Array.isArray(d.players)&&d.players.length===4)setupCfg=d.players.map((c,k)=>({name:String(c.name||'').slice(0,10),ai:!!c.ai,ch:CHARS.some(x=>x.id===c.ch)?c.ch:CHARS[k].id}));
@@ -644,7 +644,7 @@ $('#btn-start').addEventListener('click',()=>{
   readNames();saveSetup();RUN++;
   const g={players:setupCfg.map((c,k)=>newPlayer(k,c)),
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:false,logs:[['새 게임을 시작합니다. 모두 1,500만으로 출발',null]],
-    limit:+$('#opt-limit').value,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:$('#opt-nuke').value==='1',stable:null};
+    limit:30,speed:+$('#opt-speed').value,turnSec:+$('#opt-timer').value,theme:$('#opt-theme').value,nukesOn:true,stable:null};
   g.specials=rollSpecials();g.jackpot=0;
   if($('#opt-mode').value==='run'){g.run={stage:0,cleared:0};const st=RUN_STAGES[0];g.theme=st.theme;g.limit=st.limit;g.logs.unshift([`세계 일주 런 시작 — 스테이지 1: ${st.name}`,null]);}
   const m=loadMeta();const humansP=g.players.filter(p=>!p.ai);let spent=0;
