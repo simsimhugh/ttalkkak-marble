@@ -245,17 +245,22 @@ function lotSync(i,s,t){
   const L=lots[i];if(!L)return;
   const lvl=s.owner==null?0:(t.type==='tour'?1:s.level),owner=s.owner,rub=!!(s.rubble&&s.level===0&&t.type==='city');
   if(L.level===lvl&&L.owner===owner&&L.rubble===rub)return;
-  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}if(L.base){L.grp.remove(L.base);disposeObj(L.base);L.base=null;}L.fence.visible=true;
+  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}if(L.base){L.grp.remove(L.base);disposeObj(L.base);L.base=null;}if(L.beam){L.grp.remove(L.beam);disposeObj(L.beam);L.beam=null;}L.fence.visible=true;
   const rising=owner!=null&&lvl>L.level&&L.level>=0&&!G.over;
   if(owner!=null&&lvl>0){const o=G.players[owner];const b=t.type==='tour'?tourKiosk(o.color):buildingMesh(lvl,o.color,t.name);
     const sc=lvl===4?LOT_LM:LOT_SCALE,TH=THEMES[env.theme]||THEMES.day;const base=plazaBase(L.col,TH);L.grp.add(base);L.base=base;
     b.scale.setScalar(sc);b.position.y=.28;L.grp.add(b);L.bld=b;L.fence.visible=false;
+    if(lvl===4){L.beam=landmarkBeam(o.color);L.grp.add(L.beam);}
     if(t.type==='city'){const bb=new THREE.Box3().setFromObject(b);const h=bb.max.y-bb.min.y;const mq=marquee(t.name,L.col,TH,.28+h);L.grp.add(mq);L.mq=mq;}
     if(rising){const wp=new THREE.Vector3();L.grp.getWorldPosition(wp);wp.y=L.grp.position.y+.1;b.scale.y=.05;landDust(wp,14,3.6);
       effects.push({t0:performance.now()+200,ms:lvl===4?1300:900,type:'fn',fn:u=>{b.scale.y=sc*Math.max(.02,Math.min(1,u*1.2))*(1+Math.sin(u*Math.PI)*.1);},done:()=>{b.scale.y=sc;}});}}
   else if(rub){const r=rubbleMesh();r.scale.setScalar(5);r.position.y=.1;L.fence.visible=false;L.grp.add(r);L.bld=r;}
   L.level=lvl;L.owner=owner;L.rubble=rub;
 }
+/* a finished landmark shines a pillar of its owner's color into the sky, seen from anywhere on the board */
+function landmarkBeam(color){const g=new THREE.Group(),c=new THREE.Color(color);
+  const add=(geo,op,y)=>{const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false,fog:false}));m.position.y=y;g.add(m);return m;};
+  add(new THREE.CylinderGeometry(.45,1.0,18,20,1,true),.3,9.3);add(new THREE.CylinderGeometry(.15,.3,18,12,1,true),.6,9.3);const ring=add(new THREE.TorusGeometry(2.0,.08,8,48),.8,.32);ring.rotation.x=Math.PI/2;return g;}
 function lotCollapse(j,delay=0){const L=lots[j];if(!L||!L.bld||L.rubble||L.level<=0)return;collapseMesh(L.bld,delay,L.bld.scale.x||LOT_SCALE);}
 function buildEnv(id){
   const T=THEMES[id]||THEMES.day;env.theme=id;
@@ -402,7 +407,8 @@ function camTick(dt){
     const ah=slotPos((chase.pos+3)%N,chase.id).sub(slotPos(chase.pos,chase.id)).setY(0);if(ah.lengthSq()<1e-6)ah.set(1,0,0);ah.normalize();
     if(!chaseAnchor){chaseAnchor=tp.clone().setY(0);chaseDir.copy(ah);} // start already facing the walk, no swing-in
     chaseAnchor.lerp(new THREE.Vector3(tp.x,0,tp.z),1-Math.pow(0.08,dt));chaseDir.lerp(ah,1-Math.pow(0.15,dt)).normalize();
-    cp=chaseAnchor.clone().addScaledVector(chaseDir,-1.9).setY(1.5);tg=chaseAnchor.clone().addScaledVector(chaseDir,5).setY(.6);k=1-Math.pow(0.05,dt);}
+    cp=chaseAnchor.clone().addScaledVector(chaseDir,-1.9).setY(1.5);tg=chaseAnchor.clone().addScaledVector(chaseDir,5).setY(.6);k=1-Math.pow(0.05,dt);
+    const lk=tokens[chase.id].look;if(lk&&performance.now()<lk.until)tg.lerp(lk.pt.clone().setY(2.5),.28);} // a landmark glance turns the view with the piece's head
   else if(focusOverride&&performance.now()<focusOverride.until){tg=focusOverride.pt;cp=focusOverride.pt.clone().add(FOLLOW_OFF.clone().multiplyScalar(focusOverride.scale||1.3));}
   else if(false){}
   else{tg=TARGET;cp=homePos;chaseAnchor=null;k=1-Math.pow(0.05,dt);} // ease back up slowly too
@@ -560,6 +566,8 @@ function hubFestival(i){
 }
 function hubTick(now,dt){
   const t=now/1000;
+  lots.forEach(L=>{if(!L.beam)return;const f=L.flash?Math.max(0,1-(now-L.flash)/1400):0,[beam,core,ring]=L.beam.children,base=(THEMES[env.theme]||THEMES.day).night?.4:.3;
+    beam.material.opacity=base+.08*Math.sin(t*2+L.grp.position.x)+f*.5;core.material.opacity=.6+f*.4;beam.scale.set(1+f*.8,1,1+f*.8);ring.scale.setScalar(1+.06*Math.sin(t*3)+f*.4);});
   if(hubFx.festLm)hubFx.festLm.rotation.y=t*.5;
   if(hubFx.lights)hubFx.lights.forEach(b=>{b.rotation.z=.55+Math.sin(t*.35+b.userData.k*2.1)*.35;b.rotation.y=t*.4+b.userData.k;});
   festTiles.forEach(g=>{if(!g.parent){festTiles.delete(g);return;}const u=g.userData;u.beams.forEach(b=>{const a=t*1.4+b.userData.k*2.1;b.rotation.z=Math.sin(a)*.5;b.rotation.x=Math.cos(a*1.3)*.4;});u.sign.position.y=1.15+Math.sin(t*3)*.06;const sc=1+.04*Math.sin(t*6);u.sign.scale.set(1.05*sc,.4*sc,1);u.glow.material.opacity=.12+.08*Math.sin(t*5);u.light.intensity=1+.5*Math.sin(t*7);u.canopy.rotation.y=Math.PI/4+Math.sin(t*1.5)*.05;

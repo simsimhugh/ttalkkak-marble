@@ -88,7 +88,10 @@ function tokenTick(now){
     const hp=tk.grp.position,dx=camera.position.x-hp.x,dz=camera.position.z-hp.z,dy=camera.position.y-(hp.y+.67);
     const want=tk.emo?-Math.min(1.05,Math.atan2(dy,Math.hypot(dx,dz))):0;tk.tilt=(tk.tilt||0)+(want-(tk.tilt||0))*0.12;
     const ride=chase===tk.p&&camMode==='follow'&&!REDUCED_MOTION; // while the camera rides behind, the piece looks where it walks
-    head.rotation.order='YXZ';head.rotation.y=ride?Math.atan2(chaseDir.x,chaseDir.z):Math.atan2(dx,dz);head.rotation.x=tk.tilt;
+    let yaw=ride?Math.atan2(chaseDir.x,chaseDir.z):Math.atan2(dx,dz);
+    if(ride&&tk.look&&now<tk.look.until){const w=yaw,d=Math.atan2(tk.look.pt.x-hp.x,tk.look.pt.z-hp.z)-w;yaw=w+Math.max(-1.7,Math.min(1.7,Math.atan2(Math.sin(d),Math.cos(d))));} // glance at a landmark, no owl turns
+    const dy2=Math.atan2(Math.sin(yaw-(tk.yaw??yaw)),Math.cos(yaw-(tk.yaw??yaw)));tk.yaw=(tk.yaw??yaw)+dy2*.2;
+    head.rotation.order='YXZ';head.rotation.y=tk.yaw;head.rotation.x=tk.tilt;
     if(!tk.emo)return;
     const u=(now-tk.emo.t0)/tk.emo.ms;
     if(u>=1){tk.emo=null;head.material.map=faceTex('neutral');head.material.needsUpdate=true;tk.bubble.visible=false;return;}
@@ -104,6 +107,15 @@ function tokenTick(now){
     }
   });
 }
+/* while my piece walks, it glances once at the board's most expensive landmark, at the step where it stands most
+   in front (the riding camera looks ahead, so that is when the landmark is on screen) */
+function glancePlan(p,n){
+  const ls=G.ts.map((s,i)=>i).filter(i=>S(i).level===4&&lots[i]&&lots[i].beam);if(!ls.length)return null;
+  const i=priciest(ls),pt=new THREE.Vector3();lots[i].grp.getWorldPosition(pt);let k=0,bd=1e9;
+  for(let q=0;q<Math.abs(n);q++){const at=(p.pos+Math.sign(n)*(q+1)+N*4)%N,here=slotPos(at,p.id),fwd=slotPos((at+3)%N,p.id).sub(here).setY(0).normalize();
+    const d=-fwd.dot(pt.clone().sub(here).setY(0).normalize());if(d<bd){bd=d;k=q;}} // smallest angle between heading and the landmark
+  return {i,k,pt};}
+function glance(p,g){const tk=tokens[p.id];if(!tk)return;tk.look={pt:g.pt,until:performance.now()+Math.max(800,D(1200))};lots[g.i].flash=performance.now();}
 function slotPos(i,pid){
   const r=rect(i),[ox,oz]=nearFirst(i)?[0,-0.02]:outerOffset(i,-(Math.min(r.w,r.d)/2-0.3)),[tx,tz]=tangent(i);
   const k=(pid-1.5)*0.24;

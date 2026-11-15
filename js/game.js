@@ -35,8 +35,9 @@ async function walk(p,n){
   if(!p.ai){chase=p;freeUntil=0;}try{
   const dir=n>0?1:-1,dest=(p.pos+n+N*4)%N;
   const dread=dir>0&&n>=3&&landingInfo(p,dest)?.cls==='deadly'; // landing on a toll that could ruin p
+  const gl=p.ai?null:glancePlan(p,n);
   for(let k=0;k<Math.abs(n);k++){
-    p.pos=(p.pos+dir+N)%N;
+    p.pos=(p.pos+dir+N)%N;if(gl&&k===gl.k)glance(p,gl);
     if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0)+(hasR(p,'salary')?100:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금. 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();
       if(hasR(p,'jackhunter')&&k<Math.abs(n)-1&&(G.jackpot||0)>1){const half=Math.floor(G.jackpot/2);G.jackpot-=half;gain(p,half,'잭팟 사냥꾼');}
       await hop(p,0,Math.max(110,D(230)),0.4);await sleep(D(150));await relicDraft(p);await bonusCard(p,'출발 통과');continue;}
