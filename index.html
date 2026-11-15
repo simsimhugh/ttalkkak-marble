@@ -115,13 +115,20 @@
 </template>
 
 <div class="overlay" id="setup" hidden>
-  <div class="card setup">
-    <div class="shead"><h3>딸깍 마블</h3><button class="btn" id="btn-rank" type="button">🏆 랭킹</button><button class="btn primary" id="btn-start" type="button">게임 시작</button></div>
-    <div class="acct" id="acct"></div>
-    <p class="lbl">사람 수 (나머지는 AI가 플레이)</p>
-    <div class="seg" id="humans" style="margin-bottom:12px"></div>
-    <div id="srows"></div>
-    <details class="more"><summary>게임 설정 · 마일리지</summary>
+  <div class="pass" role="dialog" aria-modal="true" aria-labelledby="pass-title">
+    <section class="stub">
+      <svg class="crest" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><ellipse cx="24" cy="24" rx="9" ry="21"/><path d="M3 24h42M7 13h34M7 35h34"/></svg>
+      <h3 id="pass-title">딸깍 마블</h3>
+      <p class="tag">세계 도시를 사고, 짓고, 독점하세요</p>
+      <div class="acct" id="acct"></div>
+      <button class="btn rankbtn" id="btn-rank" type="button">🏆 랭킹 보기</button>
+    </section>
+    <section class="manifest">
+      <div class="mhead"><h4>탑승객</h4><span>얼굴을 누르면 캐릭터가 바뀌어요</span></div>
+      <div class="seats" id="srows"></div>
+      <div class="mfoot">
+        <details class="more"><summary>여행 옵션과 마일리지</summary>
+          <div class="drawer">
     <div class="sopts">
       <label for="opt-limit">제한 라운드
         <select id="opt-limit"><option value="20">20라운드</option><option value="30" selected>30라운드</option><option value="0">무제한</option></select>
@@ -142,8 +149,12 @@
         <select id="opt-speed"><option value="1.8">느림</option><option value="1.4">보통</option><option value="1" selected>빠름</option></select>
       </label>
     </div>
-    <div id="shop"></div>
-    </details>
+            <div id="shop"></div>
+          </div>
+        </details>
+        <button class="btn primary depart" id="btn-start" type="button">출발</button>
+      </div>
+    </section>
   </div>
 </div>
 

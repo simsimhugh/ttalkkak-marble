@@ -442,7 +442,7 @@ let bonusDraw=false;
 const luckyX=p=>has(p,'lucky')&&!bonusDraw; // 🍀 double card money only from card tiles, or bonus cards snowball the lucky
 async function bonusCard(p,why){
   if(G.over||p.bankrupt)return;
-  toast(`🎴 ${nm(p)} ${why} — 행운카드 1장`,'good',2500);bonusDraw=true;try{await drawChance(p,true);}finally{bonusDraw=false;}
+  if(!p.ai)toast(`🎴 ${nm(p)} ${why} — 행운카드 1장`,'good',2500);bonusDraw=true;try{await drawChance(p,true);}finally{bonusDraw=false;}
 }
 /* the drawn card flips open in the middle of the stage; a tap (or the timer) closes it */
 function showCard(c,p){
@@ -461,7 +461,8 @@ async function drawChance(p,still=false){
   let c=draw();
   if(c.bad&&luckyX(p)){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다.`,p);c=draw();}
   say(`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
-  await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');emote(p,c.bad?'sad':'happy',undefined,{silent:true});toast(`${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');
+  if(!p.ai){await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');toast(`${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');} // AI draws stay quiet: no card reveal
+  emote(p,c.bad?'sad':'happy',undefined,{silent:true});
   await c.f(p);renderAll();
 }
 
@@ -609,19 +610,18 @@ function loadSetup(){try{const d=JSON.parse(localStorage.getItem('ttm-setup')||'
   if(Array.isArray(d.players)&&d.players.length===4)setupCfg=d.players.map((c,k)=>({name:String(c.name||'').slice(0,10),ai:!!c.ai,ch:CHARS.some(x=>x.id===c.ch)?c.ch:CHARS[k].id}));
   Object.entries(d.opts||{}).forEach(([id,v])=>{const el=$('#'+id);if(el&&[...el.options].some(o=>o.value===v))el.value=v;});}catch(e){}}
 function renderSetup(){
-  const humans=setupCfg.filter(c=>!c.ai).length;
-  $('#humans').innerHTML=[0,1,2,3,4].map(n=>`<button type="button" data-n="${n}" class="${n===humans?'on':''}">${n?n+'명':'관전'}</button>`).join('');
-  $('#srows').innerHTML=setupCfg.map((c,k)=>{const ch=CH(c.ch);return `<div class="srow" style="--pc:${PCOLORS[k]}"><button type="button" class="av" data-cyc="${k}" title="캐릭터 바꾸기">${ch.emoji}</button>
+  $('#srows').innerHTML=setupCfg.map((c,k)=>{const ch=CH(c.ch);return `<div class="seat${c.ai?' ai':''}" style="--pc:${PCOLORS[k]}">
+    <span class="seatno" title="${k+1}번째 차례">${k+1}</span>
+    <button type="button" class="av" data-cyc="${k}" aria-label="${k+1}번 캐릭터 바꾸기, 지금 ${ch.name}">${ch.emoji}</button>
     <input id="name-${k}" value="${esc(c.name)}" placeholder="${c.ai?AI_NAMES[k]:DEF_NAMES[k]}" maxlength="10" aria-label="${k+1}번 이름">
-    <div class="seg"><button type="button" data-k="${k}" data-ai="0" class="${c.ai?'':'on'}">사람</button><button type="button" data-k="${k}" data-ai="1" class="${c.ai?'on':''}">AI</button></div>
-    <div class="chsel"><label for="ch-${k}">캐릭터</label><select id="ch-${k}" data-ch="${k}">${CHARS.map(x=>`<option value="${x.id}" ${x.id===c.ch?'selected':''}>${x.emoji} ${x.name} · ${x.skill}</option>`).join('')}</select></div>
-    ${c.ai?'':`<div class="chdesc"><b>특성</b> ${ch.passive} <b>스킬</b> ${ch.sdesc}</div>`}</div>`;}).join('');
+    <div class="seg" role="group" aria-label="${k+1}번 조종"><button type="button" data-k="${k}" data-ai="0" class="${c.ai?'':'on'}" aria-pressed="${!c.ai}">사람</button><button type="button" data-k="${k}" data-ai="1" class="${c.ai?'on':''}" aria-pressed="${c.ai}">AI</button></div>
+    <select id="ch-${k}" data-ch="${k}" aria-label="${k+1}번 캐릭터">${CHARS.map(x=>`<option value="${x.id}" ${x.id===c.ch?'selected':''}>${x.emoji} ${x.name}</option>`).join('')}</select>
+    <p class="chdesc" title="특성: ${esc(ch.passive)}"><b>${ch.skill}</b> ${ch.sdesc}</p></div>`;}).join('');
 }
 function readNames(){setupCfg.forEach((c,k)=>{const el=$('#name-'+k);if(el)c.name=el.value.trim();});}
-$('#humans').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;readNames();const n=+b.dataset.n;setupCfg.forEach((c,k)=>c.ai=k>=n);renderSetup();renderShop();});
 $('#srows').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;readNames();
-  if(b.dataset.k!=null){setupCfg[+b.dataset.k].ai=b.dataset.ai==='1';renderSetup();}
+  if(b.dataset.k!=null){setupCfg[+b.dataset.k].ai=b.dataset.ai==='1';renderSetup();renderShop();}
   else if(b.dataset.cyc!=null){const k=+b.dataset.cyc,idx=CHARS.findIndex(x=>x.id===setupCfg[k].ch);setupCfg[k].ch=CHARS[(idx+1)%CHARS.length].id;renderSetup();}
 });
 $('#srows').addEventListener('change',e=>{const s=e.target.closest('select[data-ch]');if(!s)return;readNames();setupCfg[+s.dataset.ch].ch=s.value;renderSetup();});

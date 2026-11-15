@@ -16,18 +16,22 @@ const passOf = pin => `${pin}#ttm`;
 const ID_RE = /^[0-9A-Za-z가-힣_]{2,10}$/;
 
 function render(msg = '') {
-  if (!fb) { box.innerHTML = `<span class="muted">${msg || '온라인 기록을 불러오는 중…'}</span>`; return; }
+  if (!fb) { box.innerHTML = `<p class="note">${msg || '온라인 기록을 불러오는 중…'}</p>`; return; }
+  if (user && !me) { box.innerHTML = '<p class="note">여권을 확인하는 중…</p>'; return; }
   if (user) {
-    const s = me || { games: 0, wins: 0 };
-    box.innerHTML = `<span>👤 <b>${esc(me?.id || '')}</b> · ${s.games}판 ${s.wins}승${miles != null ? ` · 마일리지 ${miles.toLocaleString('ko-KR')}` : ''}</span><button type="button" class="btn" data-a="out">로그아웃</button>`;
+    const s = me;
+    box.innerHTML = `<div class="holder"><small>여권 소지자</small><b>${esc(me?.id || '')}</b></div>
+      <dl class="facts"><div><dt>전적</dt><dd>${s.games}판 ${s.wins}승</dd></div><div><dt>마일리지</dt><dd>${(miles ?? 0).toLocaleString('ko-KR')}</dd></div></dl>
+      <button type="button" class="linkbtn" data-a="out">로그아웃</button>`;
   } else {
-    box.innerHTML = `<input id="acct-id" placeholder="아이디" maxlength="10" autocomplete="username" aria-label="아이디">
-      <input id="acct-pin" placeholder="비번 4자리" maxlength="4" inputmode="numeric" type="password" autocomplete="current-password" aria-label="비밀번호 숫자 4자리">
-      <button type="button" class="btn primary" data-a="in">로그인</button><button type="button" class="btn" data-a="new">가입</button>
-      <span class="muted">${msg || '로그인하면 마일리지가 계정에 저장되고 판 결과가 랭킹에 올라가요'}</span>`;
+    box.innerHTML = `<form class="login"><label>아이디<input id="acct-id" maxlength="10" autocomplete="username" spellcheck="false"></label>
+      <label>비번 4자리<input id="acct-pin" class="pin" maxlength="4" inputmode="numeric" type="password" autocomplete="current-password"></label>
+      <div class="lacts"><button type="submit" class="btn gold" data-a="in">로그인</button><button type="button" class="btn ghost" data-a="new">처음이면 가입</button></div>
+      <p class="note" role="status">${msg || '로그인하면 마일리지가 저장되고 랭킹에 올라가요'}</p></form>`;
   }
   if (typeof renderShop === 'function') renderShop(); // the mileage shop shows whichever balance is active
 }
+box.addEventListener('submit', e => e.preventDefault()); // Enter in the PIN field clicks 로그인
 
 box.addEventListener('click', async e => {
   const a = e.target.closest('button[data-a]')?.dataset.a; if (!a || !fb) return;
@@ -110,7 +114,7 @@ document.getElementById('btn-rank').addEventListener('click', showRanking);
     fb = { ...auth, ...fs, auth: auth.getAuth(a), db: fs.getFirestore(a) };
     auth.onAuthStateChanged(fb.auth, async u => {
       user = u; if (!u) { me = null; miles = null; } render();
-      if (u) { try { me = (await fs.getDoc(fs.doc(fb.db, 'players', u.uid))).data() || me; } catch (e) {} if (user === u) miles = me?.miles ?? 0; render(); } // signup may have filled me already
+      if (u) { try { me = (await fs.getDoc(fs.doc(fb.db, 'players', u.uid))).data() || me; } catch (e) {} me = me || { id: '', games: 0, wins: 0 }; if (user === u) miles = me?.miles ?? 0; render(); } // signup may have filled me already
     });
   } catch (e) { render('온라인 기록을 불러오지 못했어요'); }
 })();
