@@ -460,7 +460,7 @@ async function drawChance(p,still=false){
   const pool=still?CARDS.filter(c=>!c.mv):CARDS,draw=()=>pool[Math.random()*pool.length|0];
   let c=draw();
   if(c.bad&&luckyX(p)){log(`${nm(p)} 행운아: 나쁜 카드(${c.t})를 다시 뽑습니다.`,p);c=draw();}
-  say(`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
+  say(p.ai?`${nm(p)} 행운카드를 1장 뽑았습니다.`:`${nm(p)} 행운카드: <b>${c.t}</b> · ${c.d}`,p);
   if(!p.ai){await showCard(c,p);SFX.play(c.bad?'cardBad':'cardGood');toast(`${nm(p)} ${c.t} · ${c.d}`,c.bad?'danger':'good');} // AI draws stay quiet: no card reveal
   emote(p,c.bad?'sad':'happy',undefined,{silent:true});
   await c.f(p);renderAll();

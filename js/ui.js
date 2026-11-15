@@ -132,7 +132,8 @@ function aiRelicScore(p,id){
 function grantRelic(p,id,why){
   p.relics=p.relics||[];if(hasR(p,id))return;p.relics.push(id);const R=RELICS[id];
   if(id==='warhead'){p.nukes=(p.nukes==null?NUKES:p.nukes)+1;}
-  toast(`${R.ico} ${nm(p)} 유물 획득 — <b>${R.name}</b>: ${R.desc}`,'good',4500);log(`${nm(p)} 유물 ${R.ico} ${R.name} 획득${why?' ('+why+')':''}`,p);emote(p,'happy',R.name+'!',{silent:true});SFX.play('relic');renderPlayers();
+  if(p.ai){log(`${nm(p)} 유물 1개 획득`,p);emote(p,'happy',undefined,{silent:true});} // which relic stays secret
+  else{toast(`${R.ico} ${nm(p)} 유물 획득 — <b>${R.name}</b>: ${R.desc}`,'good',4500);log(`${nm(p)} 유물 ${R.ico} ${R.name} 획득${why?' ('+why+')':''}`,p);emote(p,'happy',R.name+'!',{silent:true});}SFX.play('relic');renderPlayers();
 }
 async function relicDraft(p,why='한 바퀴 보상'){
   if(G.over||p.bankrupt)return;p.relics=p.relics||[];if(p.relics.length>=MAX_RELICS)return;
@@ -201,14 +202,15 @@ function renderPlayers(){
     if(p.bankrupt)st.push('파산');
     if(p.island>0)st.push(`무인도 ${p.island}턴`);
     if(p.travel)st.push('세계여행 대기');
-    if(p.shield>0)st.push(`🎫면제권 ${p.shield}`);if(p.guard>0)st.push(`🛡️방어권 ${p.guard}`);
+    const mine=!p.ai; // opponents' hands stay hidden: only the board (money, land) is public
+    if(mine&&p.shield>0)st.push(`🎫면제권 ${p.shield}`);if(mine&&p.guard>0)st.push(`🛡️방어권 ${p.guard}`);
     if(p.boost)st.push('바가지 중');
-    if(p.fixDice)st.push(`다음 주사위 ${p.fixDice[0]+p.fixDice[1]}`);
+    if(mine&&p.fixDice)st.push(`다음 주사위 ${p.fixDice[0]+p.fixDice[1]}`);
     const nk=p.nukes==null?NUKES:p.nukes;
     const rk=p.bankrupt?0:rankOf(p),fl=p.flash&&Date.now()<p.flash.until?p.flash.cls:'';
     return `<div class="pcard ${p.boss?'boss':''} ${k===G.cur&&!G.over?'cur':''} ${p.bankrupt?'out':''} ${!p.bankrupt&&p.cash<250?'low':''} ${fl}" style="--pc:${p.color}">
-      <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${p.skillUsed?'used':''}" title="${c.sdesc}">${p.skillUsed?c.skill+' 사용':c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
-      <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span><span title="남은 핵폭탄">☢️${nk}</span>${(p.relics||[]).length?`<span class="relics" title="${p.relics.map(id=>RELICS[id].name+': '+RELICS[id].desc).join('\n')}">${p.relics.map(id=>RELICS[id].ico).join('')}</span>`:''}${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
+      <span class="av">${c.emoji}</span><span class="pn">${rk?`<span class="rank r${rk}">${rk}위</span>`:''}${esc(p.name)} <small>${p.ai?'AI':'사람'}</small><span class="ch">${c.name}</span><span class="sk ${mine&&p.skillUsed?'used':''}" title="${c.sdesc}">${mine&&p.skillUsed?c.skill+' 사용':c.skill}</span></span><span class="cash">${fmt(p.cash)}</span>
+      <span class="meta"><span>총자산 ${fmt(assets(p))}</span><span>보유 ${owned(p).length}곳</span>${mine?`<span title="남은 핵폭탄">☢️${nk}</span>`:''}${mine&&(p.relics||[]).length?`<span class="relics" title="${p.relics.map(id=>RELICS[id].name+': '+RELICS[id].desc).join('\n')}">${p.relics.map(id=>RELICS[id].ico).join('')}</span>`:''}${st.length?`<span class="st">${st.join(' · ')}</span>`:''}</span></div>`;
   });
   cards.forEach((h,k)=>{$('#pc'+k).innerHTML=h;});
 }

@@ -421,7 +421,8 @@ function frame(now){
   const tms=now/1000;
   tiles.forEach((tl,i)=>{
     const pk=pickable&&pickable.has(i),hc=hintTiles&&hintTiles.get(i),th=threatTiles.get(i);
-    if(pk){tl.rim.visible=true;tl.rim.material.color.set(0xffcf3f);tl.rim.material.emissive.set(0xffcf3f).multiplyScalar(.5+.4*Math.sin(tms*6));}
+    if(pk){const own=G&&S(i).owner!=null?G.players[S(i).owner].color:0xffcf3f; // keep who-owns-what readable while choosing
+      tl.rim.visible=true;tl.rim.material.color.set(own);tl.rim.material.emissive.set(own).multiplyScalar(.5+.4*Math.sin(tms*6));}
     else if(hc){tl.rim.visible=true;tl.rim.material.color.set(hc);tl.rim.material.emissive.set(hc).multiplyScalar(.45+.35*Math.sin(tms*5));}
     else if(th){tl.rim.visible=true;const on=Math.sin(tms*7)>0;tl.rim.material.color.set(on?0xff2a2a:0xffffff);tl.rim.material.emissive.set(on?0xff2a2a:0xffffff).multiplyScalar(.7);}
     const fm=tl.frame.userData.mat;
