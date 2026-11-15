@@ -166,8 +166,8 @@ function riseFx(b,landmark,pos){
     effects.push({t0:performance.now(),ms:1600,type:'fn',fn:u=>{ring.scale.setScalar(1+u*9);ring.material.opacity=.95*(1-u);spark.forEach(m=>{m.position.addScaledVector(m.userData.v,.016);m.userData.v.y-=.1;m.material.opacity=1-u;});},done:()=>{scene.remove(ring);ring.geometry.dispose();ring.material.dispose();spark.forEach(m=>{scene.remove(m);m.geometry.dispose();m.material.dispose();});}});}
 }
 /* 🛡️ a glowing dome bursts around a token when 방어권 blocks an attack */
-function shieldFx(p){
-  const pos=tokenPos(p),mat=new THREE.MeshBasicMaterial({color:0x8fd3ff,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
+function shieldFx(p,hex=0x8fd3ff){
+  const pos=tokenPos(p),mat=new THREE.MeshBasicMaterial({color:hex,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
   const dome=new THREE.Mesh(new THREE.SphereGeometry(.5,32,16,0,Math.PI*2,0,Math.PI/2),mat);dome.position.copy(pos);
   const ring=new THREE.Mesh(new THREE.TorusGeometry(.5,.04,8,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.position.copy(pos);
   scene.add(dome,ring);

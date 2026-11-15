@@ -173,6 +173,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .bigev{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.5);opacity:0;pointer-events:none;z-index:7;text-align:center;color:#fff;font-family:var(--f-fun);font-size:clamp(26px,6vw,54px);text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 30px rgba(0,0,0,.6);white-space:nowrap}
 .bigev small{display:block;font-family:var(--f-body);font-weight:800;font-size:.42em;opacity:.95;margin-top:4px}
 .bigev.show{animation:bigIn 2.6s ease forwards}
+.bigev.use{color:#fff;top:38%}
+.bigev.use .bigcard{display:block;width:1.5em;height:2em;line-height:2em;margin:0 auto 10px;font-size:1.4em;border-radius:.16em;background:linear-gradient(160deg,#fff,color-mix(in srgb,var(--cc) 35%,#fff));box-shadow:0 0 0 4px var(--cc),0 0 0 7px #fff,0 0 50px var(--cc);text-shadow:none;animation:cardFlip .7s cubic-bezier(.2,1.4,.4,1)}
+@keyframes cardFlip{0%{transform:perspective(600px) rotateY(180deg) scale(.4)}100%{transform:perspective(600px) rotateY(0) scale(1)}}
+@media (prefers-reduced-motion:reduce){.bigev.use .bigcard{animation:none}}
 .bigev.doom{color:#ff6b6b}.bigev.gold{color:#ffd166}
 @keyframes bigIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}10%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}18%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%) scale(.95)}}
 /* landing hints under the meter */

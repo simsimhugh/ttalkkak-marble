@@ -90,7 +90,7 @@ async function chargeToll(p,o,i){
   // 💰 owner's reactive skill: double this toll
   if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착. 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
   if(p.shield>0&&amt>0&&await decide(p,{title:'🎫 통행료 면제권',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 면제권(${p.shield}장)을 지금 쓸까요?</p><p class="muted">아껴 두면 더 비싼 통행료에 쓸 수 있어요.</p>`,options:[{label:'면제권 쓰기',value:1,primary:true},{label:'그냥 낸다',value:0}]},()=>amt>=Math.max(90,p.cash*.1)?1:0)===1){
-    p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');renderPlayers();return true;}
+    p.shield--;await cardUseFx(p,'🎫','면제!',`${esc(p.name)} — ${esc(t.name)} 통행료 ${fmt(amt)} 안 냄`,0x7dffb0,'#2ecc71');say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');renderPlayers();return true;}
   say(`${nm(p)} ${nm(o)}의 ${t.name}에서 통행료 ${fmt(amt)}을 냅니다.`,p);
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
@@ -330,12 +330,17 @@ async function pickTile(p,cands,msg,aiPick){
   const i=await new Promise(r=>pickResolver=r);timerStop();setPickable(null);return i;
 }
 /* 🛡️ 방어권: blocks one attack (nuke, typhoon, takeover, pull, storm, city swap). Defaults to blocking. */
+/* a held card being played: the card flips up big, a dome bursts around the token, the screen edge glows */
+async function cardUseFx(p,ico,title,sub,hex,css){
+  SFX.play('skill');shieldFx(p,hex);focusAt(tokenPos(p),2200,.9);vignette(css);flashCard(p,'gain');
+  bigEvent(`<span class="bigcard" style="--cc:${css}">${ico}</span>${title}<small>${sub}</small>`,'use',2800);await sleep(D(1300));
+}
 async function useGuard(q,what,aiYes=()=>true){
   if(!(q.guard>0)||q.bankrupt)return false;
   const ok=await decide(q,{title:'🛡️ 방어권',html:`<p><b>${esc(what)}</b> 공격을 받았어요. 방어권(${q.guard}장)으로 막을까요?</p>`,options:[{label:'막는다',value:1,primary:true},{label:'그냥 맞는다',value:0}]},()=>aiYes()?1:0);
   if(ok!==1)return false;
-  q.guard--;SFX.play('skill');emote(q,'cool','방어!',{priority:5,cam:false});
-  shieldFx(q);focusAt(tokenPos(q),2000,.9);bigEvent(`🛡️ 방어!<small>${esc(q.name)} — ${esc(what)} 막음</small>`,'gold',2400);await sleep(D(1100));toast(`🛡️ ${nm(q)} 방어권으로 ${esc(what)} 방어`,'good',4000);log(`${nm(q)} 방어권으로 ${esc(what)}을(를) 막았습니다.`,q);renderPlayers();return true;
+  q.guard--;emote(q,'cool','방어!',{priority:5,cam:false});
+  await cardUseFx(q,'🛡️','방어!',`${esc(q.name)} — ${esc(what)} 막음`,0x8fd3ff,'#4aa8ff');toast(`🛡️ ${nm(q)} 방어권으로 ${esc(what)} 방어`,'good',4000);log(`${nm(q)} 방어권으로 ${esc(what)}을(를) 막았습니다.`,q);renderPlayers();return true;
 }
 
 /* ---------- skills ---------- */
