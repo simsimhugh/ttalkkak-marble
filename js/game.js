@@ -33,13 +33,16 @@ function checkWin(p){
 /* ---------- movement ---------- */
 async function walk(p,n){
   if(!p.ai){chase=p;freeUntil=0;}try{
-  const dir=n>0?1:-1;
+  const dir=n>0?1:-1,dest=(p.pos+n+N*4)%N;
+  const dread=dir>0&&n>=3&&landingInfo(p,dest)?.cls==='deadly'; // landing on a toll that could ruin p
   for(let k=0;k<Math.abs(n);k++){
     p.pos=(p.pos+dir+N)%N;
     if(dir>0&&p.pos===0){const al=alive();const poorest=al.length>1&&al.every(q=>q===p||assets(q)>assets(p));const s=SALARY+(has(p,'explorer')?80:0)+(poorest?SALARY:0)+(hasR(p,'salary')?100:0);gain(p,s,poorest?'월급+꼴찌 구호금':'월급');if(poorest)toast(`🆘 ${nm(p)} 꼴찌 구호금. 월급 2배`,'good',3000);SFX.play('coin');log(`${nm(p)} 출발지 통과, 월급 ${fmt(s)}`,p);renderPlayers();
       if(hasR(p,'jackhunter')&&k<Math.abs(n)-1&&(G.jackpot||0)>1){const half=Math.floor(G.jackpot/2);G.jackpot-=half;gain(p,half,'잭팟 사냥꾼');}
       await hop(p,0,Math.max(110,D(230)),0.4);await sleep(D(150));await relicDraft(p);await bonusCard(p,'출발 통과');continue;}
-    await hop(p,p.pos,Math.max(110,D(230)),0.4);
+    const slow=dread&&k>=Math.abs(n)-2;
+    if(slow&&k===Math.abs(n)-2){SFX.play('heart');vignette('#ff2a2a');focusOn(dest,2200,1.0);}
+    await hop(p,p.pos,slow?Math.max(380,D(650)):Math.max(110,D(230)),slow?0.7:0.4);if(slow)await sleep(D(220));
   }
   }finally{if(chase===p)setTimeout(()=>{if(chase===p)chase=null;},D(900));} // linger so the street view registers before swinging back up
 }
@@ -50,6 +53,8 @@ function jail(p){p.island=has(p,'captain')?1:3;}
 async function land(p){
   if(G.over||p.bankrupt)return;
   const i=p.pos,t=T(i);renderAll();SFX.play('land');
+  if(landingInfo(p,i)?.cls!=='deadly'){const near=[(i+1)%N,(i-1+N)%N].find(j=>landingInfo(p,j)?.cls==='deadly');
+    if(near!=null){emote(p,'shock','휴~',{silent:true});if(!p.ai){toast(`😮‍💨 아슬아슬! 바로 옆 ${T(near).name} 통행료 ${fmt(toll(near))}`,'info',3000);SFX.play('heart');}}}
   switch(t.type){
     case 'start':say(`${nm(p)} 출발지에 도착했습니다.`,p);
       if((G.jackpot||0)>0){const jp=G.jackpot;G.jackpot=0;bigEvent(`잭팟<small>${esc(p.name)} +${fmt(jp)}</small>`,'gold',2600);SFX.play('win');confetti();gain(p,jp,'잭팟');emote(p,'laugh','잭팟이다!',{priority:6});log(`${nm(p)} 출발 칸에 정확히 도착해 잭팟 ${fmt(jp)} 획득`,p);renderAll();await sleep(D(1200));}
@@ -389,7 +394,6 @@ const CARDS=[
   {t:'과속 벌금',d:'80만을 냅니다.',bad:1,art:{big:'🚓',s1:'🚦',s2:'💸',bg:'linear-gradient(160deg,#ffd1d1,#ff6b6b)',pat:'stripes'},f:async p=>{pay(p,null,80,{why:'벌금 → 잭팟',pool:true});}},
   {t:'생일 축하',d:'다른 플레이어들에게 50만씩 받습니다.',art:{big:'🎂',s1:'🎈',s2:'🎁',bg:'linear-gradient(160deg,#ffd6f0,#ff8ad4)',pat:'dots'},f:async p=>{alive().filter(q=>q!==p).forEach(q=>{if(!q.bankrupt)pay(q,p,luckyX(p)?100:50);});}},
   {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🛡️',s1:'🚧',s2:'🆓',bg:'linear-gradient(160deg,#d8f5e0,#6fd39a)',pat:'grid'},f:async p=>{p.shield++;}},
-  {t:'통행료 면제권',d:'다음 통행료 한 번을 내지 않습니다.',art:{big:'🎫',s1:'🛡️',s2:'✅',bg:'linear-gradient(160deg,#dff3ff,#7fc8ff)',pat:'stripes'},f:async p=>{p.shield++;}},
   {t:'앞으로 3칸',mv:1,d:'3칸 앞으로 이동합니다.',art:{big:'🏃',s1:'➡️',s2:'💨',bg:'linear-gradient(160deg,#fff3c4,#ffd166)',pat:'stripes'},f:async p=>{await walk(p,3);await land(p);}},
   {t:'뒤로 2칸',mv:1,d:'2칸 뒤로 이동합니다.',bad:1,art:{big:'🔙',s1:'🐌',s2:'😵',bg:'linear-gradient(160deg,#e6e0f8,#b39ddb)',pat:'waves'},f:async p=>{await walk(p,-2);await land(p);}},
   {t:'무인도 표류',mv:1,d:'무인도로 바로 이동합니다.',bad:1,art:{big:'🏝️',s1:'🌊',s2:'🦜',bg:'linear-gradient(160deg,#bfe9f5,#2a9fd6)',pat:'waves'},f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
@@ -401,7 +405,6 @@ const CARDS=[
     if(!c.length){log('태풍이 지나갔지만 피해가 없습니다.',p);return;}
     const i=c[Math.random()*c.length|0];if(await useGuard(G.players[S(i).owner],`태풍 (${T(i).name})`))return;focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍. ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
   {t:'방어권',d:'핵폭탄·태풍·인수·끌어오기 등 공격 하나를 막는 카드를 보관합니다.',art:{big:'🛡️',s1:'☢️',s2:'🚫',bg:'linear-gradient(160deg,#e3e9ff,#7b8cff)',pat:'grid'},f:async p=>{p.guard=(p.guard||0)+1;}},
-  {t:'방어권',d:'핵폭탄·태풍·인수·끌어오기 등 공격 하나를 막는 카드를 보관합니다.',art:{big:'🏰',s1:'🛡️',s2:'✨',bg:'linear-gradient(160deg,#eef0ff,#9aa6ff)',pat:'rays'},f:async p=>{p.guard=(p.guard||0)+1;}},
   {t:'도시 바꾸기',d:'내 도시 하나와 상대 도시 하나(랜드마크 제외)를 건물째 맞바꿉니다.',art:{big:'🔄',s1:'🏙️',s2:'🤝',bg:'linear-gradient(160deg,#d9fbe9,#3fc59a)',pat:'dots'},f:cardSwap},
   {t:'도시 기부',d:'내 땅 하나를 가장 가난한 플레이어에게 건물째 넘겨줍니다.',bad:1,art:{big:'🎁',s1:'🏠',s2:'😇',bg:'linear-gradient(160deg,#ffe8d6,#ff9a6b)',pat:'stripes'},f:cardDonate},
   {t:'강제 매각',d:'내 땅 하나를 투자금의 절반 값에 은행에 팝니다.',bad:1,art:{big:'🏚️',s1:'📉',s2:'💸',bg:'linear-gradient(160deg,#e4e4e4,#8a8f99)',pat:'waves'},f:cardForceSell},
@@ -493,6 +496,7 @@ async function playTurn(p){
   if(G.pendingEvent){G.pendingEvent=false;await worldEvent();if(G.over)return;}
   if(p.startDraft){p.startDraft=false;await relicDraft(p,'시작 유물');}
   p.boost=false;renderAll();banner(p);SFX.play(p.ai?'click':'skill');updateThreats();
+  if(inFinal()&&!G.finalOn){G.finalOn=1;bigEvent(`파이널 라운드<small>마지막 ${FINAL_ROUNDS}라운드 · 모든 통행료 ${FINAL_MULT}배</small>`,'doom',3200);SFX.sting('drama');toast(`🔥 파이널 라운드 — 남은 ${G.limit-G.round+1}라운드 동안 통행료 ${FINAL_MULT}배`,'danger',6000);await sleep(D(1600));}
   if(G.limit&&G.limit-G.round===2&&!G.lateWarned){G.lateWarned=1;const lead=alive().reduce((a,b)=>assets(b)>assets(a)?b:a);toast(`⏰ 3라운드 남음. 현재 1위 ${nm(lead)} (${fmt(assets(lead))})`,'danger',6000);SFX.play('alarm');}
   await sleep(D(700));
   if(p.travel){

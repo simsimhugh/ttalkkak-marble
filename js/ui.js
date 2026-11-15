@@ -217,7 +217,7 @@ function renderPlayers(){
 function renderAll(){
   sync();renderPlayers();updateMusic();
   const p=G.players[G.cur];
-  const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=(G.run?`${RUN_STAGES[G.run.stage].ico} ${G.run.stage+1}/${RUN_STAGES.length} · `:'')+`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(G.round>1?` · 물가 ×${inflation().toFixed(2)}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
+  const left=G.limit?G.limit-G.round+1:0;$('#round').textContent=(G.run?`${RUN_STAGES[G.run.stage].ico} ${G.run.stage+1}/${RUN_STAGES.length} · `:'')+`${G.round} 라운드`+(G.limit?` / ${G.limit}`:'')+(inFinal()?` · 🔥 파이널 ×${FINAL_MULT}`:G.round>1?` · 물가 ×${inflation().toFixed(2)}`:'')+(left&&left<=3?` · ⏰${left}턴 남음`:'');$('#round').classList.toggle('late',!!left&&left<=3);
   {const jc=$('#jackchip');const jt='잭팟 '+fmt(G.jackpot||0);if(jc.textContent!==jt){jc.textContent=jt;jc.classList.remove('bump');void jc.offsetWidth;jc.classList.add('bump');}const ec=$('#evchip');if(G.event){ec.hidden=false;ec.textContent=WEVENTS[G.event.id].short(G.event)+' · '+(G.event.until-G.round+1)+'R';}else ec.hidden=true;}
   $('#turn').innerHTML=`<i style="--pc:${p.color}">${CH(p.ch).emoji}</i>${esc(p.name)}의 차례`;$('#turn').style.setProperty('--pc',p.color);stage.style.setProperty('--pc',p.color);
 }
