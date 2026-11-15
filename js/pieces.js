@@ -110,7 +110,7 @@ function tokenTick(now){
 /* while my piece walks, it glances once at the board's most expensive landmark, at the step where it stands most
    in front (the riding camera looks ahead, so that is when the landmark is on screen) */
 function glancePlan(p,n){
-  const ls=G.ts.map((s,i)=>i).filter(i=>S(i).level===4&&lots[i]&&lots[i].beam);if(!ls.length)return null;
+  const ls=G.ts.map((s,i)=>i).filter(i=>S(i).level===4&&lots[i]&&lots[i].pop);if(!ls.length)return null;
   const i=priciest(ls),pt=new THREE.Vector3();lots[i].grp.getWorldPosition(pt);let k=0,bd=1e9;
   for(let q=0;q<Math.abs(n);q++){const at=(p.pos+Math.sign(n)*(q+1)+N*4)%N,here=slotPos(at,p.id),fwd=slotPos((at+3)%N,p.id).sub(here).setY(0).normalize();
     const d=-fwd.dot(pt.clone().sub(here).setY(0).normalize());if(d<bd){bd=d;k=q;}} // smallest angle between heading and the landmark

@@ -245,22 +245,36 @@ function lotSync(i,s,t){
   const L=lots[i];if(!L)return;
   const lvl=s.owner==null?0:(t.type==='tour'?1:s.level),owner=s.owner,rub=!!(s.rubble&&s.level===0&&t.type==='city');
   if(L.level===lvl&&L.owner===owner&&L.rubble===rub)return;
-  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}if(L.base){L.grp.remove(L.base);disposeObj(L.base);L.base=null;}if(L.beam){L.grp.remove(L.beam);disposeObj(L.beam);L.beam=null;}L.fence.visible=true;
+  if(L.bld){L.grp.remove(L.bld);disposeObj(L.bld);L.bld=null;}if(L.mq){L.grp.remove(L.mq);disposeObj(L.mq);L.mq=null;}if(L.base){L.grp.remove(L.base);disposeObj(L.base);L.base=null;}if(L.pop){L.grp.remove(L.pop);L.pop.geometry.dispose();L.pop.material.dispose();L.pop=null;}L.fence.visible=true;
   const rising=owner!=null&&lvl>L.level&&L.level>=0&&!G.over;
   if(owner!=null&&lvl>0){const o=G.players[owner];const b=t.type==='tour'?tourKiosk(o.color):buildingMesh(lvl,o.color,t.name);
     const sc=lvl===4?LOT_LM:LOT_SCALE,TH=THEMES[env.theme]||THEMES.day;const base=plazaBase(L.col,TH);L.grp.add(base);L.base=base;
     b.scale.setScalar(sc);b.position.y=.28;L.grp.add(b);L.bld=b;L.fence.visible=false;
-    if(lvl===4){L.beam=landmarkBeam(o.color);L.grp.add(L.beam);}
-    if(t.type==='city'){const bb=new THREE.Box3().setFromObject(b);const h=bb.max.y-bb.min.y;const mq=marquee(t.name,L.col,TH,.28+h);L.grp.add(mq);L.mq=mq;}
+    if(t.type==='city'){const bb=new THREE.Box3().setFromObject(b);const h=bb.max.y-bb.min.y;if(lvl===4){L.pop=landmarkPop(o.color,.28+h*.8);L.grp.add(L.pop);}const mq=marquee(t.name,L.col,TH,.28+h);L.grp.add(mq);L.mq=mq;}
     if(rising){const wp=new THREE.Vector3();L.grp.getWorldPosition(wp);wp.y=L.grp.position.y+.1;b.scale.y=.05;landDust(wp,14,3.6);
       effects.push({t0:performance.now()+200,ms:lvl===4?1300:900,type:'fn',fn:u=>{b.scale.y=sc*Math.max(.02,Math.min(1,u*1.2))*(1+Math.sin(u*Math.PI)*.1);},done:()=>{b.scale.y=sc;}});}}
   else if(rub){const r=rubbleMesh();r.scale.setScalar(5);r.position.y=.1;L.fence.visible=false;L.grp.add(r);L.bld=r;}
   L.level=lvl;L.owner=owner;L.rubble=rub;
 }
-/* a finished landmark shines a pillar of its owner's color into the sky, seen from anywhere on the board */
-function landmarkBeam(color){const g=new THREE.Group(),c=new THREE.Color(color);
-  const add=(geo,op,y)=>{const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false,fog:false}));m.position.y=y;g.add(m);return m;};
-  add(new THREE.CylinderGeometry(.45,1.0,18,20,1,true),.3,9.3);add(new THREE.CylinderGeometry(.15,.3,18,12,1,true),.6,9.3);const ring=add(new THREE.TorusGeometry(2.0,.08,8,48),.8,.32);ring.rotation.x=Math.PI/2;return g;}
+/* a finished landmark throws little pastel star bursts over itself, one every few seconds.
+   One Points object per landmark, re-used for every burst: no new geometry, no lights. */
+let POP_TEX=null;
+function popTex(){if(POP_TEX)return POP_TEX;const cv=document.createElement('canvas');cv.width=cv.height=64;const g=cv.getContext('2d');g.fillStyle='#fff';g.lineJoin='round';g.strokeStyle='#fff';g.lineWidth=5;
+  g.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,r=k%2?11:26;g.lineTo(32+Math.cos(a)*r,34+Math.sin(a)*r);}g.closePath();g.fill();g.stroke(); // a chubby star
+  POP_TEX=new THREE.CanvasTexture(cv);POP_TEX.colorSpace=THREE.SRGBColorSpace;return POP_TEX;}
+const POP_N=26,POP_COLS=[0xffb3c7,0xffe08a,0xa8f0c6,0xa9d8ff,0xd9b8ff,0xffffff];
+function landmarkPop(color,y){
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(POP_N*3),3));geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(POP_N*3),3));
+  const m=new THREE.Points(geo,new THREE.PointsMaterial({size:.55,map:popTex(),vertexColors:true,transparent:true,depthWrite:false,fog:false,alphaTest:.05}));
+  m.position.y=y;m.frustumCulled=false;m.userData={own:new THREE.Color(color),next:performance.now()+Math.random()*2500,t0:0,dirs:new Float32Array(POP_N*3)};m.visible=false;return m;}
+function popBurst(m,now,big){const u=m.userData,pos=m.geometry.attributes.color,c=new THREE.Color();u.t0=now;u.big=big;u.next=now+2600+Math.random()*2400;
+  u.cx=(Math.random()-.5)*1.6;u.cy=Math.random()*.6;u.cz=(Math.random()-.5)*1.6;
+  for(let k=0;k<POP_N;k++){const th=Math.random()*Math.PI*2,z=Math.random()*2-1,r=Math.sqrt(1-z*z),sp=(.9+Math.random()*.5)*(big?2.2:1.3);
+    u.dirs.set([r*Math.cos(th)*sp,z*sp*.8+.4,r*Math.sin(th)*sp],k*3);c.set(k%3===0?u.own:POP_COLS[Math.random()*POP_COLS.length|0]);pos.setXYZ(k,c.r,c.g,c.b);}
+  pos.needsUpdate=true;m.visible=true;}
+function popTick(m,now){const u=m.userData,ms=u.big?1500:1100;if(now>=u.next)popBurst(m,now,false);const q=(now-u.t0)/ms;if(q>=1){m.visible=false;return;}
+  const e=1-Math.pow(1-q,3),p=m.geometry.attributes.position;for(let k=0;k<POP_N;k++)p.setXYZ(k,u.cx+u.dirs[k*3]*e,u.cy+u.dirs[k*3+1]*e-q*q*.9,u.cz+u.dirs[k*3+2]*e);
+  p.needsUpdate=true;m.material.opacity=q<.7?1:1-(q-.7)/.3;m.material.size=(u.big?1.2:.9)*(q<.15?q/.15:1);}
 function lotCollapse(j,delay=0){const L=lots[j];if(!L||!L.bld||L.rubble||L.level<=0)return;collapseMesh(L.bld,delay,L.bld.scale.x||LOT_SCALE);}
 function buildEnv(id){
   const T=THEMES[id]||THEMES.day;env.theme=id;
@@ -566,8 +580,7 @@ function hubFestival(i){
 }
 function hubTick(now,dt){
   const t=now/1000;
-  lots.forEach(L=>{if(!L.beam)return;const f=L.flash?Math.max(0,1-(now-L.flash)/1400):0,[beam,core,ring]=L.beam.children,base=(THEMES[env.theme]||THEMES.day).night?.4:.3;
-    beam.material.opacity=base+.08*Math.sin(t*2+L.grp.position.x)+f*.5;core.material.opacity=.6+f*.4;beam.scale.set(1+f*.8,1,1+f*.8);ring.scale.setScalar(1+.06*Math.sin(t*3)+f*.4);});
+  lots.forEach(L=>{if(!L.pop)return;if(L.flash){L.flash=0;popBurst(L.pop,now,true);}popTick(L.pop,now);});
   if(hubFx.festLm)hubFx.festLm.rotation.y=t*.5;
   if(hubFx.lights)hubFx.lights.forEach(b=>{b.rotation.z=.55+Math.sin(t*.35+b.userData.k*2.1)*.35;b.rotation.y=t*.4+b.userData.k;});
   festTiles.forEach(g=>{if(!g.parent){festTiles.delete(g);return;}const u=g.userData;u.beams.forEach(b=>{const a=t*1.4+b.userData.k*2.1;b.rotation.z=Math.sin(a)*.5;b.rotation.x=Math.cos(a*1.3)*.4;});u.sign.position.y=1.15+Math.sin(t*3)*.06;const sc=1+.04*Math.sin(t*6);u.sign.scale.set(1.05*sc,.4*sc,1);u.glow.material.opacity=.12+.08*Math.sin(t*5);u.light.intensity=1+.5*Math.sin(t*7);u.canopy.rotation.y=Math.PI/4+Math.sin(t*1.5)*.05;
