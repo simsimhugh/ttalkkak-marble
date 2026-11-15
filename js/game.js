@@ -334,7 +334,8 @@ async function useGuard(q,what,aiYes=()=>true){
   if(!(q.guard>0)||q.bankrupt)return false;
   const ok=await decide(q,{title:'🛡️ 방어권',html:`<p><b>${esc(what)}</b> 공격을 받았어요. 방어권(${q.guard}장)으로 막을까요?</p>`,options:[{label:'막는다',value:1,primary:true},{label:'그냥 맞는다',value:0}]},()=>aiYes()?1:0);
   if(ok!==1)return false;
-  q.guard--;SFX.play('skill');emote(q,'cool','방어!',{priority:5});toast(`🛡️ ${nm(q)} 방어권으로 ${esc(what)} 방어`,'good',4000);log(`${nm(q)} 방어권으로 ${esc(what)}을(를) 막았습니다.`,q);renderPlayers();return true;
+  q.guard--;SFX.play('skill');emote(q,'cool','방어!',{priority:5,cam:false});
+  shieldFx(q);focusAt(tokenPos(q),2000,.9);bigEvent(`🛡️ 방어!<small>${esc(q.name)} — ${esc(what)} 막음</small>`,'gold',2400);await sleep(D(1100));toast(`🛡️ ${nm(q)} 방어권으로 ${esc(what)} 방어`,'good',4000);log(`${nm(q)} 방어권으로 ${esc(what)}을(를) 막았습니다.`,q);renderPlayers();return true;
 }
 
 /* ---------- skills ---------- */
@@ -406,7 +407,7 @@ const CARDS=[
     if(!c.length){log('태풍이 지나갔지만 피해가 없습니다.',p);return;}
     const i=c[Math.random()*c.length|0];if(await useGuard(G.players[S(i).owner],`태풍 (${T(i).name})`))return;focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍. ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
   {t:'방어권',d:'핵폭탄·태풍·인수·끌어오기 등 공격 하나를 막는 카드를 보관합니다.',art:{big:'🛡️',s1:'☢️',s2:'🚫',bg:'linear-gradient(160deg,#e3e9ff,#7b8cff)',pat:'grid'},f:async p=>{p.guard=(p.guard||0)+1;}},
-  {t:'도시 바꾸기',d:'내 도시 하나와 상대 도시 하나(랜드마크 제외)를 건물째 맞바꿉니다.',art:{big:'🔄',s1:'🏙️',s2:'🤝',bg:'linear-gradient(160deg,#d9fbe9,#3fc59a)',pat:'dots'},f:cardSwap},
+  {t:'도시 바꾸기',d:'내 땅 하나와 상대 땅 하나를 건물째 맞바꿉니다. 랜드마크·관광지도 돼요.',art:{big:'🔄',s1:'🏙️',s2:'🤝',bg:'linear-gradient(160deg,#d9fbe9,#3fc59a)',pat:'dots'},f:cardSwap},
   {t:'도시 기부',d:'내 땅 하나를 가장 가난한 플레이어에게 건물째 넘겨줍니다.',bad:1,art:{big:'🎁',s1:'🏠',s2:'😇',bg:'linear-gradient(160deg,#ffe8d6,#ff9a6b)',pat:'stripes'},f:cardDonate},
   {t:'강제 매각',d:'내 땅 하나를 투자금의 절반 값에 은행에 팝니다.',bad:1,art:{big:'🏚️',s1:'📉',s2:'💸',bg:'linear-gradient(160deg,#e4e4e4,#8a8f99)',pat:'waves'},f:cardForceSell},
   {t:'자선 기부',d:'현금의 10%를 가장 가난한 플레이어에게 줍니다.',bad:1,art:{big:'🤲',s1:'💝',s2:'🪙',bg:'linear-gradient(160deg,#ffe4c4,#f0a070)',pat:'dots'},f:async p=>{
@@ -417,10 +418,10 @@ const CARDS=[
 const cheapest=v=>v.reduce((a,b)=>invested(b)<invested(a)?b:a);
 const priciest=v=>v.reduce((a,b)=>invested(b)>invested(a)?b:a);
 async function cardSwap(p){
-  const mine=owned(p).filter(i=>T(i).type==='city'),theirs=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).owner!==p.id&&S(i).level<4);
-  if(!mine.length||!theirs.length){log(`${nm(p)} 바꿀 도시가 없습니다.`,p);return;}
-  const a=await pickTile(p,mine,`${nm(p)}, 내줄 <b>내 도시</b>를 고르세요. (빛기둥이 내 도시)`,()=>cheapest(mine));
-  const b=await pickTile(p,theirs,`${nm(p)}, ${T(a).name}과(와) 바꿀 <b>상대 도시</b>를 고르세요. (금색 테두리)`,()=>priciest(theirs));
+  const mine=owned(p),theirs=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id); // any land: cities, landmarks, tour spots
+  if(!mine.length||!theirs.length){log(`${nm(p)} 바꿀 땅이 없습니다.`,p);return;}
+  const a=await pickTile(p,mine,`${nm(p)}, 내줄 <b>내 땅</b>을 고르세요. (빛기둥이 내 땅)`,()=>cheapest(mine));
+  const b=await pickTile(p,theirs,`${nm(p)}, ${T(a).name}과(와) 바꿀 <b>상대 땅</b>을 고르세요. (테두리가 깜빡이는 곳)`,()=>priciest(theirs));
   if(p.ai&&invested(b)<=invested(a)){log(`${nm(p)} 도시 바꾸기를 쓰지 않았습니다.`,p);return;}
   const o=G.players[S(b).owner];if(await useGuard(o,`${p.name}의 도시 바꾸기`))return;
   S(a).owner=o.id;S(b).owner=p.id;focusOn(b,2000,1.1);SFX.play('buy');emote(p,'laugh','바꿔치기!',{priority:5});emote(o,'angry','내 도시!',{silent:true});

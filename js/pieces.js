@@ -165,6 +165,15 @@ function riseFx(b,landmark,pos){
     const spark=[];for(let k=0;k<30;k++){const m=new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshBasicMaterial({color:k%2?0xffd166:0xffffff,transparent:true}));m.position.copy(pos);m.userData.v=new THREE.Vector3((Math.random()-.5)*2.5,2+Math.random()*3,(Math.random()-.5)*2.5);scene.add(m);spark.push(m);}
     effects.push({t0:performance.now(),ms:1600,type:'fn',fn:u=>{ring.scale.setScalar(1+u*9);ring.material.opacity=.95*(1-u);spark.forEach(m=>{m.position.addScaledVector(m.userData.v,.016);m.userData.v.y-=.1;m.material.opacity=1-u;});},done:()=>{scene.remove(ring);ring.geometry.dispose();ring.material.dispose();spark.forEach(m=>{scene.remove(m);m.geometry.dispose();m.material.dispose();});}});}
 }
+/* 🛡️ a glowing dome bursts around a token when 방어권 blocks an attack */
+function shieldFx(p){
+  const pos=tokenPos(p),mat=new THREE.MeshBasicMaterial({color:0x8fd3ff,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending});
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(.5,32,16,0,Math.PI*2,0,Math.PI/2),mat);dome.position.copy(pos);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.5,.04,8,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.9,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.position.copy(pos);
+  scene.add(dome,ring);
+  effects.push({t0:performance.now(),ms:1800,type:'fn',fn:u=>{const k=.4+Math.min(1,u*3)*1.2;dome.scale.setScalar(k);ring.scale.setScalar(k);mat.opacity=(.55+.2*Math.sin(u*28))*(1-u);ring.material.opacity=.9*(1-u);},
+    done:()=>{scene.remove(dome,ring);disposeObj(dome);disposeObj(ring);}});
+}
 function landDust(pos,n=5,scale=1){
   const ring=new THREE.Mesh(new THREE.RingGeometry(.12,.2,32),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.copy(pos).setY(pos.y+.01);scene.add(ring);
   const puffs=[];for(let k=0;k<n;k++){const d=new THREE.Mesh(new THREE.SphereGeometry(.07*scale,6,6),new THREE.MeshBasicMaterial({color:0xe8dcc8,transparent:true,opacity:.7}));d.position.copy(pos);d.userData.v=new THREE.Vector3((Math.random()-.5)*1.6,.3+Math.random()*.5,(Math.random()-.5)*1.6).multiplyScalar(scale);scene.add(d);puffs.push(d);}
