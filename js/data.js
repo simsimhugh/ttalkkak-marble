@@ -33,7 +33,7 @@ const TILES=[
   C('런던',6,110,'🎡'),TR('하와이','🌺'),C('파리',6,115,'🗼'),CHANCE,C('뉴욕',7,130,'🗽'),CHANCE,C('서울',7,150,'🏯')
 ];
 const N=TILES.length;
-const SUBS={start:`지날 때 +${SALARY}만`,island:'3턴 휴식',festival:'통행료 2배',travel:'원하는 곳으로',chance:'카드 1장',casino:'홀짝 한 판',auction:'빈 땅 경매'};
+const SUBS={start:`지날 때 +${SALARY}만`,island:'3턴 휴식',festival:'통행료 2배',travel:'원하는 곳으로',chance:'카드 1장',casino:'홀짝 한 판'};
 
 let G=null, RUN=0, rollResolver=null, modalResolver=null, pickResolver=null, modalDismiss=null;
 const spd=()=>G?G.speed:1;

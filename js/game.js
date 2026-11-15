@@ -62,7 +62,6 @@ async function land(p){
     case 'festival':await hostFestival(p);break;
     case 'chance':await drawChance(p);break;
     case 'casino':await landCasino(p);break;
-    case 'auction':await landAuction(p);break;
     default:await landProperty(p,i);
   }
   renderAll();
@@ -318,7 +317,8 @@ async function pickTravel(p){
 /* pick one tile on the board (human) or let the AI choose; the timer falls back to the AI choice */
 async function pickTile(p,cands,msg,aiPick){
   if(p.ai){await sleep(D(600));return aiPick();}
-  setMsg(msg);setPickable(new Set(cands),p,false);
+  const own=cands.some(i=>S(i).owner===p.id); // light beams mark my tiles — only when they are among the choices
+  setMsg(msg);setPickable(new Set(cands),own?p:null,cands.length<N-1);
   timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;r(aiPick());}});
   const i=await new Promise(r=>pickResolver=r);timerStop();setPickable(null);return i;
 }
@@ -413,8 +413,8 @@ const priciest=v=>v.reduce((a,b)=>invested(b)>invested(a)?b:a);
 async function cardSwap(p){
   const mine=owned(p).filter(i=>T(i).type==='city'),theirs=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).owner!==p.id&&S(i).level<4);
   if(!mine.length||!theirs.length){log(`${nm(p)} 바꿀 도시가 없습니다.`,p);return;}
-  const b=await pickTile(p,theirs,`${nm(p)}, 가져올 <b>상대 도시</b>를 고르세요.`,()=>priciest(theirs));
-  const a=await pickTile(p,mine,`${nm(p)}, 대신 내줄 <b>내 도시</b>를 고르세요.`,()=>cheapest(mine));
+  const a=await pickTile(p,mine,`${nm(p)}, 내줄 <b>내 도시</b>를 고르세요. (빛기둥이 내 도시)`,()=>cheapest(mine));
+  const b=await pickTile(p,theirs,`${nm(p)}, ${T(a).name}과(와) 바꿀 <b>상대 도시</b>를 고르세요. (금색 테두리)`,()=>priciest(theirs));
   if(p.ai&&invested(b)<=invested(a)){log(`${nm(p)} 도시 바꾸기를 쓰지 않았습니다.`,p);return;}
   const o=G.players[S(b).owner];if(await useGuard(o,`${p.name}의 도시 바꾸기`))return;
   S(a).owner=o.id;S(b).owner=p.id;focusOn(b,2000,1.1);SFX.play('buy');emote(p,'laugh','바꿔치기!',{priority:5});emote(o,'angry','내 도시!',{silent:true});
@@ -556,7 +556,7 @@ function endGame(w,reason){
   emote(w,'laugh','내가 1등!',{priority:9,ms:6000});alive().filter(q=>q!==w).forEach(q=>emote(q,'cry','졌다…',{priority:8,ms:6000,silent:true}));
   const rank=[...G.players].sort((a,b)=>(a.bankrupt-b.bankrupt)||assets(b)-assets(a));
   const hp=G.players.find(q=>!q.ai); // the logged-in account plays the first human seat
-  if(hp&&window.Online)Online.record({win:w===hp,assets:assets(hp),landmarks:owned(hp).filter(j=>S(j).level===4).length,run:G.run?(w===hp?G.run.stage+1:G.run.cleared):null});
+  if(hp&&window.Online)queueMicrotask(()=>Online.record({win:w===hp,assets:assets(hp),landmarks:owned(hp).filter(j=>S(j).level===4).length,run:G.run?(w===hp?G.run.stage+1:G.run.cleared):null})); // after this function's mileage awards
   if(G.run){
     const st=RUN_STAGES[G.run.stage];const humanWon=!w.ai;const last=G.run.stage===RUN_STAGES.length-1;
     if(humanWon){G.run.cleared=G.run.stage+1;}
@@ -671,6 +671,6 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,endGame,nextStage,bossAction,setPickable,pickTravel,pullNeighbors,SFX,walk,lots,collapseFx,renderer,camera,scene,env,tiles,THREE,textPlane,tree,streetLamp,buildEnv};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landCasino,endGame,nextStage,bossAction,setPickable,pickTravel,pullNeighbors,SFX,walk,lots,collapseFx,renderer,camera,scene,env,tiles,THREE,textPlane,tree,streetLamp,buildEnv};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});

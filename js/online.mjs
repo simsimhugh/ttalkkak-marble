@@ -8,6 +8,7 @@ const CFG = { apiKey: 'AIzaSyCxtVobxJmrsc3wS03E1KYWCplF9KxhJIo', authDomain: 'tt
 const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
 const box = document.getElementById('acct');
 let fb = null, user = null, me = null, creating = null; // me: this account's players/{uid} doc
+let miles = null; // mileage while logged in (the account's, not this browser's); null = use the browser's
 
 const hex = s => [...new TextEncoder().encode(s)].map(b => b.toString(16).padStart(2, '0')).join('');
 const emailOf = id => `${hex(id.toLowerCase())}@ttalkkak.game`;
@@ -18,13 +19,14 @@ function render(msg = '') {
   if (!fb) { box.innerHTML = `<span class="muted">${msg || '온라인 기록을 불러오는 중…'}</span>`; return; }
   if (user) {
     const s = me || { games: 0, wins: 0 };
-    box.innerHTML = `<span>👤 <b>${esc(me?.id || '')}</b> · ${s.games}판 ${s.wins}승</span><button type="button" class="btn" data-a="out">로그아웃</button>`;
+    box.innerHTML = `<span>👤 <b>${esc(me?.id || '')}</b> · ${s.games}판 ${s.wins}승${miles != null ? ` · 마일리지 ${miles.toLocaleString('ko-KR')}` : ''}</span><button type="button" class="btn" data-a="out">로그아웃</button>`;
   } else {
     box.innerHTML = `<input id="acct-id" placeholder="아이디" maxlength="10" autocomplete="username" aria-label="아이디">
       <input id="acct-pin" placeholder="비번 4자리" maxlength="4" inputmode="numeric" type="password" autocomplete="current-password" aria-label="비밀번호 숫자 4자리">
       <button type="button" class="btn primary" data-a="in">로그인</button><button type="button" class="btn" data-a="new">가입</button>
-      <span class="muted">${msg || '로그인하면 판 결과가 랭킹에 올라가요'}</span>`;
+      <span class="muted">${msg || '로그인하면 마일리지가 계정에 저장되고 판 결과가 랭킹에 올라가요'}</span>`;
   }
+  if (typeof renderShop === 'function') renderShop(); // the mileage shop shows whichever balance is active
 }
 
 box.addEventListener('click', async e => {
@@ -35,10 +37,11 @@ box.addEventListener('click', async e => {
   if (!/^\d{4}$/.test(pin)) return render('비번은 숫자 4자리예요');
   try {
     if (a === 'new') {
-      me = { id, games: 0, wins: 0 }; // shown as soon as the auth state flips, before the profile write lands
+      const start = Math.min(loadMeta().miles, 3000); // bring this browser's mileage along (rules cap it)
+      me = { id, games: 0, wins: 0, miles: start }; // shown as soon as the auth state flips, before the profile write lands
       const c = await fb.createUserWithEmailAndPassword(fb.auth, emailOf(id), passOf(pin));
-      await (creating = fb.setDoc(fb.doc(fb.db, 'players', c.user.uid), { id, games: 0, wins: 0, winRate: 0, bestAssets: 0, landmarks: 0, bestRun: 0, runClears: 0, updatedAt: fb.serverTimestamp() }));
-      me = { id, games: 0, wins: 0 }; render();
+      await (creating = fb.setDoc(fb.doc(fb.db, 'players', c.user.uid), { id, games: 0, wins: 0, winRate: 0, bestAssets: 0, landmarks: 0, bestRun: 0, runClears: 0, miles: start, updatedAt: fb.serverTimestamp() }));
+      miles = start; render();
     } else await fb.signInWithEmailAndPassword(fb.auth, emailOf(id), passOf(pin));
   } catch (err) {
     if (!user) me = null;
@@ -56,7 +59,7 @@ async function record(r) {
     me = await fb.runTransaction(fb.db, async tx => {
       const d = (await tx.get(ref)).data() || { id: me?.id || '?', games: 0, wins: 0, bestAssets: 0, landmarks: 0, bestRun: 0, runClears: 0 };
       const n = { ...d, games: d.games + 1, wins: d.wins + (r.win ? 1 : 0), bestAssets: Math.max(d.bestAssets, r.assets), landmarks: d.landmarks + r.landmarks,
-        bestRun: Math.max(d.bestRun, r.run ?? 0), runClears: d.runClears + (r.run === 3 ? 1 : 0), updatedAt: fb.serverTimestamp() };
+        bestRun: Math.max(d.bestRun, r.run ?? 0), runClears: d.runClears + (r.run === 3 ? 1 : 0), miles: Math.min(miles ?? d.miles ?? 0, (d.miles ?? 0) + 6000), updatedAt: fb.serverTimestamp() };
       n.winRate = Math.round(n.wins / n.games * 1000) / 10;
       tx.set(ref, n); return n;
     });
@@ -89,7 +92,14 @@ async function showRanking() {
   }
 }
 
-window.Online = { record, showRanking };
+/* mileage spent in the shop is written at once; mileage earned rides along with the game record */
+function setMiles(v) {
+  if (miles == null) return;
+  const spent = v < miles; miles = v; render();
+  if (spent) fb.updateDoc(fb.doc(fb.db, 'players', user.uid), { miles: v, updatedAt: fb.serverTimestamp() }).catch(() => toast('마일리지 저장에 실패했어요', 'danger', 3000));
+}
+
+window.Online = { record, showRanking, setMiles, get miles() { return miles; } };
 document.getElementById('btn-rank').addEventListener('click', showRanking);
 
 (async () => {
@@ -99,8 +109,8 @@ document.getElementById('btn-rank').addEventListener('click', showRanking);
     const a = app.initializeApp(CFG);
     fb = { ...auth, ...fs, auth: auth.getAuth(a), db: fs.getFirestore(a) };
     auth.onAuthStateChanged(fb.auth, async u => {
-      user = u; if (!u) me = null; render();
-      if (u) { try { me = (await fs.getDoc(fs.doc(fb.db, 'players', u.uid))).data() || me; } catch (e) {} render(); } // signup may have filled me already
+      user = u; if (!u) { me = null; miles = null; } render();
+      if (u) { try { me = (await fs.getDoc(fs.doc(fb.db, 'players', u.uid))).data() || me; } catch (e) {} if (user === u) miles = me?.miles ?? 0; render(); } // signup may have filled me already
     });
   } catch (e) { render('온라인 기록을 불러오지 못했어요'); }
 })();

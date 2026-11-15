@@ -107,7 +107,6 @@ const SFX=(()=>{
     slot(){for(let k=0;k<14;k++)tone({f:900+(k%3)*200,type:'square',t:k*.07,dur:.03,vol:.06});tone({f:500,type:'square',t:1.0,dur:.06,vol:.12});},
     casinoWin(){for(let k=0;k<10;k++)tone({f:1600+(k%2)*400,type:'square',t:k*.06,dur:.05,vol:.08});[1047,1319,1568,2093].forEach((f,k)=>tone({f,type:'triangle',t:.6+k*.08,dur:.35,vol:.16}));},
     casinoLose(){tone({f:440,f2:110,type:'sawtooth',dur:.9,vol:.14,slide:.9});noise({t:.1,dur:.4,vol:.08,lp:700});},
-    gavel(){[0,.18,.42].forEach((t,k)=>{noise({t,dur:.05,vol:.45,lp:2500});tone({f:k===2?140:180,f2:90,type:'triangle',t,dur:.1,vol:.35});});},
     cash(){noise({dur:.05,vol:.2,hp:3000});tone({f:1568,type:'square',t:.05,dur:.08,vol:.1});tone({f:2093,type:'sine',t:.12,dur:.4,vol:.16});},
     relic(){[0,.06,.12,.18,.24,.3].forEach((t,k)=>tone({f:[659,831,988,1319,1661,1976][k],type:'sine',t,dur:.4,vol:.11}));tone({f:330,type:'triangle',dur:.9,vol:.08});noise({t:.2,dur:.8,vol:.05,hp:8000});},
     news(){[[784,0],[784,.15],[988,.3],[1175,.5]].forEach(([f,t])=>tone({f,type:'square',t,dur:.14,vol:.1}));tone({f:196,type:'triangle',t:.5,dur:.6,vol:.18});},

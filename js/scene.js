@@ -444,7 +444,7 @@ function gridPos(i){
 }
 const rect=i=>{const g=gridPos(i);return{x:OFF[g.c-1]-TOT/2,z:OFF[g.r-1]-TOT/2,w:W[g.c-1],d:W[g.r-1],side:g.side};};
 const SIDE_OF=i=>i%8===0?['b','l','t','r'][i/8]:gridPos(i).side;
-const BASE={city:0xf6f1e4,tour:0xd6f0f1,chance:0xffe6a3,start:0xcdeedd,island:0xf3e2b0,festival:0xf9d2e0,travel:0xcfe9f8,casino:0x3a2a4a,auction:0xe8d9b8};
+const BASE={city:0xf6f1e4,tour:0xd6f0f1,chance:0xffe6a3,start:0xcdeedd,island:0xf3e2b0,festival:0xf9d2e0,travel:0xcfe9f8,casino:0x3a2a4a};
 
 const hubFx={globe:null,atmo:null,orbit:null,orbiter:null,spinners:[],beacons:[],windows:[]};
 /* ground + board */

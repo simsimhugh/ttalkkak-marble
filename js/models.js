@@ -311,7 +311,6 @@ function tileProp(t,i){
       const tx2=new THREE.CanvasTexture(cv);tx2.colorSpace=THREE.SRGBColorSpace;const card=add(new THREE.Mesh(new THREE.BoxGeometry(.3,.42,.02),[M(0xffffff),M(0xffffff),M(0xffffff),M(0xffffff),new THREE.MeshStandardMaterial({map:tx2,roughness:.5}),new THREE.MeshStandardMaterial({map:tx2,roughness:.5})]),cx,.22+.5,cz);hubFx.spinners.push({obj:card,speed:1.4,y:card.position.y,phase:i});break;}
     case 'casino':{add(new THREE.Mesh(new THREE.BoxGeometry(.28,.34,.2),M(0xd8333c,{metalness:.3})),ox,.22+.17,oz);const scr=add(new THREE.Mesh(new THREE.BoxGeometry(.22,.11,.02),M(0xfff0a0,{emissive:0xffcc40,emissiveIntensity:1.2})),ox,.22+.25,oz+.11);
       add(new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.2,6),M(0xcccccc)),ox+.17,.22+.34,oz);add(new THREE.Mesh(new THREE.SphereGeometry(.03,8,8),M(0xd8333c)),ox+.17,.22+.45,oz);hubFx.beacons.push(scr);break;} // small, on the icon side so the name stays readable
-    case 'auction':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.3,.25),M(0x8b5a2b)),cx,.22+.15,cz);const head=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.18,10),M(0x5a3a1a)),cx+.05,.22+.42,cz);head.rotation.z=Math.PI/2;const hd=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.26,6),M(0x8b5a2b)),cx+.05,.22+.33,cz);hd.rotation.x=.4;break;}
     default:return null;
   }
   return g;

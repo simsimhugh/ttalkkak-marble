@@ -42,7 +42,7 @@ function landingInfo(p,i){
     return{cls:amt>=p.cash*.4||amt>=400?'deadly':'pay',txt:'-'+fmt(amt)};
   }
   if(t.type==='start')return G.nukesOn!==false&&(p.nukes==null||p.nukes>0)&&owned(p).some(j=>T(j).type==='city'&&S(j).level>=1)?{cls:'good',txt:'☢️ 핵폭탄'}:{cls:'good',txt:'출발'};
-  return{island:{cls:'bad',txt:'무인도'},festival:{cls:'good',txt:'축제'},travel:{cls:'good',txt:'세계여행'},chance:{cls:'card',txt:'카드'},casino:{cls:'card',txt:'🎰카지노'},auction:{cls:'good',txt:'🔨경매'}}[t.type];
+  return{island:{cls:'bad',txt:'무인도'},festival:{cls:'good',txt:'축제'},travel:{cls:'good',txt:'세계여행'},chance:{cls:'card',txt:'카드'},casino:{cls:'card',txt:'🎰카지노'}}[t.type];
 }
 const HINT_COL={pay:0xff5a5a,deadly:0xff1a1a,free:0x4ad66d,own:0x3b9dff,card:0xffd166,bad:0xb070ff,good:0xffe08a};
 function showHints(p){
@@ -145,12 +145,11 @@ async function relicDraft(p,why='한 바퀴 보상'){
 /* ---- special tiles: a few chance tiles become something else each game ---- */
 const SPECIALS={
   casino:{type:'casino',name:'카지노',ico:'🎰'},
-  auction:{type:'auction',name:'경매장',ico:'🔨'},
 };
 const ORIG_TILES=TILES.map(t=>t);
 function rollSpecials(){
   const chanceIdx=ORIG_TILES.map((t,i)=>t.type==='chance'?i:-1).filter(i=>i>=0);
-  const types=Object.keys(SPECIALS).sort(()=>Math.random()-.5);const spots=chanceIdx.sort(()=>Math.random()-.5).slice(0,2);
+  const types=Object.keys(SPECIALS).sort(()=>Math.random()-.5);const spots=chanceIdx.sort(()=>Math.random()-.5).slice(0,1);
   const out={};spots.forEach((i,k)=>out[i]=types[k%types.length]);return out;
 }
 function applySpecials(map){
@@ -171,24 +170,6 @@ async function landCasino(p){
   else{pay(p,null,bet,{why:'카지노 → 잭팟',pool:true});bigEvent(`카지노 패배<small>-${fmt(bet)}</small>`,'doom',1800);SFX.play('casinoLose');emote(p,'cry','털렸다…',{priority:5,silent:true});}
   renderAll();
 }
-async function landAuction(p){
-  const free=TILES.map((t,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner==null);
-  if(!free.length){log('경매에 나올 빈 땅이 없습니다.',p);toast('경매할 빈 땅이 없어요','info',2500);return;}
-  const i=free[Math.random()*free.length|0],t=T(i),base=t.price;
-  bigEvent(`경매 시작<small>${t.name} · 시작가 ${fmt(base)}</small>`,'gold',2000);SFX.play('gavel');focusOn(i,2400,1.1);await sleep(D(900));
-  const bids=[];
-  for(const q of alive()){
-    const mults=[1,1.3,1.6,2].map(m=>Math.round(base*m)).filter(v=>v<=q.cash);
-    const v=await decide(q,{title:`${t.name} 경매 — ${esc(q.name)}`,html:`<p>비공개 입찰입니다. 가장 높게 부른 사람이 땅을 가져가요. 현재 자금 ${fmt(q.cash)}</p>`,options:mults.map((b,k)=>({label:`${['시작가','+30%','+60%','2배'][k]} 입찰`,value:b,cost:b})).concat([{label:'포기',value:0,primary:true}])},
-      ()=>{const want=wouldComplete(q,i)?1.9:1.2+Math.random()*.4;const cap=q.cash-200;const b=mults.filter(x=>x<=base*want&&x<=cap).pop();return b||0;});
-    if(v>0)bids.push({q,v});
-  }
-  if(!bids.length){log(`${t.name} 경매 유찰`);toast('아무도 입찰하지 않아 유찰','info',2500);return;}
-  bids.sort((a,b)=>b.v-a.v||Math.random()-.5);const w=bids[0];
-  pay(w.q,null,w.v,{quiet:true,why:t.name+' 낙찰'});S(i).owner=w.q.id;S(i).level=0;
-  SFX.play('gavel');setTimeout(()=>SFX.play('cash'),600);bigEvent(`낙찰<small>${esc(w.q.name)} · ${t.name} ${fmt(w.v)}</small>`,'gold',2200);emote(w.q,'cool','낙찰!',{priority:5});
-  log(`${nm(w.q)} ${t.name} 낙찰 (${fmt(w.v)}) — 입찰: ${bids.map(b=>esc(b.q.name)+' '+fmt(b.v)).join(', ')}`,w.q);renderAll();checkWin(w.q);monopolyFx(w.q,i);
-}
 /* ---- mileage (persists in this browser) ---- */
 const PERKS={
   cash:{name:'+500만 시작 자금',ico:'💵',cost:200},
@@ -196,8 +177,10 @@ const PERKS={
   nuke:{name:'핵폭탄 +1발',ico:'☢️',cost:150},
   shield:{name:'통행료 면제권 2장',ico:'🎫',cost:120},
 };
-function loadMeta(){try{return Object.assign({miles:0,games:0},JSON.parse(localStorage.getItem('ttm-meta')||'{}'));}catch(e){return{miles:0,games:0};}}
-function saveMeta(m){try{localStorage.setItem('ttm-meta',JSON.stringify(m));}catch(e){}}
+function localMeta(){try{return Object.assign({miles:0,games:0},JSON.parse(localStorage.getItem('ttm-meta')||'{}'));}catch(e){return{miles:0,games:0};}}
+// logged in: the mileage balance is the account's (js/online.mjs); this browser's own balance is kept untouched
+function loadMeta(){const m=localMeta();if(window.Online&&Online.miles!=null)m.miles=Online.miles;return m;}
+function saveMeta(m){const on=window.Online&&Online.miles!=null;try{localStorage.setItem('ttm-meta',JSON.stringify(on?{...m,miles:localMeta().miles}:m));}catch(e){}if(on)Online.setMiles(m.miles);}
 let perkSel=new Set();
 function renderShop(){
   const m=loadMeta();const spent=[...perkSel].reduce((a,k)=>a+PERKS[k].cost,0);const humans=setupCfg.some(c=>!c.ai);
@@ -338,6 +321,6 @@ function showInfo(i){
       `</table><p class="muted">같은 색 ${groupIdx(t.g).length}곳 독점 시 통행료 2배 · 건물 크기만큼 양옆 플레이어 끌어오기</p>`;
   }else if(t.type==='tour'){
     html+=`<p>가격 ${fmt(t.price)}. 건물은 지을 수 없고, 관광지를 많이 가질수록 통행료가 올라요 (1곳 110만 · 2곳 220만 · 3곳 440만 · 4곳 독점 승리).</p>${s.owner!=null?`<p class="muted">소유: ${nm(G.players[s.owner])}</p>`:''}`;
-  }else html+=`<p>${({start:`출발지를 지나면 월급 ${SALARY}만. 정확히 도착하면 내 도시 하나에서 핵폭탄을 쏠 수 있어요.`,island:'3턴 동안 갇혀요. 더블이 나오거나 100만을 내면 탈출.',festival:'내 땅 하나를 골라 축제를 열면 통행료가 2배가 돼요.',travel:'다음 턴에 주사위 대신 원하는 칸까지 시계방향으로 이동해요. 출발을 지나면 월급도 받아요.',chance:'행운카드 한 장을 뽑아요. 좋은 일도 나쁜 일도 있어요.',casino:'홀짝 한 판. 이기면 건 돈만큼 더 받고, 지면 건 돈은 잭팟에 쌓여요.',auction:'빈 도시 하나가 경매에 나와요. 모두가 비공개로 입찰합니다.'})[t.type]}</p>`;
+  }else html+=`<p>${({start:`출발지를 지나면 월급 ${SALARY}만. 정확히 도착하면 내 도시 하나에서 핵폭탄을 쏠 수 있어요.`,island:'3턴 동안 갇혀요. 더블이 나오거나 100만을 내면 탈출.',festival:'내 땅 하나를 골라 축제를 열면 통행료가 2배가 돼요.',travel:'다음 턴에 주사위 대신 원하는 칸까지 시계방향으로 이동해요. 출발을 지나면 월급도 받아요.',chance:'행운카드 한 장을 뽑아요. 좋은 일도 나쁜 일도 있어요.',casino:'홀짝 한 판. 이기면 건 돈만큼 더 받고, 지면 건 돈은 잭팟에 쌓여요.'})[t.type]}</p>`;
   modal({title:t.name,html,options:[{label:'닫기',value:0,primary:true}]});
 }
