@@ -60,14 +60,9 @@ async function land(p){
       else{p.travel=true;SFX.play('chime');say(`${nm(p)} 세계여행. 다음 턴에 원하는 칸으로 이동합니다.`,p);}
       break;
     case 'festival':await hostFestival(p);break;
-    case 'tax':{
-      const v=owned(p).reduce((a,j)=>a+invested(j),0),amt=Math.round(v*0.1);
-      if(amt<=0){say(`${nm(p)} 국세청 방문. 낼 세금이 없습니다.`,p);break;}
-      say(`${nm(p)} 국세청에 세금 ${fmt(amt)}을 냅니다.`,p);SFX.play('tax');pay(p,null,amt,{why:'세금 → 잭팟',pool:true});break;}
     case 'chance':await drawChance(p);break;
     case 'casino':await landCasino(p);break;
     case 'auction':await landAuction(p);break;
-    case 'blackmarket':await landBlackMarket(p);break;
     default:await landProperty(p,i);
   }
   renderAll();
@@ -88,14 +83,15 @@ async function chargeToll(p,o,i){
   const t=T(i);let amt=toll(i);
   if(has(p,'negotiator'))amt=Math.round(amt*0.7);if(hasR(p,'coupon'))amt=Math.round(amt*0.85);
   if(has(p,'captain')&&t.type==='tour'){say(`${nm(p)} 선장은 관광지 ${t.name} 통행료를 내지 않습니다.`,p);emote(p,'cool');return true;}
-  if(p.shield>0){p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');return true;}
   // 💰 owner's reactive skill: double this toll
   if(has(o,'merchant')&&!o.skillUsed&&amt>0&&await skillYes(o,{title:'💰 바가지',html:`<p>${nm(p)}이(가) 내 땅 <b>${t.name}</b>에 도착. 이번 통행료를 2배(${fmt(amt*2)})로 받을까요?</p>`,yes:'바가지 씌우기',no:'그냥 받기'},()=>amt>=50)){amt*=2;skillBurn(o,'바가지',`${t.name} 통행료 2배 → ${fmt(amt)}`);emote(o,'laugh','바가지!',{priority:5});}
+  if(p.shield>0&&amt>0&&await decide(p,{title:'🎫 통행료 면제권',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 면제권(${p.shield}장)을 지금 쓸까요?</p><p class="muted">아껴 두면 더 비싼 통행료에 쓸 수 있어요.</p>`,options:[{label:'면제권 쓰기',value:1,primary:true},{label:'그냥 낸다',value:0}]},()=>amt>=Math.max(90,p.cash*.1)?1:0)===1){
+    p.shield--;say(`${nm(p)} 통행료 면제권을 사용해 ${t.name} 통행료 ${fmt(amt)}을 내지 않았습니다.`,p);emote(p,'cool','면제권!');toast(`${nm(p)} 면제권으로 ${fmt(amt)} 통행료 회피`,'good');renderPlayers();return true;}
   say(`${nm(p)} ${nm(o)}의 ${t.name}에서 통행료 ${fmt(amt)}을 냅니다.`,p);
   // 🤝 payer's reactive skill: waive this toll
   if(has(p,'negotiator')&&!p.skillUsed&&await skillYes(p,{title:'🤝 외교 면책',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}을 내야 해요. 이번 통행료를 면제받을까요?</p>`,yes:'면제받기',no:'그냥 낸다'},()=>amt>=Math.max(100,p.cash*0.35))){skillBurn(p,'외교 면책',`${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'cool','면책!',{priority:5});return true;}
   // ⚓ payer's reactive skill: blow the owner to the island, skip the toll
-  if(has(p,'captain')&&!p.skillUsed&&amt>=120&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환',no:'그냥 낸다'},()=>amt>=Math.max(160,p.cash*0.35))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}이(가) 무인도로. ${t.name} 통행료 ${fmt(amt)} 면제`);emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});await sailToIsland(o);renderAll();return true;}
+  if(has(p,'captain')&&!p.skillUsed&&amt>=120&&o.island===0&&await skillYes(p,{title:'⚓ 폭풍 소환',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 땅 주인 ${nm(o)}을(를) 무인도로 날려버리고 통행료를 내지 않을까요?</p>`,yes:'폭풍 소환',no:'그냥 낸다'},()=>amt>=Math.max(160,p.cash*0.35))){skillBurn(p,'폭풍 소환',`🌪️ ${o.name}을(를) 무인도로. ${t.name} 통행료 ${fmt(amt)} 면제`);if(!await useGuard(o,`${p.name}의 폭풍 소환`)){emote(p,'laugh','날아가라!',{priority:5});await teleport(o,8);jail(o);o.travel=false;emote(o,'angry','이런!!',{priority:5,silent:true});await sailToIsland(o);renderAll();return true;}}
   // 🧭 payer's reactive skill: teleport away instead of paying
   if(has(p,'explorer')&&!p.skillUsed&&await skillYes(p,{title:'🧭 순간이동',html:`<p><b>${t.name}</b> 통행료 ${fmt(amt)}. 절반(${fmt(Math.round(amt/2))})만 내고 원하는 칸으로 도망갈까요?</p>`,yes:'절반 내고 도망',no:'그냥 낸다'},()=>amt>=150||amt>=p.cash*0.4)){skillBurn(p,'순간이동',`${t.name} 통행료 절반(${fmt(Math.round(amt/2))})만 내고 도망`);emote(p,'cool','슝~',{priority:5});if(!pay(p,o,Math.round(amt/2),{why:'통행료 절반'}))return false;const tg=await pickTravel(p);await teleport(p,tg);await land(p);return 'moved';}
   const danger=amt>=400||amt>=p.cash*0.45;
@@ -158,6 +154,7 @@ async function pullNeighbors(p,i){
   await sleep(D(1100));
   try{for(const q of victims){
     if(G.over)return;
+    if(await useGuard(q,`${p.name}의 ${T(i).name} 끌어오기`,()=>toll(i)>=Math.max(100,q.cash*.25)))continue;
     log(`${nm(q)} ${T(q.pos).name}에서 ${T(i).name}(으)로 끌려왔습니다.`,q);
     q.pos=i;q.travel=false;emote(q,'angry','끌려간다!',{silent:true,cam:false});await hop(q,i,D(600),1.2);SFX.play('magnetHit');
     await chargeToll(q,p,i);renderAll();
@@ -220,6 +217,8 @@ async function offerNuke(p){
   if(i<0){log(`${nm(p)} 핵폭탄을 쏘지 않았습니다.`,p);return;}
   const rng=nukeRange(p,i),hits=blastTargets(p,i);p.nukes--;
   say(`${nm(p)} ${T(i).name}에서 핵폭탄 발사. (남은 핵폭탄 ${p.nukes}발)`,p);bigEvent(`핵폭탄 발사<small>${esc(p.name)} → ${T(i).name} 반경 ${rng}칸</small>`,'doom',2400);SFX.sting('drama');emote(p,'cool','받아라!',{priority:5});
+  for(const v of [...new Set(hits.map(j=>S(j).owner).filter(id=>id!==p.id))].map(id=>G.players[id]))
+    if(await useGuard(v,`${p.name}의 핵폭탄`))for(let k=hits.length-1;k>=0;k--)if(S(hits[k]).owner===v.id)hits.splice(k,1);
   await nukeCinematic(i,rng,hits);
   const enemies=hits.filter(j=>S(j).owner!==p.id);
   const victims=[...new Set(enemies.map(j=>S(j).owner))].map(id=>G.players[id]);victims.forEach(v=>emote(v,'angry','내 건물!!',{priority:6,silent:true}));if(victims.length)SFX.play('angry');
@@ -288,7 +287,7 @@ async function offerTakeover(p,i){
   const c=await decide(p,{title:`${t.ico} ${t.name} 인수`,html:`<p>${nm(o)}의 ${t.name}(${LV[s.level]})을 투자금의 ${rate}배에 인수할 수 있어요. 현재 자금 ${fmt(p.cash)}</p>`,
     options:[{label:'인수하기',value:1,cost:price,primary:true},{label:'넘어가기',value:0}]},
     ()=>(p.cash-price>=160||(wouldComplete(p,i)&&p.cash-price>=60))?1:0);
-  if(!c)return;
+  if(!c||await useGuard(o,`${p.name}의 ${t.name} 인수`))return;
   pay(p,o,price,{quiet:true,why:'인수'});s.owner=p.id;SFX.play('buy');emote(p,'laugh','내 거다!',{priority:4});emote(o,'angry','빼앗겼어!',{priority:4,silent:true});bigEvent(`인수<small>${esc(p.name)}이(가) ${esc(o.name)}의 ${t.name} 인수</small>`,'gold',2200);monopolyFx(p,i);
   say(`${nm(p)} ${nm(o)}에게서 ${t.name}을(를) ${fmt(price)}에 인수했습니다.`,p);renderAll();checkWin(p);
   if(!G.over)await offerBuild(p,i);
@@ -312,12 +311,23 @@ function aiTravelTarget(p){
 }
 async function pickTravel(p){
   if(p.ai){await sleep(D(600));return aiTravelTarget(p);}
-  setMsg(`${nm(p)}, 보드에서 이동할 칸을 누르세요. 빛기둥이 서 있는 곳이 <b>내 땅</b>이에요.`);toast(`보드에서 갈 칸을 누르세요 · 빛기둥 = 내 땅 ${owned(p).length}곳`,'good',4500);
-  setPickable(new Set(TILES.map((t,i)=>i).filter(i=>i!==24)),p,false);
-  timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;r(aiTravelTarget(p));}});
-  const i=await new Promise(r=>pickResolver=r);timerStop();
-  setPickable(null);
-  return i;
+  toast(`보드에서 갈 칸을 누르세요 · 빛기둥 = 내 땅 ${owned(p).length}곳`,'good',4500);
+  return pickTile(p,TILES.map((t,i)=>i).filter(i=>i!==24),`${nm(p)}, 보드에서 이동할 칸을 누르세요. 빛기둥이 서 있는 곳이 <b>내 땅</b>이에요.`,()=>aiTravelTarget(p));
+}
+
+/* pick one tile on the board (human) or let the AI choose; the timer falls back to the AI choice */
+async function pickTile(p,cands,msg,aiPick){
+  if(p.ai){await sleep(D(600));return aiPick();}
+  setMsg(msg);setPickable(new Set(cands),p,false);
+  timerStart(G.turnSec,()=>{if(pickResolver){const r=pickResolver;pickResolver=null;r(aiPick());}});
+  const i=await new Promise(r=>pickResolver=r);timerStop();setPickable(null);return i;
+}
+/* 🛡️ 방어권: blocks one attack (nuke, typhoon, takeover, pull, storm, city swap). Defaults to blocking. */
+async function useGuard(q,what,aiYes=()=>true){
+  if(!(q.guard>0)||q.bankrupt)return false;
+  const ok=await decide(q,{title:'🛡️ 방어권',html:`<p><b>${esc(what)}</b> 공격을 받았어요. 방어권(${q.guard}장)으로 막을까요?</p>`,options:[{label:'막는다',value:1,primary:true},{label:'그냥 맞는다',value:0}]},()=>aiYes()?1:0);
+  if(ok!==1)return false;
+  q.guard--;SFX.play('skill');emote(q,'cool','방어!',{priority:5});toast(`🛡️ ${nm(q)} 방어권으로 ${esc(what)} 방어`,'good',4000);log(`${nm(q)} 방어권으로 ${esc(what)}을(를) 막았습니다.`,q);renderPlayers();return true;
 }
 
 /* ---------- skills ---------- */
@@ -349,7 +359,7 @@ function skillBurn(p,name,desc){p.skillUsed=true;SFX.play('skill');say(`${nm(p)}
 async function luckyReroll(p,d){
   if(!has(p,'lucky')||p.skillUsed)return d;
   const sum=d[0]+d[1],i=(p.pos+sum)%N,info=landingInfo(p,i),t=T(i);
-  const bad=info.cls==='pay'||info.cls==='deadly'||info.cls==='bad'||t.type==='tax';
+  const bad=info.cls==='pay'||info.cls==='deadly'||info.cls==='bad';
   if(!bad)return d;
   const sel=await decide(p,{title:'🍀 운명의 주사위',html:`<p>주사위 ${sum} → <b>${t.name}</b> (${info.txt}). 숫자를 골라 다시 던질까요?</p><p class="muted">스킬은 게임에 한 번만 쓸 수 있어요.</p>`,grid:true,
     options:Array.from({length:11},(_,k)=>({label:String(k+2),value:k+2})).concat([{label:'그냥 간다',value:-1}])},
@@ -366,7 +376,7 @@ async function captainStorm(p){
     options:o.map(q=>({label:`${CH(q.ch).emoji} ${q.name} (총자산 ${fmt(assets(q))})`,value:q.id,primary:false})).concat([{label:'그냥 갇힌다',value:-1}])},
     ()=>o.reduce((a,b)=>assets(b)>assets(a)?b:a).id);
   if(tid<0)return false;
-  const q=G.players[tid];skillBurn(p,'폭풍 소환',`${q.name}이(가) 대신 무인도로`);emote(p,'laugh','대신 가라!',{priority:5});
+  const q=G.players[tid];skillBurn(p,'폭풍 소환',`${q.name}을(를) 대신 무인도로`);if(await useGuard(q,`${p.name}의 폭풍 소환`))return false;emote(p,'laugh','대신 가라!',{priority:5});
   await teleport(q,8);jail(q);q.travel=false;emote(q,'angry','왜 나야!!',{priority:5,silent:true});await sailToIsland(q);renderAll();return true;
 }
 
@@ -387,12 +397,44 @@ const CARDS=[
   {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',art:{big:'🌪️',s1:'🏚️',s2:'⚡',bg:'linear-gradient(160deg,#cfd8e3,#5a6f8a)',pat:'waves'},f:async p=>{
     const c=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id&&T(i).type==='city'&&S(i).level>=1&&S(i).level<=3);
     if(!c.length){log('태풍이 지나갔지만 피해가 없습니다.',p);return;}
-    const i=c[Math.random()*c.length|0];focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍. ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
+    const i=c[Math.random()*c.length|0];if(await useGuard(G.players[S(i).owner],`태풍 (${T(i).name})`))return;focusOn(i,2600,1.1);collapseFx(i,0);await sleep(D(2600));S(i).level--;S(i).rubble=S(i).level===0;log(`태풍. ${nm(G.players[S(i).owner])}의 ${T(i).name}이(가) ${LV[S(i).level]}로 내려앉았습니다.`,p);emote(G.players[S(i).owner],'angry','내 건물!',{silent:true});}},
+  {t:'방어권',d:'핵폭탄·태풍·인수·끌어오기 등 공격 하나를 막는 카드를 보관합니다.',art:{big:'🛡️',s1:'☢️',s2:'🚫',bg:'linear-gradient(160deg,#e3e9ff,#7b8cff)',pat:'grid'},f:async p=>{p.guard=(p.guard||0)+1;}},
+  {t:'방어권',d:'핵폭탄·태풍·인수·끌어오기 등 공격 하나를 막는 카드를 보관합니다.',art:{big:'🏰',s1:'🛡️',s2:'✨',bg:'linear-gradient(160deg,#eef0ff,#9aa6ff)',pat:'rays'},f:async p=>{p.guard=(p.guard||0)+1;}},
+  {t:'도시 바꾸기',d:'내 도시 하나와 상대 도시 하나(랜드마크 제외)를 건물째 맞바꿉니다.',art:{big:'🔄',s1:'🏙️',s2:'🤝',bg:'linear-gradient(160deg,#d9fbe9,#3fc59a)',pat:'dots'},f:cardSwap},
+  {t:'도시 기부',d:'내 땅 하나를 가장 가난한 플레이어에게 건물째 넘겨줍니다.',bad:1,art:{big:'🎁',s1:'🏠',s2:'😇',bg:'linear-gradient(160deg,#ffe8d6,#ff9a6b)',pat:'stripes'},f:cardDonate},
+  {t:'강제 매각',d:'내 땅 하나를 투자금의 절반 값에 은행에 팝니다.',bad:1,art:{big:'🏚️',s1:'📉',s2:'💸',bg:'linear-gradient(160deg,#e4e4e4,#8a8f99)',pat:'waves'},f:cardForceSell},
   {t:'자선 기부',d:'현금의 10%를 가장 가난한 플레이어에게 줍니다.',bad:1,art:{big:'🤲',s1:'💝',s2:'🪙',bg:'linear-gradient(160deg,#ffe4c4,#f0a070)',pat:'dots'},f:async p=>{
     const others=alive().filter(q=>q!==p);if(!others.length)return;
     const poor=others.reduce((a,b)=>assets(b)<assets(a)?b:a),amt=Math.round(p.cash*0.1);
     pay(p,poor,amt);log(`${nm(p)} → ${nm(poor)} ${fmt(amt)} 기부`,p);}},
 ];
+const cheapest=v=>v.reduce((a,b)=>invested(b)<invested(a)?b:a);
+const priciest=v=>v.reduce((a,b)=>invested(b)>invested(a)?b:a);
+async function cardSwap(p){
+  const mine=owned(p).filter(i=>T(i).type==='city'),theirs=G.ts.map((s,i)=>i).filter(i=>T(i).type==='city'&&S(i).owner!=null&&S(i).owner!==p.id&&S(i).level<4);
+  if(!mine.length||!theirs.length){log(`${nm(p)} 바꿀 도시가 없습니다.`,p);return;}
+  const b=await pickTile(p,theirs,`${nm(p)}, 가져올 <b>상대 도시</b>를 고르세요.`,()=>priciest(theirs));
+  const a=await pickTile(p,mine,`${nm(p)}, 대신 내줄 <b>내 도시</b>를 고르세요.`,()=>cheapest(mine));
+  if(p.ai&&invested(b)<=invested(a)){log(`${nm(p)} 도시 바꾸기를 쓰지 않았습니다.`,p);return;}
+  const o=G.players[S(b).owner];if(await useGuard(o,`${p.name}의 도시 바꾸기`))return;
+  S(a).owner=o.id;S(b).owner=p.id;focusOn(b,2000,1.1);SFX.play('buy');emote(p,'laugh','바꿔치기!',{priority:5});emote(o,'angry','내 도시!',{silent:true});
+  say(`${nm(p)} 도시 바꾸기: ${T(a).name} ↔ ${nm(o)}의 ${T(b).name}`,p);monopolyFx(p,b);renderAll();checkWin(p);if(!G.over)checkWin(o);
+}
+async function cardDonate(p){
+  const mine=owned(p),to=alive().filter(q=>q!==p);
+  if(!mine.length||!to.length){log(`${nm(p)} 기부할 땅이 없습니다.`,p);return;}
+  const q=to.reduce((a,b)=>assets(b)<assets(a)?b:a);
+  const i=await pickTile(p,mine,`${nm(p)}, ${nm(q)}에게 <b>기부할 내 땅</b>을 고르세요.`,()=>cheapest(mine));
+  S(i).owner=q.id;focusOn(i,2000,1.1);SFX.play('cardBad');emote(p,'sad','아까워…',{silent:true});emote(q,'happy','고마워!');
+  say(`${nm(p)} ${T(i).name}을(를) ${nm(q)}에게 기부했습니다.`,p);renderAll();checkWin(q);
+}
+async function cardForceSell(p){
+  const mine=owned(p);if(!mine.length){log(`${nm(p)} 팔 땅이 없습니다.`,p);return;}
+  const i=await pickTile(p,mine,`${nm(p)}, <b>팔아야 할 내 땅</b>을 고르세요. 투자금의 절반을 받아요.`,()=>cheapest(mine));
+  const v=Math.round(invested(i)/2);S(i).owner=null;S(i).level=0;if(G.festival===i)G.festival=null;
+  focusOn(i,2000,1.1);SFX.play('stamp');emote(p,'sad','헐값에…',{silent:true});gain(p,v,`${T(i).name} 강제 매각`);
+  say(`${nm(p)} ${T(i).name}을(를) ${fmt(v)}에 강제 매각했습니다.`,p);renderAll();
+}
 /* the drawn card flips open in the middle of the stage; a tap (or the timer) closes it */
 function showCard(c,p){
   const host=$('#cardfx');const a=c.art||{big:'🎴',s1:'',s2:'',bg:'linear-gradient(160deg,#ffe29a,#ffb347)',pat:'dots'};
@@ -502,7 +544,7 @@ async function bossAction(p){
   let i,price,from=null;
   if(targets.length){i=targets.reduce((a,b)=>invested(b)>invested(a)?b:a);price=Math.round(invested(i)*1.2);from=G.players[S(i).owner];}
   else{const free=G.ts.map((s,k)=>k).filter(k=>T(k).type==='city'&&S(k).owner==null);if(!free.length)return;i=free.reduce((a,b)=>T(b).price>T(a).price?b:a);price=T(i).price;}
-  if(p.cash<price+200)return;
+  if(p.cash<price+200||(from&&await useGuard(from,`재벌의 ${T(i).name} 기업 인수`)))return;
   bigEvent(`재벌의 기업 인수<small>${T(i).name} · ${fmt(price)}${from?' → '+esc(from.name):''}</small>`,'doom',2600);SFX.play('stamp');focusOn(i,2400,1.1);await sleep(D(1400));
   pay(p,from,price,{quiet:true,why:'기업 인수'});S(i).owner=p.id;emote(p,'cool','이것도 내 거.',{priority:6});if(from)emote(from,'angry','강제 인수라니!',{priority:6,silent:true});
   log(`${nm(p)} 기업 인수: ${T(i).name} (${fmt(price)})${from?' ← '+nm(from):''}`,p);renderAll();checkWin(p);
@@ -572,7 +614,7 @@ $('#srows').addEventListener('change',e=>{const s=e.target.closest('select[data-
 function showSetup(){SFX.setMood(null);RUN++;timerStop();rollResolver=modalResolver=pickResolver=modalDismiss=null;setPickable(null);meter.active=false;$('#modal').hidden=true;$('#skill').hidden=true;renderSetup();renderShop();$('#setup').hidden=false;}
 $('#shop').addEventListener('click',e=>{const b=e.target.closest('button[data-perk]');if(!b||b.disabled)return;const k=b.dataset.perk;if(perkSel.has(k))perkSel.delete(k);else perkSel.add(k);renderShop();});
 $('#btn-new').addEventListener('click',showSetup);
-const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color:PCOLORS[k],ai:c.ai,ch:c.ch,cash:START_CASH,pos:0,island:0,travel:false,shield:0,bankrupt:false,skillUsed:false,boost:false,fixDice:null,anim:false,nukes:NUKES});
+const newPlayer=(k,c)=>({id:k,name:c.name||(c.ai?AI_NAMES[k]:DEF_NAMES[k]),color:PCOLORS[k],ai:c.ai,ch:c.ch,cash:START_CASH,pos:0,island:0,travel:false,shield:0,guard:0,bankrupt:false,skillUsed:false,boost:false,fixDice:null,anim:false,nukes:NUKES});
 function startGame(g){
   G=g;applySpecials(G.specials);if(env.theme!==(G.theme||'day')){buildEnv(G.theme||'day');tiles.forEach(t=>t.key=null);}tiles.forEach(t=>{t.level=null;t.key=null;});$('#log').innerHTML='';[...G.logs].reverse().forEach(([t,pid])=>{const li=document.createElement('li');li.innerHTML=t;if(pid!=null)li.style.setProperty('--pc',G.players[pid].color);$('#log').prepend(li);});
   tiles.forEach(t=>t.key=null);buildTokens();face($('#d1'),1);face($('#d2'),1);meterSet(7);meterEl.classList.add('idle');updateEmoteBar();$('#toasts').innerHTML='';threatTiles.clear();
@@ -627,6 +669,6 @@ function start(data){
     ts:TILES.map(()=>({owner:null,level:0})),festival:null,round:1,cur:0,over:true,logs:[],limit:30,speed:1,turnSec:30};
   buildTokens();renderAll();showSetup();
 }
-if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,landBlackMarket,endGame,nextStage,bossAction,setPickable,pickTravel,pullNeighbors,SFX,walk,lots,collapseFx,renderer,camera,scene,env,tiles,THREE,textPlane,tree,streetLamp,buildEnv};
+if(location.hostname==='localhost'||location.hostname==='127.0.0.1')window.__dbg={get G(){return G;},sailToIsland,sailBack,jail,emote,buildEnv,firework,env,focusAt,sync,collapseFx,landmarkThumb,LANDMARKS,nukeCinematic,blastTargets,showCard,CARDS,offerNuke,nukePreview,relicDraft,grantRelic,RELICS,applySpecials,landAuction,landCasino,endGame,nextStage,bossAction,setPickable,pickTravel,pullNeighbors,SFX,walk,lots,collapseFx,renderer,camera,scene,env,tiles,THREE,textPlane,tree,streetLamp,buildEnv};
 window.claude?.hot?.snapshot?.(()=>({stable:G&&!G.over?G.stable:null}));
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});

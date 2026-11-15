@@ -245,7 +245,7 @@ function makeLabel(i){
     fit(sub,Wc-28,30);const py=bandY+bandH*0.76;g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.6)';g.strokeText(sub,Wc/2,py);g.fillStyle=col;g.fillText(sub,Wc/2,py);
   }else{
     g.font=`${emo} ${EF}`;g.fillText(t.ico||'',Wc/2,mid-Hc*0.24);
-    const darkT=t.type==='casino'||t.type==='blackmarket';
+    const darkT=t.type==='casino';
     g.fillStyle=darkT?'#fff7d6':'#15202b';g.font=`${nm} ${KF}`;g.fillText(t.name,Wc/2,mid+Hc*0.2);
     g.font=`${pr} ${KF}`;g.fillStyle=darkT?'#ffd166':'#3a4652';g.fillText(SUBS[t.type]||'',Wc/2,mid+Hc*0.39);
   }
@@ -309,53 +309,9 @@ function tileProp(t,i){
       pl.position.set(cx,.22+.55,cz);pl.rotation.z=.15;g.add(pl);add(new THREE.Mesh(new THREE.CylinderGeometry(.02,.04,.45,6),M(0x888)),cx,.22+.22,cz);hubFx.spinners.push({obj:pl,speed:.6,y:pl.position.y,phase:0});break;}
     case 'chance':{const cv=document.createElement('canvas');cv.width=128;cv.height=180;const gg=cv.getContext('2d');const gr=gg.createLinearGradient(0,0,128,180);gr.addColorStop(0,'#ffb347');gr.addColorStop(1,'#ff5a5a');gg.fillStyle=gr;gg.fillRect(0,0,128,180);gg.strokeStyle='#fff';gg.lineWidth=8;gg.strokeRect(8,8,112,164);gg.fillStyle='#fff';gg.font='bold 100px sans-serif';gg.textAlign='center';gg.textBaseline='middle';gg.fillText('?',64,92);
       const tx2=new THREE.CanvasTexture(cv);tx2.colorSpace=THREE.SRGBColorSpace;const card=add(new THREE.Mesh(new THREE.BoxGeometry(.3,.42,.02),[M(0xffffff),M(0xffffff),M(0xffffff),M(0xffffff),new THREE.MeshStandardMaterial({map:tx2,roughness:.5}),new THREE.MeshStandardMaterial({map:tx2,roughness:.5})]),cx,.22+.5,cz);hubFx.spinners.push({obj:card,speed:1.4,y:card.position.y,phase:i});break;}
-    case 'tax':{
-      /* 국세청: stepped granite plinth, six fluted columns, gold-lettered frieze, pediment with a coin emblem, flags and coin stacks */
-      const B=new THREE.Group();B.position.set(cx,.22,cz);g.add(B);const put=(m,x,y,z)=>{m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;B.add(m);return m;};
-      const granite=M(0xd9d4c7,{roughness:.85}),marble=M(0xf1ede3,{roughness:.55}),dark=M(0x5b6270,{roughness:.7}),gold=M(0xffcf4a,{metalness:.85,roughness:.28,emissive:0x5a3a00,emissiveIntensity:.45});
-      // steps
-      [[.92,.62,.035],[.86,.56,.035],[.8,.5,.035]].forEach(([w,d,h],k)=>put(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),k%2?marble:granite),0,h/2+k*h,0));
-      const base=3*.035;
-      // main hall behind the colonnade, with lit windows
-      const hall=put(new THREE.Mesh(new THREE.BoxGeometry(.72,.34,.3),granite),0,base+.17,-.08);
-      const win=M(0xffe7a8,{emissive:0xffc35a,emissiveIntensity:.9,roughness:.4});
-      for(let r=0;r<2;r++)for(let c=0;c<5;c++)put(new THREE.Mesh(new THREE.BoxGeometry(.07,.08,.01),win),-.24+c*.12,base+.1+r*.13,.072);
-      put(new THREE.Mesh(new THREE.BoxGeometry(.11,.17,.012),dark),0,base+.085,.074); // door
-      // colonnade
-      for(let k=0;k<6;k++){const x=-.3+k*.12;
-        put(new THREE.Mesh(new THREE.BoxGeometry(.075,.025,.075),marble),x,base+.0125,.17);
-        put(new THREE.Mesh(new THREE.CylinderGeometry(.026,.031,.3,10),marble),x,base+.025+.15,.17);
-        put(new THREE.Mesh(new THREE.BoxGeometry(.075,.025,.075),marble),x,base+.025+.3+.0125,.17);}
-      const top=base+.35+.025;
-      // entablature with frieze sign
-      const cv=document.createElement('canvas');cv.width=256;cv.height=48;const x2=cv.getContext('2d');x2.fillStyle='#3a4150';x2.fillRect(0,0,256,48);x2.strokeStyle='#ffcf4a';x2.lineWidth=3;x2.strokeRect(4,4,248,40);
-      x2.fillStyle='#ffd866';x2.font='600 28px "Noto Sans KR","Malgun Gothic",sans-serif';x2.textAlign='center';x2.textBaseline='middle';x2.fillText('국 세 청',128,26);
-      const ft=new THREE.CanvasTexture(cv);ft.colorSpace=THREE.SRGBColorSpace;const fm=new THREE.MeshStandardMaterial({map:ft,roughness:.6});
-      put(new THREE.Mesh(new THREE.BoxGeometry(.8,.075,.5),[marble,marble,marble,marble,fm,marble]),0,top+.0375,-.02);
-      put(new THREE.Mesh(new THREE.BoxGeometry(.84,.02,.54),granite),0,top+.085,-.02);
-      // pediment (triangular prism)
-      const sh=new THREE.Shape();sh.moveTo(-.42,0);sh.lineTo(.42,0);sh.lineTo(0,.17);sh.lineTo(-.42,0);
-      const ped=put(new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.5,bevelEnabled:false}),marble),0,top+.095,-.27);
-      const tym=new THREE.Shape();tym.moveTo(-.34,0);tym.lineTo(.34,0);tym.lineTo(0,.12);tym.lineTo(-.34,0);
-      put(new THREE.Mesh(new THREE.ExtrudeGeometry(tym,{depth:.01,bevelEnabled:false}),M(0x8c95a6,{roughness:.7})),0,top+.115,.232);
-      // gold coin emblem in the tympanum, slowly turning
-      const coin=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.014,24),gold);coin.rotation.x=Math.PI/2;const cg=new THREE.Group();cg.add(coin);
-      const wcv=document.createElement('canvas');wcv.width=wcv.height=64;const w2=wcv.getContext('2d');w2.fillStyle='#c98f12';w2.beginPath();w2.arc(32,32,30,0,7);w2.fill();w2.fillStyle='#fff3b0';w2.font='700 40px sans-serif';w2.textAlign='center';w2.textBaseline='middle';w2.fillText('₩',32,35);
-      const wt=new THREE.CanvasTexture(wcv);wt.colorSpace=THREE.SRGBColorSpace;const face=new THREE.Mesh(new THREE.CircleGeometry(.046,24),new THREE.MeshBasicMaterial({map:wt}));face.position.z=.008;cg.add(face);const back=face.clone();back.rotation.y=Math.PI;back.position.z=-.008;cg.add(back);
-      put(cg,0,top+.16,.25);hubFx.spinners.push({obj:cg,speed:.8,y:cg.position.y,phase:i});
-      // ridge acroterion
-      put(new THREE.Mesh(new THREE.ConeGeometry(.025,.06,6),gold),0,top+.095+.2,-.02);
-      // flagpoles on both sides of the steps
-      [-1,1].forEach((sd,k)=>{put(new THREE.Mesh(new THREE.CylinderGeometry(.008,.011,.62,6),M(0xe0e0e0,{metalness:.6,roughness:.3})),sd*.43,.31,.26);
-        put(new THREE.Mesh(new THREE.SphereGeometry(.016,8,6),gold),sd*.43,.625,.26);
-        const fl=put(new THREE.Mesh(new THREE.PlaneGeometry(.15,.095),new THREE.MeshStandardMaterial({color:k?0x1f4fa8:0xffffff,side:THREE.DoubleSide,roughness:.8})),sd*.43+sd*.08,.55,.26);fl.castShadow=false;hubFx.spinners.push({obj:fl,speed:0,y:fl.position.y,phase:i+k*3});});
-      // coin stacks on the forecourt
-      [[-.36,.29,4],[.33,.3,3],[.39,.22,2]].forEach(([x,z,n])=>{for(let q=0;q<n;q++){const c=put(new THREE.Mesh(new THREE.CylinderGeometry(.034,.034,.014,14),gold),x+(q%2)*.004,base*0+.007+q*.015,z);c.castShadow=false;}});
-      break;}
     case 'casino':{add(new THREE.Mesh(new THREE.BoxGeometry(.28,.34,.2),M(0xd8333c,{metalness:.3})),ox,.22+.17,oz);const scr=add(new THREE.Mesh(new THREE.BoxGeometry(.22,.11,.02),M(0xfff0a0,{emissive:0xffcc40,emissiveIntensity:1.2})),ox,.22+.25,oz+.11);
       add(new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.2,6),M(0xcccccc)),ox+.17,.22+.34,oz);add(new THREE.Mesh(new THREE.SphereGeometry(.03,8,8),M(0xd8333c)),ox+.17,.22+.45,oz);hubFx.beacons.push(scr);break;} // small, on the icon side so the name stays readable
     case 'auction':{add(new THREE.Mesh(new THREE.BoxGeometry(.4,.3,.25),M(0x8b5a2b)),cx,.22+.15,cz);const head=add(new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.18,10),M(0x5a3a1a)),cx+.05,.22+.42,cz);head.rotation.z=Math.PI/2;const hd=add(new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.26,6),M(0x8b5a2b)),cx+.05,.22+.33,cz);hd.rotation.x=.4;break;}
-    case 'blackmarket':{const tent=add(new THREE.Mesh(new THREE.ConeGeometry(.22,.3,4),M(0x22262e)),ox,.22+.24,oz);tent.rotation.y=Math.PI/4;add(new THREE.Mesh(new THREE.BoxGeometry(.3,.1,.3),M(0x3a3f46)),ox,.22+.05,oz);const lamp=add(new THREE.Mesh(new THREE.SphereGeometry(.04,8,8),M(0x9a6aff,{emissive:0x7a3aff,emissiveIntensity:2})),ox,.22+.43,oz);hubFx.beacons.push(lamp);break;}
     default:return null;
   }
   return g;

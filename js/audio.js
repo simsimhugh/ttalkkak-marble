@@ -109,10 +109,8 @@ const SFX=(()=>{
     casinoLose(){tone({f:440,f2:110,type:'sawtooth',dur:.9,vol:.14,slide:.9});noise({t:.1,dur:.4,vol:.08,lp:700});},
     gavel(){[0,.18,.42].forEach((t,k)=>{noise({t,dur:.05,vol:.45,lp:2500});tone({f:k===2?140:180,f2:90,type:'triangle',t,dur:.1,vol:.35});});},
     cash(){noise({dur:.05,vol:.2,hp:3000});tone({f:1568,type:'square',t:.05,dur:.08,vol:.1});tone({f:2093,type:'sine',t:.12,dur:.4,vol:.16});},
-    shady(){[[147,0],[156,.3],[147,.6]].forEach(([f,t])=>tone({f,type:'sawtooth',t,dur:.28,vol:.1}));tone({f:98,type:'sine',dur:1,vol:.2});},
     relic(){[0,.06,.12,.18,.24,.3].forEach((t,k)=>tone({f:[659,831,988,1319,1661,1976][k],type:'sine',t,dur:.4,vol:.11}));tone({f:330,type:'triangle',dur:.9,vol:.08});noise({t:.2,dur:.8,vol:.05,hp:8000});},
     news(){[[784,0],[784,.15],[988,.3],[1175,.5]].forEach(([f,t])=>tone({f,type:'square',t,dur:.14,vol:.1}));tone({f:196,type:'triangle',t:.5,dur:.6,vol:.18});},
-    tax(){noise({dur:.06,vol:.4,lp:1500});tone({f:150,f2:70,type:'square',dur:.12,vol:.2});[0,.06,.12,.18].forEach(t=>tone({f:1800,f2:900,type:'sine',t:.2+t,dur:.06,vol:.07}));},
     stamp(){tone({f:110,f2:40,type:'square',dur:.2,vol:.25});noise({dur:.12,vol:.45,lp:1200});tone({f:880,type:'square',t:.25,dur:.08,vol:.08});tone({f:660,type:'square',t:.35,dur:.12,vol:.08});},
     /* ---- island ---- */
     exile(){ // gull cries over a foghorn
