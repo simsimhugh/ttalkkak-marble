@@ -51,12 +51,15 @@ const ownsGroup=(pid,g)=>groupIdx(g).every(i=>S(i).owner===pid);
 const tourIdx=TILES.map((t,i)=>t.type==='tour'?i:-1).filter(i=>i>=0);
 const sideCities=s=>{const a=[];for(let i=s*8+1;i<s*8+8;i++)if(T(i).type==='city')a.push(i);return a;};
 const range=l=>Math.min(3,l);
+// 물가 상승: tolls climb 4% a round, so the late game bites
+const inflation=()=>1+0.04*Math.max(0,((G&&G.round)||1)-1);
 function toll(i){
   const t=T(i),s=S(i);if(s.owner==null)return 0;let v;const o=G.players[s.owner];
   if(t.type==='tour'){const c=tourIdx.filter(j=>S(j).owner===s.owner).length;v=110*2**(c-1);}
   else{v=Math.round(t.price*MULT[s.level]);if(ownsGroup(s.owner,t.g))v=Math.round(v*(hasR(o,'crown')?2.5:2));}
   if(G.festival===i)v*=2;
-  if(G.event){if(G.event.id==='olympic'&&t.type==='city'&&t.g===G.event.g)v*=2;if(G.event.id==='recession')v=Math.round(v*0.5);if(G.event.id==='tourism'&&t.type==='tour')v*=3;}
+  if(G.event){if(G.event.id==='olympic'&&t.type==='city'&&t.g===G.event.g)v*=2;if(G.event.id==='boom2')v=Math.round(v*1.5);if(G.event.id==='vip'&&s.level===4)v*=2;if(G.event.id==='tourism'&&t.type==='tour')v*=3;}
+  v=Math.round(v*inflation());
   if(has(o,'merchant'))v=Math.round(v*1.5);
   if(o.boost)v*=2;
   return v;

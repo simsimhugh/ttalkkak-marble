@@ -469,7 +469,8 @@ async function drawChance(p,still=false){
 const GN=['연두','청록','하늘','남보라','보라','분홍','주황','빨강'];
 const WEVENTS={
   olympic:{name:'🏅 올림픽 개최',dur:2,setup:ev=>{const gs=[...new Set(TILES.filter(t=>t.type==='city').map(t=>t.g))];ev.g=gs[Math.random()*gs.length|0];},desc:ev=>`${GN[ev.g]} 그룹 도시 통행료 2배`,short:ev=>`🏅 ${GN[ev.g]} ×2`},
-  recession:{name:'📉 경기 침체',dur:1,desc:()=>'모든 통행료 절반',short:()=>'📉 통행료 ½'},
+  boom2:{name:'🔥 부동산 과열',dur:2,desc:()=>'모든 통행료 1.5배',short:()=>'🔥 통행료 ×1.5'},
+  vip:{name:'💎 VIP 시즌',dur:2,desc:()=>'랜드마크 통행료 2배',short:()=>'💎 랜드마크 ×2'},
   boom:{name:'🏗️ 건설 붐',dur:2,desc:()=>'모든 건설비 40% 할인',short:()=>'🏗️ 건설 -40%'},
   tourism:{name:'✈️ 관광 시즌',dur:2,desc:()=>'관광지 통행료 3배',short:()=>'✈️ 관광지 ×3'},
   quake:{name:'🌋 대지진',dur:0,desc:()=>'건물 2곳이 한 단계 무너집니다',short:()=>'🌋'},
@@ -523,7 +524,7 @@ async function playTurn(p){
 function nextPlayer(){
   let n=G.cur;
   do{n=(n+1)%4;}while(G.players[n].bankrupt);
-  if(n<=G.cur){G.round++;if(G.limit&&G.round>G.limit){G.round=G.limit;endByLimit();return;}if(G.round>1&&G.round%4===0)G.pendingEvent=true;}
+  if(n<=G.cur){G.round++;if(G.limit&&G.round>G.limit){G.round=G.limit;endByLimit();return;}if(G.round>1&&G.round%2===0)G.pendingEvent=true;}
   G.cur=n;
 }
 function endByLimit(){
