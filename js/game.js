@@ -399,6 +399,7 @@ const CARDS=[
   {t:'무인도 표류',mv:1,d:'무인도로 바로 이동합니다.',bad:1,art:{big:'🏝️',s1:'🌊',s2:'🦜',bg:'linear-gradient(160deg,#bfe9f5,#2a9fd6)',pat:'waves'},f:async p=>{await teleport(p,8);jail(p);await sailToIsland(p);}},
   {t:'귀향',mv:1,d:'출발지로 이동하고 월급을 받습니다.',art:{big:'🏠',s1:'🚀',s2:'💰',bg:'linear-gradient(160deg,#dff7e3,#8fd99a)',pat:'rays'},f:async p=>{await walk(p,(N-p.pos)%N);}},
   {t:'세계여행 티켓',mv:1,d:'세계여행 칸으로 이동합니다. 다음 턴에 원하는 곳으로 가요.',art:{big:'✈️',s1:'🌍',s2:'🧳',bg:'linear-gradient(160deg,#d6ecff,#5aa9ff)',pat:'dots'},f:async p=>{await teleport(p,24);p.travel=true;}},
+  {t:'축제로 이동',mv:1,d:'축제 칸까지 시계방향으로 이동해 축제를 엽니다. 출발을 지나면 월급도 받아요.',art:{big:'🎪',s1:'🚌',s2:'🎉',bg:'linear-gradient(160deg,#fff0c9,#ff8fb1)',pat:'stripes'},f:async p=>{await walk(p,(16-p.pos+N)%N);await land(p);}},
   {t:'축제 초대장',d:'내 땅 하나에서 축제를 엽니다.',art:{big:'🎆',s1:'🎪',s2:'🎉',bg:'linear-gradient(160deg,#ffd9ec,#c86dd7)',pat:'rays'},f:async p=>{await hostFestival(p);}},
   {t:'태풍',d:'다른 플레이어의 건물 하나가 한 단계 무너집니다.',art:{big:'🌪️',s1:'🏚️',s2:'⚡',bg:'linear-gradient(160deg,#cfd8e3,#5a6f8a)',pat:'waves'},f:async p=>{
     const c=G.ts.map((s,i)=>i).filter(i=>S(i).owner!=null&&S(i).owner!==p.id&&T(i).type==='city'&&S(i).level>=1&&S(i).level<=3);
