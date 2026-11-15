@@ -4,11 +4,12 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const html = fs.readFileSync(process.argv[2], 'utf8');
-let src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+// the game is the classic scripts index.html loads in order (js/three.mjs only hands them three.js)
+const dir = path.dirname(process.argv[2]);
+let src = [...html.matchAll(/<script defer src="([^"]+)"><\/script>/g)].map(m => fs.readFileSync(path.join(dir, m[1]), 'utf8')).join('\n');
 
-// --- stub three.js imports ---
-src = src.replace(/import \* as THREE from 'three';/, "const THREE=globalThis.__ANY;")
-         .replace(/import \{ (\w+) \} from 'three\/addons\/[^']+';/g, "const $1=globalThis.__ANY;");
+// --- stub three.js ---
+src = "const THREE=globalThis.__ANY,OrbitControls=THREE,EffectComposer=THREE,RenderPass=THREE,UnrealBloomPass=THREE,OutputPass=THREE;\n" + src;
 // --- make animations/sleeps instant ---
 src = src.replace(/function tween\(obj,from,to,ms,arc=0\.5\)\{[\s\S]*?\n\}/, "function tween(){return Promise.resolve();}");
 src = src.replace(/const sleep=ms=>\{[^\n]*\n/, "const sleep=ms=>new Promise(r=>setImmediate(r));\n");
@@ -22,7 +23,7 @@ src += "\nglobalThis.__sim={startGame,getG:()=>G,CHARS,newPlayer,TILES,assets,bu
 
 // --- universal stub ---
 const handler = {
-  get(t, k) { if (k === Symbol.toPrimitive) return () => 0; if (k === 'then') return undefined; if (k === 'length') return 0; if (k === 'fonts') return undefined; if (k === 'hidden') return true; return ANY; },
+  get(t, k) { if (k === Symbol.toPrimitive) return () => 0; if (k === 'then') return undefined; if (k === 'length') return ANY; /* callable (Vector3.length()), still compares as 0 */ if (k === 'fonts') return undefined; if (k === 'hidden') return true; return ANY; },
   set() { return true; }, construct() { return ANY; }, apply() { return ANY; }, has() { return true; },
 };
 const ANY = new Proxy(function () {}, handler);

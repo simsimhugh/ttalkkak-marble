@@ -58,7 +58,17 @@
 빌드 과정이 없는 정적 사이트입니다.
 
 ```
-index.html     게임 전체 (HTML + CSS + JS 모듈, Three.js는 jsDelivr CDN)
+index.html     화면 마크업
+style.css      스타일
+js/three.mjs   Three.js(jsDelivr CDN)를 불러와 아래 스크립트에 넘김
+js/data.js     상수·캐릭터·칸 정의
+js/audio.js    효과음·배경음악
+js/scene.js    렌더러·도시 배경·카메라·보드
+js/models.js   랜드마크·건물·칸 소품 모델
+js/pieces.js   말·이펙트·핵폭탄·배·렌더 루프
+js/ui.js       HUD·포인터·판단 보조·유물·마일리지
+js/game.js     돈·이동·도착·스킬·카드·턴 진행·시작 화면
+tools/balance-sim.mjs   헤드리스 밸런스 시뮬레이터 (node tools/balance-sim.mjs index.html 300)
 favicon.svg
 .github/workflows/pages.yml   main에 push하면 GitHub Pages로 자동 배포
 ```
